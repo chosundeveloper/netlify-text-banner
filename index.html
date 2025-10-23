@@ -428,40 +428,38 @@ const uploadToSupabaseStorage = async (archive, file) => {
 
 const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
   try {
-    // 로컬 저장소에서 데이터 로드 (간단한 방식)
-    const localData = localStorage.getItem('gamdasal-uploads');
-    if (localData) {
-      const data = JSON.parse(localData);
-      archive.uploads = data || [];
-      if (addLogEntry) {
-        addLog(archive.section.id, '로컬 데이터 로드', `${archive.uploads.length}개 영상 로드`);
-      }
+    // Supabase Storage에서 파일 목록 가져오기
+    const { data: files, error } = await supabase
+      .storage
+      .from(SUPABASE_BUCKET)
+      .list('', { limit: MAX_UPLOADS, sortBy: { column: 'created_at', order: 'desc' } });
+    
+    if (error) {
+      addLog(archive.section.id, '클라우드 로드 실패', error.message);
       return;
     }
     
-    // 클라우드에서 로드 시도 (Supabase 테이블이 없는 경우 대비)
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?select=id,title,subtitle,src,poster,created_at&order=created_at.desc&limit=${MAX_UPLOADS}`, {
-      headers: SUPABASE_HEADERS
-    });
+    // 파일을 업로드 형식으로 변환
+    archive.uploads = (files || []).map(file => ({
+      id: file.id,
+      title: file.name,
+      subtitle: file.metadata?.caption || '',
+      src: `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${file.name}`,
+      poster: file.metadata?.poster || '',
+      created_at: file.created_at
+    }));
     
-    if (!response.ok) {
-      addLog(archive.section.id, '클라우드 로드 실패', '로컬 데이터 사용');
-      return;
-    }
-    
-    const data = await response.json();
-    archive.uploads = (data || []).map(mapRowToUpload);
     if (addLogEntry) {
       addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
     }
   } catch (error) {
-    addLog(archive.section.id, '클라우드 로드 실패', '로컬 데이터 사용');
+    addLog(archive.section.id, '클라우드 로드 실패', error.message);
   }
 };
 
 const insertUploadRecord = async (archive, item) => {
   try {
-    // 로컬 저장소에 저장
+    // Supabase Storage에 파일이 이미 업로드되어 있으므로 URL만 반환
     const newItem = {
       id: Date.now().toString(),
       title: item.title,
@@ -471,11 +469,7 @@ const insertUploadRecord = async (archive, item) => {
       created_at: new Date().toISOString()
     };
     
-    const existingData = JSON.parse(localStorage.getItem('gamdasal-uploads') || '[]');
-    existingData.unshift(newItem);
-    localStorage.setItem('gamdasal-uploads', JSON.stringify(existingData));
-    
-    addLog(archive.section.id, '로컬 저장', '업로드 저장됨');
+    addLog(archive.section.id, 'Supabase 저장', '파일이 Supabase Storage에 저장됨');
     return newItem;
   } catch (error) {
     addLog(archive.section.id, '업로드 저장 실패', error.message);
@@ -486,12 +480,19 @@ const insertUploadRecord = async (archive, item) => {
 const removeUploadRecord = async (archive, upload) => {
   if (!upload?.id) return;
   try {
-    // 로컬 저장소에서 삭제
-    const existingData = JSON.parse(localStorage.getItem('gamdasal-uploads') || '[]');
-    const filteredData = existingData.filter(item => item.id !== upload.id);
-    localStorage.setItem('gamdasal-uploads', JSON.stringify(filteredData));
+    // Supabase Storage에서 파일 삭제
+    const fileName = upload.src.split('/').pop();
+    const { error } = await supabase
+      .storage
+      .from(SUPABASE_BUCKET)
+      .remove([fileName]);
     
-    addLog(archive.section.id, '로컬 삭제', '업로드 삭제됨');
+    if (error) {
+      addLog(archive.section.id, '삭제 실패', error.message);
+      throw error;
+    }
+    
+    addLog(archive.section.id, 'Supabase 삭제', '파일이 Supabase Storage에서 삭제됨');
   } catch (error) {
     addLog(archive.section.id, '삭제 실패', error.message);
     throw error;

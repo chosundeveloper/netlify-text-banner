@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8">
-    <title>감다살 로또 방송</title>
+    <title>감다살 첼린지 방송</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
       :root {
@@ -357,8 +357,8 @@
   <body>
     <div class="backdrop"></div>
     <main>
-      <span class="badge">감다살 로또 방송</span>
-      <h1>오늘의 공을 뽑아라!</h1>
+      <span class="badge">감다살 첼린지 방송</span>
+      <h1>오늘의 첼린지를 뽑아라!</h1>
       <div class="stage">
         <div class="stage-inner">
           <div class="ball-bin">
@@ -412,11 +412,11 @@
         </div>
         <div id="shoot-ball" class="shoot-ball"></div>
       </div>
-      <button id="draw-btn">공 굴리기</button>
-      <p class="hint">* 방송처럼 단 한 번만 추첨됩니다. 다시 하려면 새로고침하세요.</p>
+      <button id="draw-btn">첼린지 시작</button>
+      <p class="hint">* 방송처럼 단 한 번만 선택됩니다. 다시 하려면 새로고침하세요.</p>
       <div id="upload-cta" class="upload-cta" hidden>
-        <strong>업로드 미션</strong>
-        <p>오늘의 감다살은 <span id="cta-name">-</span>님! 추첨된 사람은 <span>오늘 자정까지 감다살 인증 영상을 업로드</span>해 주세요. 늦으면 벌칙이 추가될 수 있어요 👀</p>
+        <strong>첼린지 미션</strong>
+        <p>오늘의 감다살 첼린지는 <span id="cta-name">-</span>님! 선택된 사람은 <span>오늘 자정까지 감다살 첼린지 영상을 업로드</span>해 주세요. 늦으면 벌칙이 추가될 수 있어요 👀</p>
       </div>
     </main>
 
@@ -472,7 +472,7 @@
         if (hasDrawn) return;
         hasDrawn = true;
         button.disabled = true;
-        button.textContent = '추첨 중...';
+        button.textContent = '선택 중...';
         tubeBall.style.opacity = '0';
         resultBall.classList.remove('revealed');
         uploadCta.hidden = true;
@@ -489,7 +489,7 @@
           ctaName.textContent = picked;
           resultBall.classList.add('revealed');
           machine.classList.remove('drawing');
-          button.textContent = '추첨 완료!';
+          button.textContent = '첼린지 발표!';
           uploadCta.hidden = false;
           createSparkles();
         }, 2200);

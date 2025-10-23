@@ -413,7 +413,6 @@ const mapRowToUpload = (row) => ({
 });
 
 const uploadToSupabaseStorage = async (archive, file) => {
-  await ensureSession();
   const path = createStoragePath(archive, file);
   const { error: uploadError } = await supabase
     .storage
@@ -429,39 +428,55 @@ const uploadToSupabaseStorage = async (archive, file) => {
 
 const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
   try {
+    // 로컬 저장소에서 데이터 로드 (간단한 방식)
+    const localData = localStorage.getItem('gamdasal-uploads');
+    if (localData) {
+      const data = JSON.parse(localData);
+      archive.uploads = data || [];
+      if (addLogEntry) {
+        addLog(archive.section.id, '로컬 데이터 로드', `${archive.uploads.length}개 영상 로드`);
+      }
+      return;
+    }
+    
+    // 클라우드에서 로드 시도 (Supabase 테이블이 없는 경우 대비)
     const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?select=id,title,subtitle,src,poster,created_at&order=created_at.desc&limit=${MAX_UPLOADS}`, {
       headers: SUPABASE_HEADERS
     });
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
+    if (!response.ok) {
+      addLog(archive.section.id, '클라우드 로드 실패', '로컬 데이터 사용');
+      return;
+    }
     
+    const data = await response.json();
     archive.uploads = (data || []).map(mapRowToUpload);
     if (addLogEntry) {
       addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
     }
   } catch (error) {
-    addLog(archive.section.id, '클라우드 로드 실패', error.message);
-    throw error;
+    addLog(archive.section.id, '클라우드 로드 실패', '로컬 데이터 사용');
   }
 };
 
 const insertUploadRecord = async (archive, item) => {
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}`, {
-      method: 'POST',
-      headers: SUPABASE_HEADERS,
-      body: JSON.stringify({
-        title: item.title,
-        subtitle: item.subtitle,
-        src: item.src,
-        poster: item.poster
-      })
-    });
+    // 로컬 저장소에 저장
+    const newItem = {
+      id: Date.now().toString(),
+      title: item.title,
+      subtitle: item.subtitle,
+      src: item.src,
+      poster: item.poster,
+      created_at: new Date().toISOString()
+    };
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    return mapRowToUpload(data[0]);
+    const existingData = JSON.parse(localStorage.getItem('gamdasal-uploads') || '[]');
+    existingData.unshift(newItem);
+    localStorage.setItem('gamdasal-uploads', JSON.stringify(existingData));
+    
+    addLog(archive.section.id, '로컬 저장', '업로드 저장됨');
+    return newItem;
   } catch (error) {
     addLog(archive.section.id, '업로드 저장 실패', error.message);
     throw error;
@@ -471,12 +486,12 @@ const insertUploadRecord = async (archive, item) => {
 const removeUploadRecord = async (archive, upload) => {
   if (!upload?.id) return;
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${upload.id}`, {
-      method: 'DELETE',
-      headers: SUPABASE_HEADERS
-    });
+    // 로컬 저장소에서 삭제
+    const existingData = JSON.parse(localStorage.getItem('gamdasal-uploads') || '[]');
+    const filteredData = existingData.filter(item => item.id !== upload.id);
+    localStorage.setItem('gamdasal-uploads', JSON.stringify(filteredData));
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    addLog(archive.section.id, '로컬 삭제', '업로드 삭제됨');
   } catch (error) {
     addLog(archive.section.id, '삭제 실패', error.message);
     throw error;

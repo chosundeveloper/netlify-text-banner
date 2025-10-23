@@ -35,14 +35,14 @@
       main {
         position: relative;
         z-index: 1;
-        width: min(560px, 94vw);
+        width: min(620px, 94vw);
         padding: clamp(2.6rem, 6vw, 4.2rem);
-        border-radius: 2.6rem;
-        background: rgba(10, 8, 26, 0.75);
-        box-shadow: 0 3.2rem 5.2rem rgba(2, 0, 18, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(20px);
+        border-radius: 2.8rem;
+        background: rgba(10, 8, 26, 0.78);
+        box-shadow: 0 3.2rem 5.2rem rgba(2, 0, 18, 0.72), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(22px);
         display: grid;
-        gap: clamp(2.2rem, 5vw, 3.6rem);
+        gap: clamp(2.4rem, 5.2vw, 3.8rem);
         justify-items: center;
         text-align: center;
       }
@@ -64,22 +64,65 @@
       }
       h1 {
         margin: 0;
-        font-size: clamp(2.4rem, 5.8vw, 3.2rem);
+        font-size: clamp(2.5rem, 5.8vw, 3.3rem);
         letter-spacing: 0.06em;
         text-shadow: 0 1rem 3.2rem rgba(0, 0, 0, 0.55);
       }
       .stage {
         position: relative;
-        width: min(420px, 90vw);
+        width: 100%;
+        max-width: 540px;
+        display: grid;
+        justify-items: center;
+      }
+      .stage-inner {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: clamp(1.8rem, 4vw, 2.6rem);
+        flex-wrap: wrap;
+      }
+      .ball-bin {
+        position: relative;
+        width: clamp(140px, 30vw, 160px);
+        height: clamp(180px, 36vw, 200px);
+        border-radius: 1.6rem;
+        background: linear-gradient(180deg, rgba(34, 29, 80, 0.75), rgba(18, 14, 46, 0.92));
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1), 0 1.4rem 2.6rem rgba(0, 0, 0, 0.42);
+        padding: 1.1rem;
+        display: grid;
+        align-content: flex-end;
+      }
+      .ball-bin::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(110deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
+        opacity: 0.25;
+        pointer-events: none;
+      }
+      .bin-grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.55rem;
+      }
+      .bin-ball {
+        width: 100%;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #fff4c1 0%, #ffd26f 40%, #ff905f 100%);
+        box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.32);
       }
       .machine {
         position: relative;
         display: grid;
-        gap: 1.6rem;
+        gap: 1.5rem;
       }
       .drum {
         position: relative;
-        width: 100%;
+        width: clamp(240px, 46vw, 300px);
         padding-top: 100%;
         border-radius: 50%;
         background: radial-gradient(circle at 28% 30%, rgba(255, 255, 255, 0.16), rgba(82, 67, 164, 0.22), rgba(24, 20, 56, 0.9));
@@ -95,12 +138,12 @@
       }
       .orbital {
         position: absolute;
-        inset: 12%;
+        inset: 13%;
         animation: orbit 6s linear infinite;
         transform-origin: center;
       }
       .machine.drawing .orbital {
-        animation-duration: 1.2s;
+        animation-duration: 1.1s;
       }
       @keyframes orbit {
         to { transform: rotate(-360deg); }
@@ -109,20 +152,38 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        width: 38px;
-        height: 38px;
-        margin: -19px;
+        width: 34px;
+        height: 34px;
+        margin: -17px;
         border-radius: 50%;
         background: radial-gradient(circle at 30% 25%, #fff2b4 0%, #ffd36f 45%, #ff977a 100%);
-        box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.32);
-        transform: translate(-50%, -50%) rotate(calc(var(--i) * 60deg)) translateX(92px);
+        box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%) rotate(calc(var(--i) * 30deg)) translateX(96px);
       }
       .mini-ball::after {
         content: '';
         position: absolute;
-        inset: 26%;
+        inset: 25%;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.32);
+        background: rgba(255, 255, 255, 0.28);
+      }
+      .ball-cloud {
+        position: absolute;
+        inset: 18%;
+        overflow: hidden;
+      }
+      .cloud-ball {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 25%, #fff6cf 0%, #ffd97b 45%, #ff9c78 100%);
+        opacity: 0.6;
+        animation: float 2.6s ease-in-out infinite;
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); opacity: 0.5; }
+        50% { transform: translateY(-14px); opacity: 0.85; }
       }
       .tube {
         position: relative;
@@ -132,10 +193,10 @@
       }
       .tube-path {
         position: relative;
-        width: 36px;
+        width: 38px;
         height: 100%;
         border-radius: 20px;
-        background: linear-gradient(180deg, rgba(109, 97, 200, 0.28), rgba(24, 20, 60, 0.85));
+        background: linear-gradient(180deg, rgba(109, 97, 200, 0.28), rgba(24, 20, 60, 0.88));
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
         overflow: hidden;
       }
@@ -143,7 +204,7 @@
         position: absolute;
         inset: 4px;
         border-radius: 20px;
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0));
         opacity: 0.65;
       }
       .tube-ball {
@@ -172,14 +233,14 @@
         position: relative;
         height: 120px;
         border-radius: 999px;
-        background: linear-gradient(180deg, rgba(72, 61, 140, 0.45), rgba(24, 20, 60, 0.88));
+        background: linear-gradient(180deg, rgba(72, 61, 140, 0.45), rgba(24, 20, 60, 0.9));
         box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 18px 32px rgba(0, 0, 0, 0.38);
         display: grid;
         place-items: center;
         padding: 1.4rem;
       }
       .result-ball {
-        width: clamp(130px, 34vw, 160px);
+        width: clamp(130px, 32vw, 160px);
         aspect-ratio: 1/1;
         border-radius: 50%;
         background: radial-gradient(circle at 30% 30%, #ffffff 0%, #ffe3b9 38%, #ffb07b 100%);
@@ -199,6 +260,28 @@
       .result-ball.revealed {
         opacity: 1;
         transform: translateY(0) scale(1);
+      }
+      .shoot-ball {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 25%, #fff8cf 0%, #ffd682 45%, #ff9275 100%);
+        box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.34);
+        left: 18%;
+        bottom: 16%;
+        opacity: 0;
+        transform: translate(0, 0) scale(0.9);
+        pointer-events: none;
+      }
+      .shoot-ball.active {
+        opacity: 1;
+        animation: shoot 0.7s ease-out forwards;
+      }
+      @keyframes shoot {
+        0% { transform: translate(0, 0) scale(0.9); }
+        60% { transform: translate(140px, -120px) scale(1.05); }
+        100% { transform: translate(195px, -200px) scale(1); opacity: 0; }
       }
       button {
         border: none;
@@ -250,27 +333,57 @@
       <span class="badge">감다살 로또 방송</span>
       <h1>오늘의 공을 뽑아라!</h1>
       <div class="stage">
-        <div class="machine" id="machine">
-          <div class="drum">
-            <div class="orbital">
-              <span class="mini-ball" style="--i: 0"></span>
-              <span class="mini-ball" style="--i: 1"></span>
-              <span class="mini-ball" style="--i: 2"></span>
-              <span class="mini-ball" style="--i: 3"></span>
-              <span class="mini-ball" style="--i: 4"></span>
-              <span class="mini-ball" style="--i: 5"></span>
+        <div class="stage-inner">
+          <div class="ball-bin">
+            <div class="bin-grid">
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
+              <span class="bin-ball"></span>
             </div>
           </div>
-          <div class="tube">
-            <div class="tube-path">
-              <div class="tube-glare"></div>
-              <div id="tube-ball" class="tube-ball"></div>
+          <div class="machine" id="machine">
+            <div class="drum">
+              <div class="ball-cloud" id="ball-cloud"></div>
+              <div class="orbital">
+                <span class="mini-ball" style="--i: 0"></span>
+                <span class="mini-ball" style="--i: 1"></span>
+                <span class="mini-ball" style="--i: 2"></span>
+                <span class="mini-ball" style="--i: 3"></span>
+                <span class="mini-ball" style="--i: 4"></span>
+                <span class="mini-ball" style="--i: 5"></span>
+                <span class="mini-ball" style="--i: 6"></span>
+                <span class="mini-ball" style="--i: 7"></span>
+                <span class="mini-ball" style="--i: 8"></span>
+                <span class="mini-ball" style="--i: 9"></span>
+                <span class="mini-ball" style="--i: 10"></span>
+                <span class="mini-ball" style="--i: 11"></span>
+              </div>
             </div>
-          </div>
-          <div class="tray">
-            <div id="result-ball" class="result-ball">READY</div>
+            <div class="tube">
+              <div class="tube-path">
+                <div class="tube-glare"></div>
+                <div id="tube-ball" class="tube-ball"></div>
+              </div>
+            </div>
+            <div class="tray">
+              <div id="result-ball" class="result-ball">READY</div>
+            </div>
           </div>
         </div>
+        <div id="shoot-ball" class="shoot-ball"></div>
       </div>
       <button id="draw-btn">공 굴리기</button>
       <p class="hint">* 방송처럼 단 한 번만 추첨됩니다. 다시 하려면 새로고침하세요.</p>
@@ -282,18 +395,45 @@
       const machine = document.getElementById('machine');
       const resultBall = document.getElementById('result-ball');
       const tubeBall = document.getElementById('tube-ball');
+      const shootBall = document.getElementById('shoot-ball');
+      const ballCloud = document.getElementById('ball-cloud');
       let hasDrawn = false;
+
+      const makeCloud = () => {
+        const count = 28;
+        for (let i = 0; i < count; i += 1) {
+          const cloudBall = document.createElement('span');
+          cloudBall.className = 'cloud-ball';
+          const x = Math.random() * 72;
+          const y = Math.random() * 72;
+          cloudBall.style.left = `${x}%`;
+          cloudBall.style.top = `${y}%`;
+          cloudBall.style.animationDelay = `${Math.random() * 1.2}s`;
+          cloudBall.style.animationDuration = `${2.2 + Math.random()}s`;
+          ballCloud.appendChild(cloudBall);
+        }
+      };
 
       const createSparkles = () => {
         for (let i = 0; i < 22; i += 1) {
           const sparkle = document.createElement('span');
           sparkle.className = 'sparkle';
           sparkle.style.left = `${50 + (Math.random() - 0.5) * 180}%`;
-          sparkle.style.top = `${58 + (Math.random() - 0.5) * 120}%`;
+          sparkle.style.top = `${60 + (Math.random() - 0.5) * 120}%`;
           sparkle.style.animationDelay = `${Math.random() * 0.25}s`;
           document.body.appendChild(sparkle);
           setTimeout(() => sparkle.remove(), 1000);
         }
+      };
+
+      const launchFromBin = () => {
+        shootBall.classList.remove('active');
+        // trigger reflow to restart animation
+        void shootBall.offsetWidth;
+        shootBall.classList.add('active');
+        setTimeout(() => {
+          shootBall.classList.remove('active');
+        }, 700);
       };
 
       button.addEventListener('click', () => {
@@ -304,10 +444,11 @@
         tubeBall.style.opacity = '0';
         resultBall.classList.remove('revealed');
         machine.classList.add('drawing');
+        launchFromBin();
 
         setTimeout(() => {
           tubeBall.style.opacity = '1';
-        }, 550);
+        }, 520);
 
         setTimeout(() => {
           const picked = names[Math.floor(Math.random() * names.length)];
@@ -318,6 +459,8 @@
           createSparkles();
         }, 2200);
       });
+
+      makeCloud();
     </script>
   </body>
 </html>

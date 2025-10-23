@@ -325,6 +325,33 @@
         60% { transform: scale(1.45); opacity: 0.55; }
         100% { transform: scale(0.15); opacity: 0; }
       }
+      .upload-cta {
+        width: min(520px, 100%);
+        margin-top: -0.5rem;
+        padding: 1.5rem 1.8rem;
+        border-radius: 1.6rem;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        text-align: left;
+        display: grid;
+        gap: 0.6rem;
+      }
+      .upload-cta strong {
+        font-size: 1rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255, 229, 249, 0.85);
+      }
+      .upload-cta p {
+        margin: 0;
+        font-size: 0.98rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .upload-cta span {
+        font-weight: 600;
+        color: #ffd4f7;
+      }
     </style>
   </head>
   <body>
@@ -387,6 +414,10 @@
       </div>
       <button id="draw-btn">공 굴리기</button>
       <p class="hint">* 방송처럼 단 한 번만 추첨됩니다. 다시 하려면 새로고침하세요.</p>
+      <div id="upload-cta" class="upload-cta" hidden>
+        <strong>업로드 미션</strong>
+        <p>오늘의 감다살은 <span id="cta-name">-</span>님! 추첨된 사람은 <span>오늘 자정까지 감다살 인증 영상을 업로드</span>해 주세요. 늦으면 벌칙이 추가될 수 있어요 👀</p>
+      </div>
     </main>
 
     <script>
@@ -397,6 +428,8 @@
       const tubeBall = document.getElementById('tube-ball');
       const shootBall = document.getElementById('shoot-ball');
       const ballCloud = document.getElementById('ball-cloud');
+      const uploadCta = document.getElementById('upload-cta');
+      const ctaName = document.getElementById('cta-name');
       let hasDrawn = false;
 
       const makeCloud = () => {
@@ -428,7 +461,6 @@
 
       const launchFromBin = () => {
         shootBall.classList.remove('active');
-        // trigger reflow to restart animation
         void shootBall.offsetWidth;
         shootBall.classList.add('active');
         setTimeout(() => {
@@ -443,6 +475,7 @@
         button.textContent = '추첨 중...';
         tubeBall.style.opacity = '0';
         resultBall.classList.remove('revealed');
+        uploadCta.hidden = true;
         machine.classList.add('drawing');
         launchFromBin();
 
@@ -453,9 +486,11 @@
         setTimeout(() => {
           const picked = names[Math.floor(Math.random() * names.length)];
           resultBall.textContent = picked;
+          ctaName.textContent = picked;
           resultBall.classList.add('revealed');
           machine.classList.remove('drawing');
           button.textContent = '추첨 완료!';
+          uploadCta.hidden = false;
           createSparkles();
         }, 2200);
       });

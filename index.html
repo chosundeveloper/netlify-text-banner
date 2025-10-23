@@ -8,100 +8,106 @@
       :root {
         color-scheme: light dark;
       }
+      * {
+        box-sizing: border-box;
+      }
       body {
         margin: 0;
         min-height: 100vh;
         display: grid;
         place-items: center;
+        background: radial-gradient(circle at 20% 20%, #1f1c2c 0%, #928dab 35%, #1f1c2c 70%, #0b0a13 100%);
         font-family: 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
-        background: radial-gradient(circle at top, #182848 0%, #4b6cb7 100%);
         color: #fff;
+        overflow: hidden;
       }
       main {
+        display: grid;
+        gap: clamp(2.4rem, 5vw, 3.5rem);
+        justify-items: center;
         text-align: center;
-        padding: clamp(2.5rem, 6vw, 4rem);
-        border-radius: 1.5rem;
-        background: rgba(0, 0, 0, 0.45);
-        box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.35);
-      }
-      h1 {
-        margin: 0 0 1rem;
-        font-size: clamp(2.2rem, 4vw, 3rem);
-      }
-      p {
-        margin: 0 0 2.2rem;
-        font-size: clamp(1rem, 2.4vw, 1.2rem);
-        color: rgba(255, 255, 255, 0.82);
+        padding: clamp(2.5rem, 5vw, 3.5rem);
+        background: rgba(15, 12, 30, 0.55);
+        border-radius: 2rem;
+        box-shadow: 0 1.8rem 3.6rem rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(14px);
       }
       button {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.65rem;
-        padding: clamp(1rem, 2.3vw, 1.3rem) clamp(2.4rem, 5vw, 3.5rem);
-        font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-        font-weight: 700;
-        color: #1e2430;
-        background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+        width: clamp(10rem, 28vw, 14rem);
+        aspect-ratio: 1/1;
         border: none;
-        border-radius: 999px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #ffe29f 0%, #ffa99f 40%, #ff719a 100%);
+        color: #3a1c37;
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+        font-weight: 700;
+        letter-spacing: 0.08em;
         cursor: pointer;
-        box-shadow: 0 1.6rem 3rem rgba(248, 181, 0, 0.35);
-        transition: transform 0.18s ease, box-shadow 0.22s ease;
-      }
-      button::before {
-        content: '🎱';
+        box-shadow: 0 1.6rem 3rem rgba(255, 113, 154, 0.45), inset 0 0 0 6px rgba(255, 255, 255, 0.35);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
       }
       button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 2rem 3.4rem rgba(248, 181, 0, 0.4);
+        transform: translateY(-6px) scale(1.03);
+        box-shadow: 0 2.2rem 3.6rem rgba(255, 113, 154, 0.5);
+        filter: brightness(1.03);
       }
       button:active {
-        transform: translateY(1px);
-      }
-      .result {
-        margin-top: clamp(2.4rem, 4vw, 3rem);
+        transform: translateY(3px) scale(0.97);
       }
       .result-label {
+        font-size: 0.95rem;
+        letter-spacing: 0.32em;
         text-transform: uppercase;
-        font-size: 0.9rem;
-        letter-spacing: 0.18em;
-        color: rgba(255, 255, 255, 0.68);
+        color: rgba(255, 255, 255, 0.7);
       }
       .result-name {
-        margin: 0.6rem 0 0;
-        font-size: clamp(2.4rem, 4.6vw, 3.6rem);
+        margin: 0;
+        font-size: clamp(2.6rem, 5.2vw, 3.8rem);
         font-weight: 800;
+        letter-spacing: 0.04em;
+        text-shadow: 0 0.6rem 2.2rem rgba(0, 0, 0, 0.5);
+        min-height: 3.6rem;
+        display: grid;
+        place-items: center;
+      }
+      .glow {
+        position: absolute;
+        inset: -35vmax;
+        background: radial-gradient(circle, rgba(255, 113, 154, 0.12) 0%, rgba(255, 113, 154, 0) 65%);
+        pointer-events: none;
+        animation: pulse 8s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.35; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.08); }
       }
     </style>
   </head>
   <body>
+    <div class="glow"></div>
     <main>
-      <h1>감다살 공 뽑기</h1>
-      <p>버튼을 누르면 아래 이름 중 한 명이 랜덤으로 선택됩니다.</p>
-
       <button id="draw-btn">공 뽑기</button>
-
-      <div class="result" aria-live="polite">
-        <div class="result-label">이번에 뽑힌 사람</div>
-        <div id="result-name" class="result-name">아직 뽑지 않았어요</div>
+      <div>
+        <div class="result-label">오늘의 감다살</div>
+        <div id="result-name" class="result-name">READY</div>
       </div>
     </main>
 
     <script>
-      const candidates = ['이하연셀 정요한', '강민욱', '이하연'];
-      const resultName = document.getElementById('result-name');
-      const drawBtn = document.getElementById('draw-btn');
+      const names = ['이하연셀 정요한', '강민욱', '이하연'];
+      const button = document.getElementById('draw-btn');
+      const result = document.getElementById('result-name');
 
-      drawBtn.addEventListener('click', () => {
-        drawBtn.disabled = true;
-        drawBtn.style.transform = 'scale(0.97)';
+      button.addEventListener('click', () => {
+        button.disabled = true;
+        button.style.filter = 'brightness(0.98)';
         setTimeout(() => {
-          drawBtn.style.transform = 'scale(1)';
-          drawBtn.disabled = false;
+          button.disabled = false;
+          button.style.filter = 'none';
         }, 200);
 
-        const index = Math.floor(Math.random() * candidates.length);
-        resultName.textContent = candidates[index];
+        const picked = names[Math.floor(Math.random() * names.length)];
+        result.textContent = picked;
       });
     </script>
   </body>

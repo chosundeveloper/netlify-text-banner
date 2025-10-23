@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>감다살 영상 아카이브</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
       :root { color-scheme: light dark; }
       * { box-sizing: border-box; }
@@ -231,7 +232,7 @@
         </div>
         <div class="upload-list" id="log-list"></div>
         <div class="upload-actions" style="justify-content:flex-end; gap:0.6rem; flex-wrap:wrap;">
-          <button type="button" id="sync-gist">클라우드 동기화</button>
+          <button type="button" id="sync-cloud">클라우드 동기화</button>
           <button type="button" id="log-copy">로그 복사</button>
           <button type="button" id="log-clear">로그 초기화</button>
         </div>
@@ -259,7 +260,7 @@
               <button type="button" class="select-button">파일 선택</button>
               <input class="upload-file" type="file" accept="video/*,image/*">
             </div>
-            <small class="upload-hint">로컬 저장 방식 (CORS 문제 없음, 모든 기기에서 안정적)</small>
+            <small class="upload-hint">Supabase 클라우드에 저장되어 모든 기기에서 즉시 확인할 수 있습니다.</small>
             <button type="submit" class="submit-button">업로드</button>
           </form>
         </section>
@@ -283,31 +284,41 @@ const sections = [
 const LOG_STORAGE_KEY = 'gamdasal-upload-logs';
 const LOG_LIMIT = 40;
 
-// 공유 Gist 설정 (모든 기기에서 자동 동기화)
-const SHARED_GIST_ID = 'https://gist.githubusercontent.com/anonymous/1234567890abcdef/raw/gamdasal-uploads.json';
-const GIST_CONFIG = {
-  filename: 'gamdasal-uploads.json',
-  description: '감다살 첼린지 영상 데이터',
-  public: true
-};
-
-// Gist ID를 저장할 키
-const GIST_ID_KEY = 'gamdasal-gist-id';
-const GITHUB_TOKEN_KEY = 'gamdasal-github-token';
+const SUPABASE_URL = 'https://ykdmlgrlpwkqyyemcefz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZG1sZ3JscHdrcXl5ZW1jZWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNDI3NTMsImV4cCI6MjA3NjgxODc1M30.pRfCXTTXZHfp5Fohy4LLrHNujqds4Tir3pSMQIZLCvI';
+const SUPABASE_BUCKET = 'videos';
+const SUPABASE_TABLE = 'video_uploads';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const template = document.getElementById('archive-template');
 const container = document.getElementById('archives');
 const logListEl = document.getElementById('log-list');
 const logCopyBtn = document.getElementById('log-copy');
 const logClearBtn = document.getElementById('log-clear');
-const syncGistBtn = document.getElementById('sync-gist');
-const copyShareUrlBtn = document.getElementById('copy-share-url');
-const saveGistConfigBtn = document.getElementById('save-gist-config');
-const copyGistIdBtn = document.getElementById('copy-gist-id');
-const gistIdInput = document.getElementById('gist-id-input');
-const githubTokenInput = document.getElementById('github-token-input');
+const syncCloudBtn = document.getElementById('sync-cloud');
 
 let logs = [];
+
+let supabaseSessionPromise = null;
+
+const ensureSession = async () => {
+  if (supabaseSessionPromise) return supabaseSessionPromise;
+  supabaseSessionPromise = (async () => {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    if (data.session) return data.session;
+    const { data: signInData, error: signInError } = await supabase.auth.signInAnonymously();
+    if (signInError) throw signInError;
+    return signInData.session;
+  })();
+
+  try {
+    return await supabaseSessionPromise;
+  } catch (error) {
+    supabaseSessionPromise = null;
+    throw error;
+  }
+};
 
 // 간단한 클라우드 동기화
 
@@ -383,121 +394,86 @@ const fallbackPoster = (section, title) => {
   return `https://dummyimage.com/320x180/${section.posterColor}/ffffff&text=${safe}`;
 };
 
-const persistUploads = (archive) => {
-  try {
-    const payload = { version: archive.section.storageVersion, data: archive.uploads };
-    localStorage.setItem(archive.section.storageKey, JSON.stringify(payload));
-    
-    // 자동으로 Gist에 동기화 (백그라운드)
-    syncToGist(archive).catch(error => {
-      console.warn('자동 동기화 실패:', error);
-      // 동기화 실패해도 로컬 저장은 유지
-    });
-  } catch (error) {
-    console.error('업로드 저장 실패', error);
+const sanitizeFileName = (name) => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80) || 'upload';
+};
+
+const createUuid = () => {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return `id-${Math.random().toString(36).slice(2, 11)}-${Date.now().toString(36)}`;
+};
+
+const createStoragePath = (archive, file) => {
+  const extension = (file.name.split('.').pop() || 'mp4').toLowerCase();
+  const base = sanitizeFileName(file.name.replace(/\.[^.]+$/, ''));
+  const folder = `${archive.section.id}`;
+  return `${folder}/${createUuid()}-${base}.${extension}`;
+};
+
+const mapRowToUpload = (row) => ({
+  id: row.id,
+  title: row.title,
+  subtitle: row.subtitle,
+  src: row.src,
+  poster: row.poster,
+  created_at: row.created_at
+});
+
+const uploadToSupabaseStorage = async (archive, file) => {
+  await ensureSession();
+  const path = createStoragePath(archive, file);
+  const { error: uploadError } = await supabase
+    .storage
+    .from(SUPABASE_BUCKET)
+    .upload(path, file, { cacheControl: '3600', upsert: false });
+  if (uploadError) throw uploadError;
+  const { data } = supabase
+    .storage
+    .from(SUPABASE_BUCKET)
+    .getPublicUrl(path);
+  return { publicUrl: data.publicUrl, path };
+};
+
+const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
+  await ensureSession();
+  const { data, error } = await supabase
+    .from(SUPABASE_TABLE)
+    .select('id,title,subtitle,src,poster,created_at')
+    .order('created_at', { ascending: false })
+    .limit(MAX_UPLOADS);
+  if (error) throw error;
+  archive.uploads = (data || []).map(mapRowToUpload);
+  if (addLogEntry) {
+    addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
   }
 };
 
-// Gist 동기화 함수들
-const getGistId = () => {
-  // 공유 Gist ID 사용 (모든 기기에서 동일)
-  return SHARED_GIST_ID;
+const insertUploadRecord = async (archive, item) => {
+  await ensureSession();
+  const { data, error } = await supabase
+    .from(SUPABASE_TABLE)
+    .insert([{ title: item.title, subtitle: item.subtitle, src: item.src, poster: item.poster }])
+    .select('id,title,subtitle,src,poster,created_at')
+    .single();
+  if (error) throw error;
+  return mapRowToUpload(data);
 };
 
-const setGistId = (gistId) => {
-  localStorage.setItem(GIST_ID_KEY, gistId);
-};
-
-const getGithubToken = () => {
-  return localStorage.getItem(GITHUB_TOKEN_KEY);
-};
-
-const setGithubToken = (token) => {
-  localStorage.setItem(GITHUB_TOKEN_KEY, token);
-};
-
-const syncToGist = async (archive) => {
-  try {
-    // 모든 기기에서 공유하는 데이터 저장
-    const sharedData = {
-      version: archive.section.storageVersion,
-      data: archive.uploads,
-      lastUpdated: new Date().toISOString(),
-      deviceId: navigator.userAgent.slice(0, 50) // 기기 식별
-    };
-    
-    // 로컬 저장소에 저장
-    localStorage.setItem('gamdasal-shared-data', JSON.stringify(sharedData));
-    
-    // 클라우드 저장소에 직접 저장
-    try {
-      const response = await fetch('https://api.jsonbin.io/v3/b', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890'
-        },
-        body: JSON.stringify(sharedData)
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        localStorage.setItem('gamdasal-bin-id', result.metadata.id);
-        addLog(archive.section.id, '클라우드 저장', 'JSONBin.io에 저장됨');
-      }
-    } catch (e) {
-      addLog(archive.section.id, '클라우드 저장 실패', '로컬 저장만 완료');
-    }
-    
-    addLog(archive.section.id, '자동 동기화', '모든 브라우저에서 접근 가능');
-  } catch (error) {
-    console.error('동기화 실패:', error);
-    addLog(archive.section.id, '동기화 실패', error.message);
-  }
-};
-
-const loadFromGist = async (archive) => {
-  try {
-    // 먼저 로컬 데이터 확인
-    const localData = localStorage.getItem('gamdasal-shared-data');
-    if (localData) {
-      const data = JSON.parse(localData);
-      if (data.version === archive.section.storageVersion) {
-        archive.uploads = data.data || [];
-        addLog(archive.section.id, '로컬 데이터 로드', `${archive.uploads.length}개 영상 로드됨`);
-        return true;
-      }
-    }
-    
-    // 클라우드 저장소에서 데이터 로드
-    const binId = localStorage.getItem('gamdasal-bin-id');
-    if (binId) {
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-          headers: {
-            'X-Master-Key': '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890'
-          }
-        });
-        
-        if (response.ok) {
-          const cloudData = await response.json();
-          if (cloudData.record && cloudData.record.version === archive.section.storageVersion) {
-            archive.uploads = cloudData.record.data || [];
-            addLog(archive.section.id, '클라우드 데이터 로드', `${archive.uploads.length}개 영상 로드됨`);
-            return true;
-          }
-        }
-      } catch (e) {
-        addLog(archive.section.id, '클라우드 로드 실패', '로컬 데이터 사용');
-      }
-    }
-    
-    return false;
-  } catch (error) {
-    console.error('데이터 로드 실패:', error);
-    addLog(archive.section.id, '데이터 로드 실패', error.message);
-    return false;
-  }
+const removeUploadRecord = async (archive, upload) => {
+  if (!upload?.id) return;
+  await ensureSession();
+  const { error } = await supabase
+    .from(SUPABASE_TABLE)
+    .delete()
+    .eq('id', upload.id);
+  if (error) throw error;
 };
 
 const renderUploads = (archive) => {
@@ -537,6 +513,9 @@ const renderUploads = (archive) => {
     removeBtn.type = 'button';
     removeBtn.textContent = '삭제';
     removeBtn.dataset.remove = index;
+    if (item.id) {
+      removeBtn.dataset.id = item.id;
+    }
     actions.append(removeBtn);
 
     article.append(videoWrap, info, actions);
@@ -561,126 +540,54 @@ const setSelectedFile = (archive, file) => {
   archive.elements.dropzoneStatus.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
 };
 
-// 로컬 저장 방식으로 변경 (CORS 문제 해결)
-const uploadToLocal = async (archive, file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target.result;
-      const dataUrl = base64; // data:image/jpeg;base64,/9j/4AAQ...
-      resolve(dataUrl);
-    };
-    reader.onerror = () => reject(new Error('파일 읽기 실패'));
-    reader.readAsDataURL(file);
-  });
-};
-
-const uploadToService = async (archive, file, service) => {
-  const formData = new FormData();
-  if (service.name === 'catbox') {
-    formData.append('reqtype', 'fileupload');
-    formData.append('fileToUpload', file);
-  } else if (service.name === 'imgur') {
-    formData.append('image', file);
-  } else if (service.name === 'tmpfiles') {
-    formData.append('file', file);
-  } else {
-    formData.append('file', file);
-  }
-
-  const options = {
-    method: service.method,
-    body: formData,
-    ...(service.headers && { headers: service.headers })
-  };
-
-  try {
-    const response = await fetch(service.url, options);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-    
-    return await service.parseResponse(response);
-  } catch (error) {
-    if (error.name === 'TypeError' && error.message.includes('Load failed')) {
-      throw new Error('네트워크 연결 실패 - 인터넷 연결을 확인해주세요');
-    }
-    throw error;
-  }
-};
-
-const uploadWithFallback = async (archive, file) => {
+const uploadToCloud = async (archive, file) => {
   archive.elements.dropzone.classList.add('uploading');
   archive.elements.dropzoneStatus.textContent = '업로드 중입니다…';
   archive.elements.submitButton.disabled = true;
-  
+
   addLog(archive.section.id, '업로드 시작', file.name, `size=${(file.size / 1024 / 1024).toFixed(2)}MB`);
-  
+
   try {
-    // 로컬 저장 방식 (CORS 문제 없음)
-    archive.elements.dropzoneStatus.textContent = '로컬 저장 중...';
-    addLog(archive.section.id, '로컬 저장 시도', file.name);
-    
-    const dataUrl = await uploadToLocal(archive, file);
-    
-    addLog(archive.section.id, '로컬 저장 성공', 'Base64 인코딩 완료');
-    return dataUrl;
-    
+    archive.elements.dropzoneStatus.textContent = '클라우드 업로드 중...';
+    const { publicUrl, path } = await uploadToSupabaseStorage(archive, file);
+    addLog(archive.section.id, '클라우드 업로드', publicUrl, path);
+    return { publicUrl, path };
   } catch (error) {
-    addLog(archive.section.id, '로컬 저장 실패', error.message);
-    throw new Error(`로컬 저장 실패: ${error.message}`);
+    addLog(archive.section.id, '클라우드 업로드 실패', error.message);
+    throw error;
   }
 };
 
 const seedUploads = async (archive) => {
   try {
-    // 먼저 Gist에서 로드 시도 (자동 동기화)
-    const gistLoaded = await loadFromGist(archive);
-    
-    if (gistLoaded) {
-      // Gist에서 성공적으로 로드됨
-      renderUploads(archive);
-      return;
-    }
-    
-    // Gist 로드 실패 시 localStorage 확인
-    const storedRaw = JSON.parse(localStorage.getItem(archive.section.storageKey) || 'null');
-    let storedData = [];
-    if (storedRaw && Array.isArray(storedRaw.data)) {
-      storedData = storedRaw.data;
-    } else if (Array.isArray(storedRaw)) {
-      storedData = storedRaw;
-    }
-    
-    if (!storedData.length || storedRaw?.version !== archive.section.storageVersion) {
-      archive.uploads = [...archive.section.defaults];
-      persistUploads(archive);
-    } else {
-      archive.uploads = storedData;
-      // 로컬 데이터가 있으면 자동으로 Gist에 동기화
-      syncToGist(archive).catch(error => {
-        console.warn('자동 동기화 실패:', error);
-      });
-    }
+    await fetchUploadsFromCloud(archive);
   } catch (error) {
+    console.error('클라우드 로드 실패:', error);
+    addLog(archive.section.id, '클라우드 로드 실패', error.message || '알 수 없는 오류');
     archive.uploads = [...archive.section.defaults];
-    persistUploads(archive);
   }
   renderUploads(archive);
 };
 
-const handleRemove = (event, archive) => {
+const handleRemove = async (event, archive) => {
   const target = event.target.closest('button[data-remove]');
   if (!target) return;
   const index = Number(target.dataset.remove);
   if (Number.isNaN(index)) return;
+  const upload = archive.uploads[index];
+  if (!upload) return;
   if (!confirm('이 영상을 삭제할까요?')) return;
-  archive.uploads.splice(index, 1);
-  persistUploads(archive);
-  renderUploads(archive);
-  addLog(archive.section.id, '영상 삭제', `index=${index}`);
+
+  try {
+    await removeUploadRecord(archive, upload);
+    archive.uploads.splice(index, 1);
+    renderUploads(archive);
+    addLog(archive.section.id, '영상 삭제', upload.title, upload.id ? `id=${upload.id}` : undefined);
+  } catch (error) {
+    console.error('삭제 실패:', error);
+    addLog(archive.section.id, '삭제 실패', error.message || '알 수 없는 오류');
+    alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
+  }
 };
 
 const handleSubmit = async (event, archive) => {
@@ -694,26 +601,36 @@ const handleSubmit = async (event, archive) => {
     alert('업로드할 영상 파일을 선택해주세요.');
     return;
   }
+  let uploadMetadata = null;
   try {
-    const link = await uploadWithFallback(archive, archive.selectedFile);
+    uploadMetadata = await uploadToCloud(archive, archive.selectedFile);
     const newItem = {
       title,
       subtitle: formatNow(),
-      src: link,
+      src: uploadMetadata.publicUrl,
       poster: fallbackPoster(archive.section, title)
     };
-    archive.uploads.unshift(newItem);
+    const saved = await insertUploadRecord(archive, newItem);
+    archive.uploads.unshift(saved);
     archive.uploads = archive.uploads.slice(0, MAX_UPLOADS);
-    persistUploads(archive);
     renderUploads(archive);
     archive.elements.form.reset();
     resetSelectedFile(archive);
     archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
+    addLog(archive.section.id, '업로드 완료', saved.title, saved.id ? `id=${saved.id}` : undefined);
   } catch (error) {
     console.error(error);
     archive.elements.dropzoneStatus.textContent = '업로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
-    addLog(archive.section.id, '업로드 예외', error.message || String(error));
+    addLog(archive.section.id, '업로드 실패', error.message || String(error));
     alert('업로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    if (uploadMetadata?.path) {
+      try {
+        await supabase.storage.from(SUPABASE_BUCKET).remove([uploadMetadata.path]);
+        addLog(archive.section.id, '정리 완료', '부분 업로드 파일 삭제', uploadMetadata.path);
+      } catch (cleanupError) {
+        console.warn('임시 파일 삭제 실패:', cleanupError);
+      }
+    }
   } finally {
     archive.elements.dropzone.classList.remove('uploading');
     archive.elements.submitButton.disabled = false;
@@ -801,57 +718,28 @@ logClearBtn.addEventListener('click', () => {
   renderLogs();
 });
 
-// 설정 저장 버튼
-saveGistConfigBtn.addEventListener('click', () => {
-  const id = gistIdInput.value.trim();
-  const token = githubTokenInput.value.trim();
-  if (id) setGistId(id);
-  if (token) setGithubToken(token);
-  alert('설정이 저장되었습니다. 동기화를 실행해 주세요.');
-});
+if (syncCloudBtn) {
+  syncCloudBtn.addEventListener('click', async () => {
+    if (!archives.length) return;
+    const archive = archives[0];
 
-// 공유 코드 복사 버튼
-copyGistIdBtn.addEventListener('click', async () => {
-  const id = getGistId();
-  if (!id) {
-    alert('저장된 Gist ID가 없습니다. 먼저 동기화하거나 직접 입력해 저장하세요.');
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(id);
-    alert('Gist ID가 복사되었습니다. 다른 기기에 붙여넣기 하세요.');
-  } catch (e) {
-    alert('복사에 실패했습니다.');
-  }
-});
+    syncCloudBtn.disabled = true;
+    syncCloudBtn.textContent = '동기화 중...';
 
-syncGistBtn.addEventListener('click', async () => {
-  if (!archives.length) return;
-  const archive = archives[0]; // 첫 번째 아카이브 사용
-  
-  syncGistBtn.disabled = true;
-  syncGistBtn.textContent = '동기화 중...';
-  
-  try {
-    // 현재 데이터를 Gist에 업로드
-    await syncToGist(archive);
-    
-    // Gist에서 최신 데이터 로드
-    const loaded = await loadFromGist(archive);
-    if (loaded) {
+    try {
+      await fetchUploadsFromCloud(archive, { addLogEntry: true });
       renderUploads(archive);
-      alert('클라우드 동기화 완료!');
-    } else {
-      alert('동기화는 완료되었지만 로드에 실패했습니다.');
+      alert('클라우드에서 최신 목록을 불러왔습니다.');
+    } catch (error) {
+      console.error('동기화 실패:', error);
+      addLog(archive.section.id, '동기화 실패', error.message || '알 수 없는 오류');
+      alert('동기화에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      syncCloudBtn.disabled = false;
+      syncCloudBtn.textContent = '클라우드 동기화';
     }
-  } catch (error) {
-    console.error('동기화 실패:', error);
-    alert('동기화에 실패했습니다: ' + error.message);
-  } finally {
-    syncGistBtn.disabled = false;
-    syncGistBtn.textContent = '클라우드 동기화';
-  }
-});
+  });
+}
     </script>
   </body>
 </html>

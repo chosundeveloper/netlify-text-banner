@@ -385,7 +385,7 @@
         const formData = new FormData();
         formData.append('file', file);
         try {
-          const response = await fetch('https://file.io/?json=true&expires=1w', {
+          const response = await fetch('https://www.file.io/?json=true&expires=1w', {
             method: 'POST',
             body: formData,
           });

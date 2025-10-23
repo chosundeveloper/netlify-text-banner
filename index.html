@@ -5,30 +5,26 @@
     <title>감다살 첼린지</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-      :root {
-        color-scheme: light dark;
-      }
-      * {
-        box-sizing: border-box;
-      }
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
       body {
         margin: 0;
         min-height: 100vh;
         font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
-        color: #f7f4ff;
-        background: radial-gradient(circle at 20% 20%, #04020c 0%, #120c2c 45%, #010008 100%);
+        color: #f6f4ff;
+        background: radial-gradient(circle at 20% 20%, #05020d 0%, #140b30 45%, #010007 100%);
         display: flex;
         justify-content: center;
-        padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3rem);
+        padding: clamp(2rem, 5vw, 3.6rem) clamp(1.6rem, 4vw, 3rem);
       }
       main {
         width: min(820px, 100%);
         display: grid;
         gap: clamp(2rem, 5vw, 3rem);
-        background: rgba(17, 15, 36, 0.78);
+        background: rgba(16, 12, 36, 0.82);
         border-radius: clamp(2rem, 4vw, 3rem);
-        padding: clamp(2.4rem, 5vw, 3.6rem);
-        box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        padding: clamp(2.6rem, 5vw, 3.6rem);
+        box-shadow: 0 3.5rem 5.5rem rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
         backdrop-filter: blur(18px);
       }
       header {
@@ -38,18 +34,15 @@
       }
       header h1 {
         margin: 0;
-        font-size: clamp(2.4rem, 6vw, 3.4rem);
+        font-size: clamp(2.4rem, 6vw, 3.3rem);
         letter-spacing: 0.05em;
       }
       header p {
         margin: 0;
-        color: rgba(255, 255, 255, 0.75);
+        color: rgba(255, 255, 255, 0.76);
         font-size: 1.05rem;
       }
-      section {
-        display: grid;
-        gap: 1.2rem;
-      }
+      section { display: grid; gap: 1.2rem; }
       .section-title {
         margin: 0;
         font-size: 1rem;
@@ -57,10 +50,7 @@
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.7);
       }
-      .upload-list {
-        display: grid;
-        gap: 1rem;
-      }
+      .upload-list { display: grid; gap: 1rem; }
       .upload-item {
         display: flex;
         gap: 1.2rem;
@@ -76,14 +66,14 @@
         max-width: 240px;
         border-radius: 1.2rem;
         overflow: hidden;
-        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.45);
+        box-shadow: 0 1.1rem 2.2rem rgba(0, 0, 0, 0.45);
       }
       .upload-video video {
         display: block;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        background: rgba(0, 0, 0, 0.35);
+        background: rgba(0, 0, 0, 0.3);
       }
       .upload-info {
         flex: 1 1 220px;
@@ -96,27 +86,21 @@
       }
       .upload-info span {
         font-size: 0.92rem;
-        color: rgba(255, 255, 255, 0.68);
+        color: rgba(255, 255, 255, 0.7);
       }
-      .upload-actions {
-        display: flex;
-        gap: 0.6rem;
-        align-items: center;
-      }
+      .upload-actions { display: flex; gap: 0.6rem; align-items: center; }
       .upload-actions button {
         border: none;
         border-radius: 999px;
-        padding: 0.5rem 0.9rem;
+        padding: 0.5rem 0.95rem;
         font-size: 0.85rem;
         font-weight: 600;
-        background: rgba(255, 255, 255, 0.16);
-        color: rgba(20, 16, 44, 0.92);
+        background: rgba(255, 255, 255, 0.18);
+        color: rgba(24, 20, 54, 0.9);
         cursor: pointer;
         transition: filter 0.15s ease;
       }
-      .upload-actions button:hover {
-        filter: brightness(1.08);
-      }
+      .upload-actions button:hover { filter: brightness(1.08); }
       .upload-empty {
         margin: 0;
         padding: 1rem 1.2rem;
@@ -126,7 +110,7 @@
       }
       form {
         display: grid;
-        gap: 0.9rem;
+        gap: 1rem;
         padding: 1.6rem 1.8rem;
         border-radius: 1.8rem;
         background: rgba(255, 255, 255, 0.07);
@@ -137,59 +121,71 @@
         font-size: 0.95rem;
         color: rgba(255, 255, 255, 0.78);
       }
-      form input {
+      input[type="text"] {
         width: 100%;
         border: none;
         border-radius: 1rem;
         padding: 0.9rem 1rem;
         font-size: 1rem;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.12);
         color: #fff;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
       }
-      form input::placeholder {
-        color: rgba(255, 255, 255, 0.55);
+      input::placeholder { color: rgba(255, 255, 255, 0.55); }
+      input:focus { outline: 2px solid rgba(255, 255, 255, 0.3); }
+      .dropzone {
+        position: relative;
+        border: 2px dashed rgba(255, 255, 255, 0.22);
+        border-radius: 1.6rem;
+        padding: 1.6rem 1.4rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.74);
+        display: grid;
+        gap: 0.7rem;
+        background: rgba(255, 255, 255, 0.06);
+        transition: border-color 0.2s ease, background 0.2s ease;
       }
-      form input:focus {
-        outline: 2px solid rgba(255, 255, 255, 0.28);
+      .dropzone.hover { border-color: #fad0c4; background: rgba(255, 255, 255, 0.12); }
+      .dropzone.has-file { border-color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); }
+      .dropzone.uploading { border-color: rgba(255, 154, 158, 0.6); background: rgba(255, 154, 158, 0.18); }
+      .dropzone input { display: none; }
+      .dropzone-status { font-size: 0.92rem; color: rgba(255, 255, 255, 0.75); }
+      .select-button {
+        justify-self: center;
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.3rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.16);
+        color: rgba(26, 22, 60, 0.9);
+        cursor: pointer;
+        transition: filter 0.15s ease;
       }
-      form button {
+      .select-button:hover { filter: brightness(1.1); }
+      .upload-hint { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); text-align: left; }
+      form button[type="submit"] {
         justify-self: flex-end;
         border: none;
         border-radius: 999px;
-        padding: 0.8rem 1.8rem;
-        font-size: 0.95rem;
+        padding: 0.85rem 1.9rem;
+        font-size: 0.96rem;
         font-weight: 600;
         letter-spacing: 0.05em;
         background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-        color: #351d2f;
+        color: #341d2f;
         cursor: pointer;
-        box-shadow: 0 1.4rem 2.4rem rgba(255, 154, 158, 0.32);
+        box-shadow: 0 1.3rem 2.4rem rgba(255, 154, 158, 0.34);
       }
-      form button:hover {
-        filter: brightness(1.04);
-      }
+      form button[type="submit"]:hover { filter: brightness(1.05); }
+      form button[type="submit"]:disabled { opacity: 0.55; cursor: default; filter: none; }
       @media (max-width: 640px) {
-        body {
-          padding: 1.6rem 1.1rem 2.4rem;
-        }
-        main {
-          padding: 2rem 1.4rem 2.6rem;
-        }
-        .upload-item {
-          padding: 0.9rem;
-        }
-        .upload-video {
-          flex: 1 1 100%;
-          max-width: none;
-        }
-        .upload-actions {
-          width: 100%;
-          justify-content: flex-end;
-        }
-        form {
-          padding: 1.3rem 1.4rem;
-        }
+        body { padding: 1.6rem 1.1rem 2.4rem; }
+        main { padding: 2rem 1.4rem 2.6rem; }
+        .upload-item { padding: 0.9rem; }
+        .upload-video { flex: 1 1 100%; max-width: none; }
+        .upload-actions { width: 100%; justify-content: flex-end; }
+        form { padding: 1.4rem 1.5rem; }
       }
     </style>
   </head>
@@ -209,86 +205,46 @@
         <h2 id="upload-form-title" class="section-title">영상 업로드</h2>
         <form id="upload-form" autocomplete="off">
           <label for="upload-title">영상 제목</label>
-          <input id="upload-title" type="text" maxlength="80" placeholder="예: 이하연셀 이하연 — 새벽 묵상" required>
-          <label for="upload-src">영상 링크 (mp4)</label>
-          <input id="upload-src" type="url" placeholder="https://example.com/video.mp4" required>
-          <button type="submit">업로드</button>
+          <input id="upload-title" type="text" maxlength="80" placeholder="예: 이하연셀 미션 브이로그" required>
+          <div class="dropzone" id="upload-dropzone">
+            <strong>영상 파일을 끌어다 놓거나 아래 버튼으로 선택하세요.</strong>
+            <span class="dropzone-status" id="dropzone-status">선택된 파일이 없습니다.</span>
+            <button type="button" id="upload-select" class="select-button">파일 선택</button>
+            <input id="upload-file" type="file" accept="video/*">
+          </div>
+          <small class="upload-hint">file.io로 업로드되며, 생성된 링크는 1회 다운로드 또는 1주 후 만료됩니다.</small>
+          <button type="submit" id="upload-submit">업로드</button>
         </form>
       </section>
     </main>
 
     <script>
       const DEFAULT_UPLOADS = [
-        {
-          title: '이하연셀 강민욱 — 찬양 워십',
-          subtitle: '2025-10-25 · 1분 20초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
-          poster: 'https://dummyimage.com/320x180/211d44/ffffff&text=%EA%B0%95%EB%AF%BC%EC%9A%B1+WORSHIP'
-        },
-        {
-          title: '이하연셀 정요한 — 큐티 나눔',
-          subtitle: '2025-10-24 · 1분 05초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-10s.mp4',
-          poster: 'https://dummyimage.com/320x180/26224f/ffffff&text=%EC%A0%95%EC%9A%94%ED%95%9C+QT'
-        },
-        {
-          title: '이하연셀 이하연 — 미션 VLOG',
-          subtitle: '2025-10-23 · 58초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-12s.mp4',
-          poster: 'https://dummyimage.com/320x180/2a2b63/ffffff&text=%EC%9D%B4%ED%95%98%EC%97%B0+VLOG'
-        },
-        {
-          title: '이하연셀 팀 — 미션 준비 현장',
-          subtitle: '2025-10-22 · 1분 12초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4',
-          poster: 'https://dummyimage.com/320x180/1e2a54/ffffff&text=%EB%AF%B8%EC%85%98+%EC%A4%80%EB%B9%84'
-        },
-        {
-          title: '이하연셀 — 거리 사역 스케치',
-          subtitle: '2025-10-21 · 1분 25초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-20s.mp4',
-          poster: 'https://dummyimage.com/320x180/1a2d5f/ffffff&text=%EA%B1%B0%EB%A6%AC%EC%82%AC%EC%97%AD'
-        },
-        {
-          title: '이하연셀 — 새벽 기도 인증',
-          subtitle: '2025-10-20 · 45초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-30s.mp4',
-          poster: 'https://dummyimage.com/320x180/223264/ffffff&text=%EC%83%88%EB%B2%BD+%EA%B8%B0%EB%8F%84'
-        },
-        {
-          title: '이하연셀 — 봉사 현장 기록',
-          subtitle: '2025-10-19 · 1분 40초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-40s.mp4',
-          poster: 'https://dummyimage.com/320x180/23346d/ffffff&text=%EB%B4%89%EC%82%AC+%ED%98%84%EC%9E%A5'
-        },
-        {
-          title: '이하연셀 — 찬양 합주 리허설',
-          subtitle: '2025-10-18 · 1분 55초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-50s.mp4',
-          poster: 'https://dummyimage.com/320x180/263775/ffffff&text=%EC%B0%AC%EC%96%91+%ED%95%A9%EC%A3%BC'
-        },
-        {
-          title: '이하연셀 — 주일 예배 준비',
-          subtitle: '2025-10-17 · 2분 20초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-100s.mp4',
-          poster: 'https://dummyimage.com/320x180/293b7f/ffffff&text=%EC%A3%BC%EC%9D%BC+%EC%98%88%EB%B0%B0'
-        },
-        {
-          title: '이하연셀 — 한 주 나눔 하이라이트',
-          subtitle: '2025-10-16 · 2분 45초',
-          src: 'https://samplelib.com/lib/preview/mp4/sample-150s.mp4',
-          poster: 'https://dummyimage.com/320x180/2d3f88/ffffff&text=%ED%95%9C%EC%A3%BC+%EB%82%98%EB%88%94'
-        }
+        { title: '이하연셀 강민욱 — 찬양 워십', subtitle: '2025-10-25 · 1분 20초', src: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4', poster: 'https://dummyimage.com/320x180/211d44/ffffff&text=%EA%B0%95%EB%AF%BC%EC%9A%B1+WORSHIP' },
+        { title: '이하연셀 정요한 — 큐티 나눔', subtitle: '2025-10-24 · 1분 05초', src: 'https://samplelib.com/lib/preview/mp4/sample-10s.mp4', poster: 'https://dummyimage.com/320x180/26224f/ffffff&text=%EC%A0%95%EC%9A%94%ED%95%9C+QT' },
+        { title: '이하연셀 이하연 — 미션 VLOG', subtitle: '2025-10-23 · 58초', src: 'https://samplelib.com/lib/preview/mp4/sample-12s.mp4', poster: 'https://dummyimage.com/320x180/2a2b63/ffffff&text=%EC%9D%B4%ED%95%98%EC%97%B0+VLOG' },
+        { title: '이하연셀 팀 — 미션 준비 현장', subtitle: '2025-10-22 · 1분 12초', src: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4', poster: 'https://dummyimage.com/320x180/1e2a54/ffffff&text=%EB%AF%B8%EC%85%98+%EC%A4%80%EB%B9%84' },
+        { title: '이하연셀 — 거리 사역 스케치', subtitle: '2025-10-21 · 1분 25초', src: 'https://samplelib.com/lib/preview/mp4/sample-20s.mp4', poster: 'https://dummyimage.com/320x180/1a2d5f/ffffff&text=%EA%B1%B0%EB%A6%AC%EC%82%AC%EC%97%AD' },
+        { title: '이하연셀 — 새벽 기도 인증', subtitle: '2025-10-20 · 45초', src: 'https://samplelib.com/lib/preview/mp4/sample-30s.mp4', poster: 'https://dummyimage.com/320x180/223264/ffffff&text=%EC%83%88%EB%B2%BD+%EA%B8%B0%EB%8F%84' },
+        { title: '이하연셀 — 봉사 현장 기록', subtitle: '2025-10-19 · 1분 40초', src: 'https://samplelib.com/lib/preview/mp4/sample-40s.mp4', poster: 'https://dummyimage.com/320x180/23346d/ffffff&text=%EB%B4%89%EC%82%AC+%ED%98%84%EC%9E%A5' },
+        { title: '이하연셀 — 찬양 합주 리허설', subtitle: '2025-10-18 · 1분 55초', src: 'https://samplelib.com/lib/preview/mp4/sample-50s.mp4', poster: 'https://dummyimage.com/320x180/263775/ffffff&text=%EC%B0%AC%EC%96%91+%ED%95%A9%EC%A3%BC' },
+        { title: '이하연셀 — 주일 예배 준비', subtitle: '2025-10-17 · 2분 20초', src: 'https://samplelib.com/lib/preview/mp4/sample-100s.mp4', poster: 'https://dummyimage.com/320x180/293b7f/ffffff&text=%EC%A3%BC%EC%9D%BC+%EC%98%88%EB%B0%B0' },
+        { title: '이하연셀 — 한 주 나눔 하이라이트', subtitle: '2025-10-16 · 2분 45초', src: 'https://samplelib.com/lib/preview/mp4/sample-150s.mp4', poster: 'https://dummyimage.com/320x180/2d3f88/ffffff&text=%ED%95%9C%EC%A3%BC+%EB%82%98%EB%88%94' }
       ];
       const STORAGE_KEY = 'gamdasal-challenge-uploads';
-      const STORAGE_VERSION = '2025-10-23';
+      const STORAGE_VERSION = '2025-10-24';
 
       const uploadList = document.getElementById('upload-list');
       const uploadForm = document.getElementById('upload-form');
       const titleInput = document.getElementById('upload-title');
-      const srcInput = document.getElementById('upload-src');
+      const dropzone = document.getElementById('upload-dropzone');
+      const fileInput = document.getElementById('upload-file');
+      const selectButton = document.getElementById('upload-select');
+      const dropzoneStatus = document.getElementById('dropzone-status');
+      const submitButton = document.getElementById('upload-submit');
 
       let uploads = [];
+      let selectedFile = null;
 
       const fallbackPoster = (title) => {
         const safe = encodeURIComponent((title || 'GamdAsal').slice(0, 18));
@@ -315,11 +271,10 @@
         if (!uploads.length) {
           const empty = document.createElement('p');
           empty.className = 'upload-empty';
-          empty.textContent = '등록된 영상이 아직 없습니다. 위 양식을 사용해 감다살 첼린지 영상을 공유해 보세요.';
+          empty.textContent = '등록된 영상이 아직 없습니다. 위 양식으로 감다살 첼린지 영상을 공유해 보세요.';
           uploadList.append(empty);
           return;
         }
-
         uploads.forEach((item, index) => {
           const article = document.createElement('article');
           article.className = 'upload-item';
@@ -354,6 +309,48 @@
         });
       };
 
+      const resetSelectedFile = () => {
+        selectedFile = null;
+        dropzone.classList.remove('has-file', 'uploading');
+        dropzoneStatus.textContent = '선택된 파일이 없습니다.';
+      };
+
+      const setSelectedFile = (file) => {
+        if (!file) return;
+        if (!file.type.startsWith('video/')) {
+          alert('영상 파일만 업로드할 수 있습니다.');
+          return;
+        }
+        selectedFile = file;
+        dropzone.classList.add('has-file');
+        dropzoneStatus.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
+      };
+
+      const uploadToFileIO = async (file) => {
+        dropzone.classList.add('uploading');
+        dropzoneStatus.textContent = '업로드 중입니다…';
+        submitButton.disabled = true;
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          const response = await fetch('https://file.io/?json=true&expires=1w', {
+            method: 'POST',
+            body: formData,
+          });
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+          }
+          const result = await response.json();
+          if (!result.success) {
+            throw new Error(result.message || '업로드 실패');
+          }
+          return result.link;
+        } finally {
+          dropzone.classList.remove('uploading');
+          submitButton.disabled = false;
+        }
+      };
+
       const seedUploads = () => {
         try {
           const storedRaw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
@@ -364,11 +361,7 @@
             storedData = storedRaw;
           }
 
-          if (
-            !storedData.length ||
-            storedData.length < DEFAULT_UPLOADS.length ||
-            storedRaw?.version !== STORAGE_VERSION
-          ) {
+          if (!storedData.length || storedData.length < DEFAULT_UPLOADS.length || storedRaw?.version !== STORAGE_VERSION) {
             uploads = [...DEFAULT_UPLOADS];
             persistUploads();
           } else {
@@ -393,25 +386,58 @@
         renderUploads();
       });
 
-      uploadForm.addEventListener('submit', (event) => {
+      selectButton.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (event) => {
+        setSelectedFile(event.target.files?.[0]);
+        fileInput.value = '';
+      });
+
+      ['dragenter', 'dragover'].forEach((type) => {
+        dropzone.addEventListener(type, (event) => {
+          event.preventDefault();
+          dropzone.classList.add('hover');
+        });
+      });
+      ['dragleave', 'drop'].forEach((type) => {
+        dropzone.addEventListener(type, (event) => {
+          event.preventDefault();
+          dropzone.classList.remove('hover');
+        });
+      });
+      dropzone.addEventListener('drop', (event) => {
+        setSelectedFile(event.dataTransfer.files?.[0]);
+      });
+
+      uploadForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const title = titleInput.value.trim();
-        const src = srcInput.value.trim();
-        if (!title || !src) {
-          window.alert('영상 제목과 링크를 입력해주세요.');
+        if (!title) {
+          alert('영상 제목을 입력해주세요.');
           return;
         }
-        const newItem = {
-          title,
-          subtitle: formatNow(),
-          src,
-          poster: fallbackPoster(title)
-        };
-        uploads.unshift(newItem);
-        uploads = uploads.slice(0, 12);
-        persistUploads();
-        renderUploads();
-        uploadForm.reset();
+        if (!selectedFile) {
+          alert('업로드할 영상 파일을 선택해주세요.');
+          return;
+        }
+        try {
+          const link = await uploadToFileIO(selectedFile);
+          const newItem = {
+            title,
+            subtitle: formatNow(),
+            src: link,
+            poster: fallbackPoster(title)
+          };
+          uploads.unshift(newItem);
+          uploads = uploads.slice(0, 12);
+          persistUploads();
+          renderUploads();
+          uploadForm.reset();
+          resetSelectedFile();
+          alert('업로드가 완료되었습니다. 첼린지 페이지 목록에서 바로 재생할 수 있어요.');
+        } catch (error) {
+          console.error(error);
+          alert('업로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        }
       });
 
       seedUploads();

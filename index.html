@@ -257,7 +257,7 @@
               <button type="button" class="select-button">파일 선택</button>
               <input class="upload-file" type="file" accept="video/*,image/*">
             </div>
-            <small class="upload-hint">여러 업로드 서비스 자동 시도 (imgur, catbox, tmpfiles)</small>
+            <small class="upload-hint">로컬 저장 방식 (CORS 문제 없음, 모든 기기에서 안정적)</small>
             <button type="submit" class="submit-button">업로드</button>
           </form>
         </section>
@@ -563,47 +563,19 @@ const setSelectedFile = (archive, file) => {
   archive.elements.dropzoneStatus.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
 };
 
-const uploadServices = [
-  {
-    name: 'imgur',
-    url: 'https://api.imgur.com/3/image',
-    method: 'POST',
-    headers: {
-      'Authorization': 'Client-ID 546c25a59c58ad7'
-    },
-    parseResponse: async (response) => {
-      const result = await response.json();
-      if (!result.success || !result.data?.link) {
-        throw new Error(result.data?.error || '업로드 실패');
-      }
-      return result.data.link;
-    }
-  },
-  {
-    name: 'catbox',
-    url: 'https://catbox.moe/user/api.php',
-    method: 'POST',
-    parseResponse: async (response) => {
-      const text = await response.text();
-      if (!text.startsWith('http')) {
-        throw new Error('업로드 실패');
-      }
-      return text.trim();
-    }
-  },
-  {
-    name: 'tmpfiles',
-    url: 'https://tmpfiles.org/api/v1/upload',
-    method: 'POST',
-    parseResponse: async (response) => {
-      const result = await response.json();
-      if (!result.status || result.status !== 'success' || !result.data?.url) {
-        throw new Error('업로드 실패');
-      }
-      return result.data.url;
-    }
-  }
-];
+// 로컬 저장 방식으로 변경 (CORS 문제 해결)
+const uploadToLocal = async (archive, file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result;
+      const dataUrl = base64; // data:image/jpeg;base64,/9j/4AAQ...
+      resolve(dataUrl);
+    };
+    reader.onerror = () => reject(new Error('파일 읽기 실패'));
+    reader.readAsDataURL(file);
+  });
+};
 
 const uploadToService = async (archive, file, service) => {
   const formData = new FormData();
@@ -648,26 +620,20 @@ const uploadWithFallback = async (archive, file) => {
   
   addLog(archive.section.id, '업로드 시작', file.name, `size=${(file.size / 1024 / 1024).toFixed(2)}MB`);
   
-  let lastError;
-  
-  for (const service of uploadServices) {
-    try {
-      archive.elements.dropzoneStatus.textContent = `${service.name}에 업로드 중...`;
-      addLog(archive.section.id, `${service.name} 시도`, file.name);
-      
-      const link = await uploadToService(archive, file, service);
-      
-      addLog(archive.section.id, `${service.name} 성공`, link);
-      return link;
-      
-    } catch (error) {
-      lastError = error;
-      addLog(archive.section.id, `${service.name} 실패`, error.message);
-      console.warn(`${service.name} 업로드 실패:`, error);
-    }
+  try {
+    // 로컬 저장 방식 (CORS 문제 없음)
+    archive.elements.dropzoneStatus.textContent = '로컬 저장 중...';
+    addLog(archive.section.id, '로컬 저장 시도', file.name);
+    
+    const dataUrl = await uploadToLocal(archive, file);
+    
+    addLog(archive.section.id, '로컬 저장 성공', 'Base64 인코딩 완료');
+    return dataUrl;
+    
+  } catch (error) {
+    addLog(archive.section.id, '로컬 저장 실패', error.message);
+    throw new Error(`로컬 저장 실패: ${error.message}`);
   }
-  
-  throw new Error(`모든 업로드 서비스 실패. 마지막 오류: ${lastError?.message || '알 수 없는 오류'}`);
 };
 
 const seedUploads = async (archive) => {

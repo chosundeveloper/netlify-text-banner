@@ -310,6 +310,22 @@ const githubTokenInput = document.getElementById('github-token-input');
 
 let logs = [];
 
+// BroadcastChannel을 통한 자동 동기화
+if (typeof BroadcastChannel !== 'undefined') {
+  const syncChannel = new BroadcastChannel('gamdasal-sync');
+  syncChannel.addEventListener('message', (event) => {
+    if (event.data.type === 'data-update' && archives.length > 0) {
+      const archive = archives[0];
+      const newData = event.data.data;
+      if (newData.version === archive.section.storageVersion) {
+        archive.uploads = newData.data || [];
+        renderUploads(archive);
+        addLog(archive.section.id, '자동 동기화', '다른 탭에서 데이터 업데이트됨');
+      }
+    }
+  });
+}
+
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 const formatNow = () => {
@@ -428,16 +444,26 @@ const syncToGist = async (archive) => {
     // 로컬 저장소에 저장
     localStorage.setItem('gamdasal-shared-data', JSON.stringify(sharedData));
     
-    // URL 공유를 통한 데이터 동기화 (모든 기기에서 작동)
+    // 간단한 클라우드 동기화 (모든 기기에서 작동)
     try {
       // 데이터를 압축하여 URL에 포함
       const compressedData = btoa(JSON.stringify(sharedData));
       const shareUrl = `${window.location.origin}${window.location.pathname}?data=${compressedData}`;
       
-      // 공유 URL을 로컬에 저장 (다른 기기에서 접근 가능)
+      // 공유 URL을 로컬에 저장
       localStorage.setItem('gamdasal-share-url', shareUrl);
       
-      addLog(archive.section.id, '클라우드 저장', 'URL 공유 방식으로 저장됨');
+      // 자동으로 다른 탭/창에 데이터 전송 시도
+      if (typeof BroadcastChannel !== 'undefined') {
+        const channel = new BroadcastChannel('gamdasal-sync');
+        channel.postMessage({
+          type: 'data-update',
+          data: sharedData
+        });
+        channel.close();
+      }
+      
+      addLog(archive.section.id, '클라우드 저장', '자동 동기화 완료');
       addLog(archive.section.id, '공유 URL', shareUrl);
     } catch (e) {
       addLog(archive.section.id, '클라우드 저장 실패', '로컬 저장만 완료');

@@ -462,14 +462,19 @@
         background: rgba(255, 255, 255, 0.08);
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
       }
-      .upload-thumb {
-        width: 60px;
-        aspect-ratio: 16 / 10;
-        border-radius: 0.8rem;
-        background: linear-gradient(135deg, rgba(255, 154, 158, 0.4), rgba(250, 208, 196, 0.35));
-        display: grid;
-        place-items: center;
-        font-size: 1.2rem;
+      .upload-video {
+        flex: 0 0 160px;
+        max-width: 200px;
+        border-radius: 1.1rem;
+        overflow: hidden;
+        box-shadow: 0 0.8rem 1.6rem rgba(0, 0, 0, 0.35);
+      }
+      .upload-video video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.35);
       }
       .upload-info {
         text-align: left;
@@ -559,20 +564,24 @@
       <section class="recent-uploads">
         <h2>최근 업로드 예시</h2>
         <div class="upload-list">
-          <div class="upload-item">
-            <div class="upload-thumb">🎬</div>
+          <article class="upload-item">
+            <div class="upload-video">
+              <video controls preload="metadata" src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4" poster="https://dummyimage.com/320x180/1e1b3f/ffffff&text=정요한+VLOG"></video>
+            </div>
             <div class="upload-info">
               <strong>이하연셀 정요한 — 새벽 큐티 VLOG</strong>
               <span>2025-10-22 · 1분 12초</span>
             </div>
-          </div>
-          <div class="upload-item">
-            <div class="upload-thumb">🎥</div>
+          </article>
+          <article class="upload-item">
+            <div class="upload-video">
+              <video controls preload="metadata" src="https://samplelib.com/lib/preview/mp4/sample-10s.mp4" poster="https://dummyimage.com/320x180/2a2558/ffffff&text=강민욱+연습"></video>
+            </div>
             <div class="upload-info">
               <strong>이하연셀 강민욱 — 찬양 연습 라이브</strong>
               <span>2025-10-21 · 58초</span>
             </div>
-          </div>
+          </article>
         </div>
       </section>
 

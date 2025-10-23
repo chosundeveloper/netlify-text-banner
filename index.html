@@ -2,217 +2,107 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8">
-    <title>감다살 첼린지</title>
+    <title>감다살 공 뽑기</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
       :root {
         color-scheme: light dark;
       }
-      * {
-        box-sizing: border-box;
-      }
       body {
         margin: 0;
         min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
-        font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
-        background: radial-gradient(circle at top, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        display: grid;
+        place-items: center;
+        font-family: 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+        background: radial-gradient(circle at top, #182848 0%, #4b6cb7 100%);
         color: #fff;
       }
       main {
-        width: min(760px, 100%);
-        background: rgba(0, 0, 0, 0.45);
-        border-radius: 1.75rem;
-        padding: clamp(2.5rem, 5vw, 3.75rem);
-        box-shadow: 0 2.5rem 4rem rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(12px);
         text-align: center;
+        padding: clamp(2.5rem, 6vw, 4rem);
+        border-radius: 1.5rem;
+        background: rgba(0, 0, 0, 0.45);
+        box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.35);
       }
       h1 {
         margin: 0 0 1rem;
-        font-size: clamp(2.25rem, 4vw, 3.2rem);
-        letter-spacing: 0.03em;
+        font-size: clamp(2.2rem, 4vw, 3rem);
       }
-      p.description {
-        margin: 0 0 2.5rem;
-        font-size: clamp(1rem, 2.3vw, 1.2rem);
-        line-height: 1.7;
-        color: rgba(255, 255, 255, 0.85);
+      p {
+        margin: 0 0 2.2rem;
+        font-size: clamp(1rem, 2.4vw, 1.2rem);
+        color: rgba(255, 255, 255, 0.82);
       }
-      .ball-button {
-        position: relative;
+      button {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: clamp(1.1rem, 2.4vw, 1.4rem) clamp(2.4rem, 5vw, 3.6rem);
-        font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+        gap: 0.65rem;
+        padding: clamp(1rem, 2.3vw, 1.3rem) clamp(2.4rem, 5vw, 3.5rem);
+        font-size: clamp(1.2rem, 2.5vw, 1.6rem);
         font-weight: 700;
-        color: #1e2a36;
-        background: radial-gradient(circle at 20% 20%, #f6d365 0%, #fda085 50%, #f6ad55 100%);
+        color: #1e2430;
+        background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
         border: none;
         border-radius: 999px;
         cursor: pointer;
+        box-shadow: 0 1.6rem 3rem rgba(248, 181, 0, 0.35);
         transition: transform 0.18s ease, box-shadow 0.22s ease;
-        box-shadow: 0 1.5rem 2.8rem rgba(253, 160, 133, 0.4);
       }
-      .ball-button::before {
-        content: '⚾️';
-        font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+      button::before {
+        content: '🎱';
       }
-      .ball-button:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 2rem 3.2rem rgba(253, 160, 133, 0.42);
+      button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 2rem 3.4rem rgba(248, 181, 0, 0.4);
       }
-      .ball-button:active {
-        transform: translateY(1px) scale(0.98);
+      button:active {
+        transform: translateY(1px);
       }
-      .result-card {
-        margin-top: clamp(2.2rem, 4vw, 3rem);
-        padding: clamp(1.8rem, 4vw, 2.5rem);
-        border-radius: 1.5rem;
-        background: rgba(255, 255, 255, 0.1);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+      .result {
+        margin-top: clamp(2.4rem, 4vw, 3rem);
       }
       .result-label {
         text-transform: uppercase;
         font-size: 0.9rem;
         letter-spacing: 0.18em;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 0.68);
       }
       .result-name {
-        margin: 0.6rem 0 0.35rem;
-        font-size: clamp(2.65rem, 5vw, 3.8rem);
+        margin: 0.6rem 0 0;
+        font-size: clamp(2.4rem, 4.6vw, 3.6rem);
         font-weight: 800;
-        letter-spacing: 0.02em;
-      }
-      .result-sub {
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.78);
-      }
-      .chips {
-        margin-top: clamp(2rem, 4vw, 2.75rem);
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: 0;
-        list-style: none;
-      }
-      .chips li {
-        padding: 0.55rem 1.1rem;
-        border-radius: 999px;
-        font-size: 0.95rem;
-        background: rgba(255, 255, 255, 0.16);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(6px);
-      }
-      .history {
-        margin-top: clamp(2rem, 3.6vw, 2.6rem);
-        text-align: left;
-        background: rgba(0, 0, 0, 0.28);
-        border-radius: 1.25rem;
-        padding: 1.4rem 1.6rem;
-      }
-      .history h2 {
-        margin: 0 0 0.8rem;
-        font-size: 1.1rem;
-        letter-spacing: 0.04em;
-      }
-      .history ol {
-        margin: 0;
-        padding-left: 1.1rem;
-        display: grid;
-        row-gap: 0.35rem;
-        color: rgba(255, 255, 255, 0.82);
-      }
-      .empty-history {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.95rem;
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>감다살 첼린지</h1>
-      <p class="description">버튼을 누를 때마다 감다살 셀 구성원 중 한 명이 무작위로 선택됩니다. 오늘의 미션 담당자는 누구일까요?</p>
+      <h1>감다살 공 뽑기</h1>
+      <p>버튼을 누르면 아래 이름 중 한 명이 랜덤으로 선택됩니다.</p>
 
-      <button id="draw-btn" class="ball-button">공 뽑기</button>
+      <button id="draw-btn">공 뽑기</button>
 
-      <section class="result-card" aria-live="polite">
+      <div class="result" aria-live="polite">
         <div class="result-label">이번에 뽑힌 사람</div>
         <div id="result-name" class="result-name">아직 뽑지 않았어요</div>
-        <div id="result-sub" class="result-sub">버튼을 눌러 공을 뽑아보세요.</div>
-      </section>
-
-      <ul class="chips" id="candidate-chips"></ul>
-
-      <section class="history" aria-live="polite">
-        <h2>추첨 기록</h2>
-        <div id="history-empty" class="empty-history">추첨을 시작하면 최근 10명의 기록이 여기에 표시됩니다.</div>
-        <ol id="history-list" hidden></ol>
-      </section>
+      </div>
     </main>
 
     <script>
       const candidates = ['이하연셀 정요한', '이하연셀 이하연', '이하연셀 강민욱'];
-      const history = [];
-      const drawBtn = document.getElementById('draw-btn');
       const resultName = document.getElementById('result-name');
-      const resultSub = document.getElementById('result-sub');
-      const candidateChips = document.getElementById('candidate-chips');
-      const historyList = document.getElementById('history-list');
-      const historyEmpty = document.getElementById('history-empty');
-
-      const renderCandidates = () => {
-        candidateChips.innerHTML = '';
-        candidates.forEach((name) => {
-          const li = document.createElement('li');
-          li.textContent = name;
-          candidateChips.append(li);
-        });
-      };
-
-      const renderHistory = () => {
-        if (!history.length) {
-          historyEmpty.hidden = false;
-          historyList.hidden = true;
-          return;
-        }
-        historyEmpty.hidden = true;
-        historyList.hidden = false;
-        historyList.innerHTML = '';
-        history.slice(0, 10).forEach((entry) => {
-          const item = document.createElement('li');
-          item.textContent = entry;
-          historyList.append(item);
-        });
-      };
-
-      const draw = () => {
-        const index = Math.floor(Math.random() * candidates.length);
-        const picked = candidates[index];
-        resultName.textContent = picked;
-        resultSub.textContent = '축하합니다! 한 번 더 뽑으려면 버튼을 눌러주세요.';
-        history.unshift(picked);
-        renderHistory();
-      };
+      const drawBtn = document.getElementById('draw-btn');
 
       drawBtn.addEventListener('click', () => {
         drawBtn.disabled = true;
-        drawBtn.style.transform = 'scale(0.98)';
+        drawBtn.style.transform = 'scale(0.97)';
         setTimeout(() => {
           drawBtn.style.transform = 'scale(1)';
           drawBtn.disabled = false;
-        }, 180);
-        draw();
-      });
+        }, 200);
 
-      renderCandidates();
-      renderHistory();
+        const index = Math.floor(Math.random() * candidates.length);
+        resultName.textContent = candidates[index];
+      });
     </script>
   </body>
 </html>

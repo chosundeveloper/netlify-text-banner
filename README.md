@@ -24,3 +24,7 @@ netlify deploy --prod
 ```
 
 배포 후 `https://netlify-text-banner.netlify.app`에서 감다살 첼린지를 바로 진행할 수 있습니다.
+
+
+## 추가 페이지
+- THANKS 테마: https://chosundeveloper.github.io/netlify-text-banner/thanks/

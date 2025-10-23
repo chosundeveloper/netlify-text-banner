@@ -1,4 +1,4 @@
-# 감다살 THANKS 영상 아카이브
+# 감다살 THANKS
 
 감사/간증 영상을 따로 모아두기 위한 간단한 리스트 페이지입니다. 메인 페이지와 저장소를 분리하기 위해 `gamdasal-thanks-uploads`라는 `localStorage` 키를 사용합니다.
 

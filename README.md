@@ -1,4 +1,4 @@
-# 감다살 첼린지 영상 아카이브
+# 감다살 첼린지
 
 감다살 셀 구성원들이 촬영한 첼린지 영상을 모아 보는 단순한 웹 페이지입니다. 영상 제목과 MP4 주소만 입력하면 목록에 추가되고, 브라우저 `localStorage`에 저장되어 다음 접속에도 그대로 유지됩니다.
 
@@ -16,7 +16,7 @@
 ## 배포 순서
 ```bash
 git add .
-git commit -m "update: 감다살 첼린지 영상 아카이브"
+git commit -m "update: 감다살 첼린지"
 git push origin main
 netlify deploy --prod
 ```

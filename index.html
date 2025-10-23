@@ -230,8 +230,12 @@
           <p class="archive-description">최근 업로드 시도와 응답을 확인할 수 있습니다.</p>
         </div>
         <div class="upload-list" id="log-list"></div>
-        <div class="upload-actions" style="justify-content:flex-end;">
+        <div class="upload-actions" style="justify-content:flex-end; gap:0.6rem; flex-wrap:wrap;">
+          <input id="gist-id-input" placeholder="Gist ID (공유 코드)" style="padding:0.5rem 0.8rem; border-radius:0.8rem; border:none; background:rgba(255,255,255,0.12); color:#fff; min-width:14rem;">
+          <input id="github-token-input" placeholder="GitHub Token (repo:gist)" style="padding:0.5rem 0.8rem; border-radius:0.8rem; border:none; background:rgba(255,255,255,0.12); color:#fff; min-width:16rem;" type="password">
+          <button type="button" id="save-gist-config">저장</button>
           <button type="button" id="sync-gist">클라우드 동기화</button>
+          <button type="button" id="copy-gist-id">공유 코드 복사</button>
           <button type="button" id="log-copy">로그 복사</button>
           <button type="button" id="log-clear">로그 초기화</button>
         </div>
@@ -253,7 +257,7 @@
               <button type="button" class="select-button">파일 선택</button>
               <input class="upload-file" type="file" accept="video/*">
             </div>
-            <small class="upload-hint">여러 업로드 서비스 자동 시도 (file.io, imgur, catbox)</small>
+            <small class="upload-hint">여러 업로드 서비스 자동 시도 (catbox, imgur)</small>
             <button type="submit" class="submit-button">업로드</button>
           </form>
         </section>
@@ -286,6 +290,7 @@ const GIST_CONFIG = {
 
 // Gist ID를 저장할 키
 const GIST_ID_KEY = 'gamdasal-gist-id';
+const GITHUB_TOKEN_KEY = 'gamdasal-github-token';
 
 const template = document.getElementById('archive-template');
 const container = document.getElementById('archives');
@@ -293,6 +298,10 @@ const logListEl = document.getElementById('log-list');
 const logCopyBtn = document.getElementById('log-copy');
 const logClearBtn = document.getElementById('log-clear');
 const syncGistBtn = document.getElementById('sync-gist');
+const saveGistConfigBtn = document.getElementById('save-gist-config');
+const copyGistIdBtn = document.getElementById('copy-gist-id');
+const gistIdInput = document.getElementById('gist-id-input');
+const githubTokenInput = document.getElementById('github-token-input');
 
 let logs = [];
 
@@ -389,6 +398,14 @@ const setGistId = (gistId) => {
   localStorage.setItem(GIST_ID_KEY, gistId);
 };
 
+const getGithubToken = () => {
+  return localStorage.getItem(GITHUB_TOKEN_KEY);
+};
+
+const setGithubToken = (token) => {
+  localStorage.setItem(GITHUB_TOKEN_KEY, token);
+};
+
 const syncToGist = async (archive) => {
   try {
     const gistId = getGistId();
@@ -407,13 +424,17 @@ const syncToGist = async (archive) => {
       }
     };
     
+    const token = getGithubToken();
+    const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
     if (gistId) {
       // 기존 Gist 업데이트
       const response = await fetch(`https://api.github.com/gists/${gistId}`, {
         method: 'PATCH',
         headers: {
           'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify(gistData)
       });
@@ -429,7 +450,8 @@ const syncToGist = async (archive) => {
         method: 'POST',
         headers: {
           'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify(gistData)
       });
@@ -543,16 +565,15 @@ const setSelectedFile = (archive, file) => {
 
 const uploadServices = [
   {
-    name: 'file.io',
-    url: 'https://www.file.io/?json=true&expires=1w',
+    name: 'catbox',
+    url: 'https://catbox.moe/user/api.php',
     method: 'POST',
     parseResponse: async (response) => {
-      const bodyText = await response.text();
-      const result = JSON.parse(bodyText);
-      if (!result.success || !result.link) {
-        throw new Error(result.message || '업로드 실패');
+      const text = await response.text();
+      if (!text.startsWith('http')) {
+        throw new Error('업로드 실패');
       }
-      return result.link;
+      return text.trim();
     }
   },
   {
@@ -800,6 +821,30 @@ logClearBtn.addEventListener('click', () => {
   logs = [];
   persistLogs();
   renderLogs();
+});
+
+// 설정 저장 버튼
+saveGistConfigBtn.addEventListener('click', () => {
+  const id = gistIdInput.value.trim();
+  const token = githubTokenInput.value.trim();
+  if (id) setGistId(id);
+  if (token) setGithubToken(token);
+  alert('설정이 저장되었습니다. 동기화를 실행해 주세요.');
+});
+
+// 공유 코드 복사 버튼
+copyGistIdBtn.addEventListener('click', async () => {
+  const id = getGistId();
+  if (!id) {
+    alert('저장된 Gist ID가 없습니다. 먼저 동기화하거나 직접 입력해 저장하세요.');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(id);
+    alert('Gist ID가 복사되었습니다. 다른 기기에 붙여넣기 하세요.');
+  } catch (e) {
+    alert('복사에 실패했습니다.');
+  }
 });
 
 syncGistBtn.addEventListener('click', async () => {

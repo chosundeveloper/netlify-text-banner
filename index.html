@@ -218,8 +218,8 @@
   <body>
     <main>
       <header>
-        <h1>감다살 영상 아카이브</h1>
-        <p>감다살 첼린지와 THANKS 영상을 한 페이지에서 등록하고 시청하세요.</p>
+        <h1>감다살 첼린지</h1>
+        <p>감다살 셀의 미션/첼린지 영상을 등록하고 시청하세요.</p>
       </header>
 
       <div id="archives"></div>
@@ -267,40 +267,9 @@ const sections = [
     title: '감다살 첼린지',
     description: '감다살 셀의 미션/첼린지 영상을 공유하는 공간입니다.',
     storageKey: 'gamdasal-challenge-uploads',
-    storageVersion: '2025-10-24-challenge',
+    storageVersion: '2025-10-24-challenge-v2',
     posterColor: '211d44',
-    defaults: [
-      { title: '이하연셀 강민욱 — 찬양 워십', subtitle: '2025-10-25 · 1분 20초', src: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4', poster: 'https://dummyimage.com/320x180/211d44/ffffff&text=%EA%B0%95%EB%AF%BC%EC%9A%B1+WORSHIP' },
-      { title: '이하연셀 정요한 — 큐티 나눔', subtitle: '2025-10-24 · 1분 05초', src: 'https://samplelib.com/lib/preview/mp4/sample-10s.mp4', poster: 'https://dummyimage.com/320x180/26224f/ffffff&text=%EC%A0%95%EC%9A%94%ED%95%9C+QT' },
-      { title: '이하연셀 이하연 — 미션 VLOG', subtitle: '2025-10-23 · 58초', src: 'https://samplelib.com/lib/preview/mp4/sample-12s.mp4', poster: 'https://dummyimage.com/320x180/2a2b63/ffffff&text=%EC%9D%B4%ED%95%98%EC%97%B0+VLOG' },
-      { title: '이하연셀 팀 — 미션 준비 현장', subtitle: '2025-10-22 · 1분 12초', src: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4', poster: 'https://dummyimage.com/320x180/1e2a54/ffffff&text=%EB%AF%B8%EC%85%98+%EC%A4%80%EB%B9%84' },
-      { title: '이하연셀 — 거리 사역 스케치', subtitle: '2025-10-21 · 1분 25초', src: 'https://samplelib.com/lib/preview/mp4/sample-20s.mp4', poster: 'https://dummyimage.com/320x180/1a2d5f/ffffff&text=%EA%B1%B0%EB%A6%AC%EC%82%AC%EC%97%AD' },
-      { title: '이하연셀 — 새벽 기도 인증', subtitle: '2025-10-20 · 45초', src: 'https://samplelib.com/lib/preview/mp4/sample-30s.mp4', poster: 'https://dummyimage.com/320x180/223264/ffffff&text=%EC%83%88%EB%B2%BD+%EA%B8%B0%EB%8F%84' },
-      { title: '이하연셀 — 봉사 현장 기록', subtitle: '2025-10-19 · 1분 40초', src: 'https://samplelib.com/lib/preview/mp4/sample-40s.mp4', poster: 'https://dummyimage.com/320x180/23346d/ffffff&text=%EB%B4%89%EC%82%AC+%ED%98%84%EC%9E%A5' },
-      { title: '이하연셀 — 찬양 합주 리허설', subtitle: '2025-10-18 · 1분 55초', src: 'https://samplelib.com/lib/preview/mp4/sample-50s.mp4', poster: 'https://dummyimage.com/320x180/263775/ffffff&text=%EC%B0%AC%EC%96%91+%ED%95%A9%EC%A3%BC' },
-      { title: '이하연셀 — 주일 예배 준비', subtitle: '2025-10-17 · 2분 20초', src: 'https://samplelib.com/lib/preview/mp4/sample-100s.mp4', poster: 'https://dummyimage.com/320x180/293b7f/ffffff&text=%EC%A3%BC%EC%9D%BC+%EC%98%88%EB%B0%B0' },
-      { title: '이하연셀 — 한 주 나눔 하이라이트', subtitle: '2025-10-16 · 2분 45초', src: 'https://samplelib.com/lib/preview/mp4/sample-150s.mp4', poster: 'https://dummyimage.com/320x180/2d3f88/ffffff&text=%ED%95%9C%EC%A3%BC+%EB%82%98%EB%88%94' }
-    ]
-  },
-  {
-    id: 'thanks',
-    title: '감다살 THANKS',
-    description: '감사와 간증 영상을 함께 나누는 THANKS 전용 공간입니다.',
-    storageKey: 'gamdasal-thanks-uploads',
-    storageVersion: '2025-10-24-thanks',
-    posterColor: '1d285f',
-    defaults: [
-      { title: '이하연셀 정요한 — 감사 간증', subtitle: '2025-10-18 · 1분 02초', src: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4', poster: 'https://dummyimage.com/320x180/1b2245/ffffff&text=%EA%B0%95%EC%9D%8C+THANKS' },
-      { title: '이하연셀 이하연 — THANKS 찬양', subtitle: '2025-10-17 · 55초', src: 'https://samplelib.com/lib/preview/mp4/sample-10s.mp4', poster: 'https://dummyimage.com/320x180/2a2860/ffffff&text=%EC%9D%B4%ED%95%98%EC%97%B0+THANKS' },
-      { title: '이하연셀 강민욱 — 감사 브이로그', subtitle: '2025-10-16 · 1분 10초', src: 'https://samplelib.com/lib/preview/mp4/sample-12s.mp4', poster: 'https://dummyimage.com/320x180/2f2d6b/ffffff&text=%EA%B0%95%EB%AF%BC%EC%9A%B1+VLOG' },
-      { title: '이하연셀 — THANKS 나눔', subtitle: '2025-10-15 · 1분 28초', src: 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4', poster: 'https://dummyimage.com/320x180/202759/ffffff&text=THANKS+%EB%82%98%EB%88%94' },
-      { title: '이하연셀 — 감사 카드 만들기', subtitle: '2025-10-14 · 1분 36초', src: 'https://samplelib.com/lib/preview/mp4/sample-20s.mp4', poster: 'https://dummyimage.com/320x180/1d285f/ffffff&text=%EA%B0%90%EC%82%AC+%EC%B9%B4%EB%93%9C' },
-      { title: '이하연셀 — 축복 기도 모임', subtitle: '2025-10-13 · 1분 50초', src: 'https://samplelib.com/lib/preview/mp4/sample-30s.mp4', poster: 'https://dummyimage.com/320x180/222a68/ffffff&text=%EC%B6%95%EB%B3%B5+%EA%B8%B0%EB%8F%84' },
-      { title: '이하연셀 — 간증 인터뷰', subtitle: '2025-10-12 · 2분 05초', src: 'https://samplelib.com/lib/preview/mp4/sample-40s.mp4', poster: 'https://dummyimage.com/320x180/232c72/ffffff&text=%EA%B0%84%EC%A6%9D+Interview' },
-      { title: '이하연셀 — THANKS 워십', subtitle: '2025-10-11 · 2분 20초', src: 'https://samplelib.com/lib/preview/mp4/sample-50s.mp4', poster: 'https://dummyimage.com/320x180/27307d/ffffff&text=THANKS+Worship' },
-      { title: '이하연셀 — 감사 릴레이', subtitle: '2025-10-10 · 2분 35초', src: 'https://samplelib.com/lib/preview/mp4/sample-100s.mp4', poster: 'https://dummyimage.com/320x180/2c3385/ffffff&text=%EA%B0%90%EC%82%AC+Relay' },
-      { title: '이하연셀 — THANKS 하이라이트', subtitle: '2025-10-09 · 2분 50초', src: 'https://samplelib.com/lib/preview/mp4/sample-150s.mp4', poster: 'https://dummyimage.com/320x180/30378f/ffffff&text=THANKS+Highlight' }
-    ]
+    defaults: []
   }
 ];
 

@@ -1,30 +1,41 @@
-# Netlify 문자 출력 예제
+# Netlify 랜덤 공 뽑기
 
-아주 간단한 정적 페이지를 Netlify에 배포하기 위한 예제입니다. `index.html`의 내용을 원하는 문구로 바꾸고 GitHub 저장소에 올린 뒤 Netlify와 연동하면 자동으로 배포됩니다.
+사람 이름을 입력한 뒤 공을 뽑아 무작위로 한 사람을 선택하는 간단한 웹 애플리케이션입니다. 입력된 이름은 후보 목록에 저장되고 뽑힌 사람은 자동으로 목록에서 제외되어, 중복 없이 추첨을 진행할 수 있습니다.
 
-## 사용 방법
+## 주요 기능
+- 이름 입력 후 `추가` 버튼으로 후보 등록
+- 후보별 개별 삭제 버튼 제공
+- `공 뽑기` 버튼으로 무작위 추첨 (뽑히면 후보 목록에서 제거)
+- 추첨 기록과 초기화 기능 제공
+- 순수 HTML/CSS/Vanilla JS로 구현되어 어디에서든 쉽게 배포 가능
 
-1. 이 디렉터리에서 Git 초기화 및 커밋을 준비합니다.
+## 로컬/수정 방법
+1. `index.html`의 텍스트나 스타일을 자유롭게 변경합니다.
+2. 변경 사항을 Git에 커밋합니다.
    ```bash
-   git init
    git add .
-   git commit -m "초기 커밋: Netlify 데모"
+   git commit -m "update: 공 뽑기 UI 개선"
    ```
-2. GitHub에 새 저장소를 만든 후 원격을 등록하고 푸시합니다.
+3. 원격 저장소에 푸시합니다.
    ```bash
-   git remote add origin https://github.com/<your-id>/<repo-name>.git
-   git push -u origin main
+   git push origin main
    ```
-3. [Netlify](https://app.netlify.com/)에 접속하여 **Add new site → Import an existing project → GitHub**를 선택합니다.
-4. 방금 만든 GitHub 저장소를 선택하고 다음 설정을 적용합니다.
-   - **Build command:** (빈 칸으로 두기)
-   - **Publish directory:** `.`
-5. **Deploy site** 버튼을 누르면 몇 초 내로 배포가 완료됩니다.
-6. 배포 URL을 확인하고, 필요하다면 `Site settings → Domain management`에서 사용자 지정 도메인을 연결할 수 있습니다.
 
-## 수정 포인트
+## Netlify 배포
+이 프로젝트는 Netlify에 수동 배포(Manual deploy)로 연결되어 있습니다.
 
-- 문구를 바꾸고 싶으면 `index.html`의 `<h1>`나 `<p>` 내용을 수정하세요.
-- 정적 파일을 추가하려면 같은 디렉터리에 이미지를 넣거나, 하위 폴더를 만들어 링크하면 됩니다.
+1. Netlify CLI에 로그인되어 있지 않다면 다음 명령을 실행합니다.
+   ```bash
+   netlify login
+   ```
+2. 최신 변경 사항을 실서비스에 반영하려면 프로젝트 디렉터리에서 다음 명령을 실행합니다.
+   ```bash
+   netlify deploy --prod
+   ```
+3. 배포 후 출력되는 `Production deploy URL`로 접속해 결과를 확인합니다.
 
-즐거운 배포 되세요!
+자동 배포(Git 연동)를 사용하고 싶다면 Netlify 대시보드에서 GitHub 저장소와 연결하고 빌드 명령/퍼블리시 경로를 아래와 같이 설정하세요.
+- **Build command:** (빈 값)
+- **Publish directory:** `.`
+
+즐거운 추첨 되세요!

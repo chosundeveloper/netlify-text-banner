@@ -2,42 +2,331 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8">
-    <title>Netlify 테스트</title>
+    <title>랜덤 공 뽑기</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+      :root {
+        color-scheme: light dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
-        font-family: 'Segoe UI', sans-serif;
+        font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
         display: flex;
-        align-items: center;
         justify-content: center;
         min-height: 100vh;
         margin: 0;
-        background: linear-gradient(135deg, #6dd5fa 0%, #2980b9 100%);
+        background: radial-gradient(circle at top, #6dd5fa 0%, #2980b9 35%, #0f2027 100%);
         color: #fff;
-        text-align: center;
+        padding: 2rem 1rem;
       }
       main {
-        background: rgba(0, 0, 0, 0.3);
-        padding: 3rem 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.35);
+        width: min(720px, 100%);
+        background: rgba(0, 0, 0, 0.45);
+        border-radius: 1.5rem;
+        padding: clamp(2rem, 3vw + 1rem, 3.5rem);
+        box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.45);
       }
       h1 {
-        margin-bottom: 1rem;
-        font-size: 2.5rem;
+        margin: 0 0 .75rem;
+        font-size: clamp(2rem, 3.5vw, 3rem);
       }
-      p {
-        margin: 0;
-        font-size: 1.2rem;
+      p.subtitle {
+        margin: 0 0 2rem;
+        font-size: 1.05rem;
         line-height: 1.6;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+      }
+      label {
+        text-align: left;
+        font-weight: 600;
+      }
+      .input-row {
+        display: flex;
+        gap: 0.75rem;
+      }
+      input[type="text"] {
+        flex: 1;
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.9rem 1.1rem;
+        font-size: 1rem;
+        outline: none;
+        background: rgba(255, 255, 255, 0.92);
+        color: #04324f;
+      }
+      input[type="text"]::placeholder {
+        color: rgba(4, 50, 79, 0.5);
+      }
+      button {
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.9rem 1.35rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .primary-btn {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: #4a2c02;
+        box-shadow: 0 0.75rem 1.5rem rgba(253, 160, 133, 0.35);
+      }
+      .secondary-btn {
+        background: rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+      section {
+        text-align: left;
+        margin-bottom: 2.5rem;
+      }
+      section h2 {
+        font-size: 1.25rem;
+        margin: 0 0 1rem;
+      }
+      ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        padding: 0;
+        margin: 0;
+      }
+      li.candidate {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 999px;
+        padding: 0.55rem 1rem 0.55rem 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        backdrop-filter: blur(6px);
+      }
+      li.candidate span {
+        letter-spacing: 0.01em;
+      }
+      li button.remove-btn {
+        width: 1.8rem;
+        height: 1.8rem;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 0;
+      }
+      li button.remove-btn:hover {
+        background: rgba(0, 0, 0, 0.55);
+      }
+      li.empty-state {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        padding: 1.2rem 1.5rem;
+        flex: 1 1 100%;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+      }
+      .result-card {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 1.25rem;
+        padding: 1.75rem 1.5rem;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      .result-label {
+        font-size: 0.95rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .result-name {
+        font-size: clamp(2.2rem, 6vw, 3.2rem);
+        font-weight: 700;
+        margin: 0.35rem 0 0.15rem;
+      }
+      .history {
+        margin-top: 1.5rem;
+        font-size: 0.95rem;
+      }
+      .history strong {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      @media (max-width: 640px) {
+        .input-row,
+        .actions {
+          flex-direction: column;
+        }
+        button,
+        input[type="text"] {
+          width: 100%;
+        }
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>Netlify에 오신 걸 환영합니다!</h1>
-      <p>이 페이지는 GitHub 저장소에서 Netlify로 자동 배포됩니다.</p>
-      <p>이 문구를 자유롭게 바꿔보세요.</p>
+      <h1>출석 공 뽑기</h1>
+      <p class="subtitle">사람 이름을 입력하고 공을 뽑아 랜덤으로 한 명을 선택해 보세요. 뽑힌 사람은 후보 목록에서 자동으로 제외됩니다.</p>
+
+      <form id="add-form" autocomplete="off">
+        <label for="name-input">이름 추가</label>
+        <div class="input-row">
+          <input id="name-input" type="text" placeholder="예: 홍길동" maxlength="30" required>
+          <button type="submit" class="primary-btn">추가</button>
+        </div>
+      </form>
+
+      <section>
+        <h2>현재 후보 (<span id="count">0</span>명)</h2>
+        <ul id="candidate-list">
+          <li class="empty-state">이름을 입력한 뒤 추가 버튼을 눌러 후보를 채워주세요.</li>
+        </ul>
+      </section>
+
+      <div class="actions">
+        <button id="draw-btn" class="primary-btn" disabled>공 뽑기</button>
+        <button id="reset-btn" class="secondary-btn" disabled>전체 초기화</button>
+      </div>
+
+      <section class="result-card" aria-live="polite">
+        <div class="result-label">이번에 뽑힌 사람</div>
+        <div id="result-name" class="result-name">대기 중…</div>
+        <div id="result-hint" class="history">후보를 추가하고 공을 뽑아보세요.</div>
+      </section>
     </main>
+
+    <script>
+      const state = { pool: [], history: [] };
+      const nameInput = document.getElementById('name-input');
+      const addForm = document.getElementById('add-form');
+      const candidateList = document.getElementById('candidate-list');
+      const countEl = document.getElementById('count');
+      const drawBtn = document.getElementById('draw-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const resultName = document.getElementById('result-name');
+      const resultHint = document.getElementById('result-hint');
+
+      const normalizeName = (value) => value.replace(/\s+/g, ' ').trim();
+
+      const renderCandidates = () => {
+        candidateList.innerHTML = '';
+        if (!state.pool.length) {
+          const empty = document.createElement('li');
+          empty.className = 'empty-state';
+          empty.textContent = '이름을 입력한 뒤 추가 버튼을 눌러 후보를 채워주세요.';
+          candidateList.append(empty);
+          countEl.textContent = '0';
+          drawBtn.disabled = true;
+          resetBtn.disabled = !state.history.length;
+          return;
+        }
+
+        state.pool.forEach((name, index) => {
+          const item = document.createElement('li');
+          item.className = 'candidate';
+
+          const label = document.createElement('span');
+          label.textContent = name;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'remove-btn';
+          removeBtn.setAttribute('aria-label', `${name} 삭제`);
+          removeBtn.textContent = '×';
+          removeBtn.addEventListener('click', () => {
+            state.pool.splice(index, 1);
+            renderCandidates();
+            updateResultHint();
+          });
+
+          item.append(label, removeBtn);
+          candidateList.append(item);
+        });
+
+        countEl.textContent = String(state.pool.length);
+        drawBtn.disabled = state.pool.length === 0;
+        resetBtn.disabled = false;
+      };
+
+      const updateResultHint = () => {
+        if (!state.history.length) {
+          resultHint.textContent = '후보를 추가하고 공을 뽑아보세요.';
+          return;
+        }
+        const [latest, ...rest] = state.history;
+        if (rest.length) {
+          resultHint.innerHTML = `<strong>기록</strong>: ${[latest, ...rest].join(', ')}`;
+        } else {
+          resultHint.textContent = '다시 공을 뽑아 더 많은 사람을 선택할 수 있어요.';
+        }
+      };
+
+      addForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const normalized = normalizeName(nameInput.value);
+        if (!normalized) {
+          nameInput.value = '';
+          nameInput.focus();
+          return;
+        }
+        const duplicate = state.pool.find((item) => item.toLowerCase() === normalized.toLowerCase());
+        if (duplicate) {
+          alert('이미 추가된 이름입니다. 다른 이름을 입력해주세요.');
+          nameInput.focus();
+          return;
+        }
+        state.pool.push(normalized);
+        nameInput.value = '';
+        nameInput.focus();
+        renderCandidates();
+        updateResultHint();
+      });
+
+      drawBtn.addEventListener('click', () => {
+        if (!state.pool.length) return;
+        const index = Math.floor(Math.random() * state.pool.length);
+        const [picked] = state.pool.splice(index, 1);
+        state.history.unshift(picked);
+        resultName.textContent = picked;
+        renderCandidates();
+        updateResultHint();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        if (!state.pool.length && !state.history.length) return;
+        const confirmReset = confirm('후보 목록과 기록을 모두 초기화할까요?');
+        if (!confirmReset) return;
+        state.pool = [];
+        state.history = [];
+        resultName.textContent = '대기 중…';
+        renderCandidates();
+        updateResultHint();
+      });
+
+      renderCandidates();
+      updateResultHint();
+    </script>
   </body>
 </html>

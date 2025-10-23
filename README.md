@@ -23,6 +23,5 @@ netlify deploy --prod
 
 GitHub Pages 주소: https://chosundeveloper.github.io/netlify-text-banner/
 
-## THANKS / 업로드 도우미
-- THANKS 전용: https://chosundeveloper.github.io/netlify-text-banner/thanks/
-- 업로드 도우미: https://chosundeveloper.github.io/netlify-text-banner/uploader/
+## THANKS 페이지
+- https://chosundeveloper.github.io/netlify-text-banner/thanks/

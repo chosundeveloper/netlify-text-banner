@@ -14,13 +14,15 @@
       body {
         margin: 0;
         min-height: 100vh;
-        display: grid;
-        place-items: center;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
         font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
         color: #f7f4ff;
         background: radial-gradient(circle at 18% 18%, #04020c 0%, #0f0b26 45%, #010008 100%);
         overflow-x: hidden;
         overflow-y: auto;
+        padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem);
       }
       .backdrop {
         position: absolute;
@@ -36,14 +38,14 @@
       main {
         position: relative;
         z-index: 1;
-        width: min(720px, 94vw);
-        padding: clamp(2.6rem, 6vw, 4.6rem);
-        border-radius: 3rem;
+        width: min(720px, 100%);
+        padding: clamp(2.4rem, 5.5vw, 4rem);
+        border-radius: clamp(2rem, 4vw, 3rem);
         background: rgba(15, 12, 32, 0.78);
         box-shadow: 0 3.4rem 5.4rem rgba(2, 0, 18, 0.72), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
         backdrop-filter: blur(22px);
         display: grid;
-        gap: clamp(2.6rem, 5.4vw, 4rem);
+        gap: clamp(2.4rem, 5vw, 3.6rem);
         justify-items: center;
         text-align: center;
       }
@@ -367,30 +369,55 @@
         color: #ffd4f7;
       }
       @media (max-width: 600px) {
+        body {
+          padding: 1.6rem 1rem 2.2rem;
+        }
         main {
-          padding: 2.2rem 1.6rem 2.4rem;
-          gap: 2.2rem;
+          padding: 2rem 1.3rem 2.4rem;
+          gap: 2rem;
         }
         .pot-group {
           flex-direction: column;
           gap: 1.4rem;
         }
         .ball-bin {
-          width: 140px;
-          height: 180px;
+          width: 130px;
+          height: 170px;
         }
         .pot {
-          width: 260px;
-          height: 200px;
+          width: 240px;
+          height: 190px;
+        }
+        .orbit-ball {
+          transform: translate(-50%, -50%) rotate(calc(var(--i) * 30deg)) translateX(80px);
         }
         .tray {
-          width: 240px;
+          width: 220px;
         }
         .result-card {
-          padding: 1.2rem 1.3rem;
+          padding: 1.1rem 1.2rem;
         }
         .upload-cta {
-          padding: 1.2rem 1.4rem;
+          padding: 1.1rem 1.3rem;
+        }
+      }
+      @media (max-width: 420px) {
+        .pot {
+          width: 210px;
+          height: 170px;
+        }
+        .orbit-ball {
+          transform: translate(-50%, -50%) rotate(calc(var(--i) * 30deg)) translateX(68px);
+        }
+        .result-card {
+          padding: 1rem;
+        }
+        .ball-bin {
+          width: 120px;
+          height: 160px;
+        }
+        button {
+          width: 100%;
         }
       }
       .recent-uploads {

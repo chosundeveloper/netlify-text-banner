@@ -12,323 +12,207 @@
         box-sizing: border-box;
       }
       body {
-        font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+        margin: 0;
+        min-height: 100vh;
         display: flex;
         justify-content: center;
-        min-height: 100vh;
-        margin: 0;
-        background: radial-gradient(circle at top, #6dd5fa 0%, #2980b9 35%, #0f2027 100%);
+        align-items: center;
+        padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
+        font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+        background: radial-gradient(circle at top, #0f2027 0%, #203a43 50%, #2c5364 100%);
         color: #fff;
-        padding: 2rem 1rem;
       }
       main {
-        width: min(720px, 100%);
+        width: min(760px, 100%);
         background: rgba(0, 0, 0, 0.45);
-        border-radius: 1.5rem;
-        padding: clamp(2rem, 3vw + 1rem, 3.5rem);
-        box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.45);
+        border-radius: 1.75rem;
+        padding: clamp(2.5rem, 5vw, 3.75rem);
+        box-shadow: 0 2.5rem 4rem rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(12px);
+        text-align: center;
       }
       h1 {
-        margin: 0 0 .75rem;
-        font-size: clamp(2rem, 3.5vw, 3rem);
+        margin: 0 0 1rem;
+        font-size: clamp(2.25rem, 4vw, 3.2rem);
+        letter-spacing: 0.03em;
       }
-      p.subtitle {
-        margin: 0 0 2rem;
-        font-size: 1.05rem;
-        line-height: 1.6;
+      p.description {
+        margin: 0 0 2.5rem;
+        font-size: clamp(1rem, 2.3vw, 1.2rem);
+        line-height: 1.7;
         color: rgba(255, 255, 255, 0.85);
       }
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 1.75rem;
-      }
-      label {
-        text-align: left;
-        font-weight: 600;
-      }
-      .input-row {
-        display: flex;
-        gap: 0.75rem;
-      }
-      input[type="text"] {
-        flex: 1;
-        border: none;
-        border-radius: 0.75rem;
-        padding: 0.9rem 1.1rem;
-        font-size: 1rem;
-        outline: none;
-        background: rgba(255, 255, 255, 0.92);
-        color: #04324f;
-      }
-      input[type="text"]::placeholder {
-        color: rgba(4, 50, 79, 0.5);
-      }
-      button {
-        border: none;
-        border-radius: 0.75rem;
-        padding: 0.9rem 1.35rem;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
-      }
-      button:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-      }
-      .primary-btn {
-        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-        color: #4a2c02;
-        box-shadow: 0 0.75rem 1.5rem rgba(253, 160, 133, 0.35);
-      }
-      .secondary-btn {
-        background: rgba(255, 255, 255, 0.18);
-        color: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      button:hover:not(:disabled) {
-        transform: translateY(-2px);
-      }
-      section {
-        text-align: left;
-        margin-bottom: 2.5rem;
-      }
-      section h2 {
-        font-size: 1.25rem;
-        margin: 0 0 1rem;
-      }
-      ul {
-        list-style: none;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.65rem;
-        padding: 0;
-        margin: 0;
-      }
-      li.candidate {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 999px;
-        padding: 0.55rem 1rem 0.55rem 1.3rem;
-        display: flex;
+      .ball-button {
+        position: relative;
+        display: inline-flex;
         align-items: center;
-        gap: 0.65rem;
-        backdrop-filter: blur(6px);
-      }
-      li.candidate span {
-        letter-spacing: 0.01em;
-      }
-      li button.remove-btn {
-        width: 1.8rem;
-        height: 1.8rem;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.35);
-        color: #fff;
-        font-size: 1.1rem;
-        line-height: 1;
-        padding: 0;
-      }
-      li button.remove-btn:hover {
-        background: rgba(0, 0, 0, 0.55);
-      }
-      li.empty-state {
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 1rem;
-        padding: 1.2rem 1.5rem;
-        flex: 1 1 100%;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.7);
-      }
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
+        justify-content: center;
         gap: 0.75rem;
-        margin-bottom: 2.5rem;
+        padding: clamp(1.1rem, 2.4vw, 1.4rem) clamp(2.4rem, 5vw, 3.6rem);
+        font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+        font-weight: 700;
+        color: #1e2a36;
+        background: radial-gradient(circle at 20% 20%, #f6d365 0%, #fda085 50%, #f6ad55 100%);
+        border: none;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.22s ease;
+        box-shadow: 0 1.5rem 2.8rem rgba(253, 160, 133, 0.4);
+      }
+      .ball-button::before {
+        content: '⚾️';
+        font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+      }
+      .ball-button:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 2rem 3.2rem rgba(253, 160, 133, 0.42);
+      }
+      .ball-button:active {
+        transform: translateY(1px) scale(0.98);
       }
       .result-card {
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: 1.25rem;
-        padding: 1.75rem 1.5rem;
-        text-align: center;
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        margin-top: clamp(2.2rem, 4vw, 3rem);
+        padding: clamp(1.8rem, 4vw, 2.5rem);
+        border-radius: 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
       }
       .result-label {
-        font-size: 0.95rem;
-        letter-spacing: 0.05em;
         text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.18em;
         color: rgba(255, 255, 255, 0.7);
       }
       .result-name {
-        font-size: clamp(2.2rem, 6vw, 3.2rem);
-        font-weight: 700;
-        margin: 0.35rem 0 0.15rem;
+        margin: 0.6rem 0 0.35rem;
+        font-size: clamp(2.65rem, 5vw, 3.8rem);
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+      .result-sub {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.78);
+      }
+      .chips {
+        margin-top: clamp(2rem, 4vw, 2.75rem);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0;
+        list-style: none;
+      }
+      .chips li {
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.16);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(6px);
       }
       .history {
-        margin-top: 1.5rem;
+        margin-top: clamp(2rem, 3.6vw, 2.6rem);
+        text-align: left;
+        background: rgba(0, 0, 0, 0.28);
+        border-radius: 1.25rem;
+        padding: 1.4rem 1.6rem;
+      }
+      .history h2 {
+        margin: 0 0 0.8rem;
+        font-size: 1.1rem;
+        letter-spacing: 0.04em;
+      }
+      .history ol {
+        margin: 0;
+        padding-left: 1.1rem;
+        display: grid;
+        row-gap: 0.35rem;
+        color: rgba(255, 255, 255, 0.82);
+      }
+      .empty-history {
+        color: rgba(255, 255, 255, 0.6);
         font-size: 0.95rem;
-      }
-      .history strong {
-        color: rgba(255, 255, 255, 0.85);
-      }
-      @media (max-width: 640px) {
-        .input-row,
-        .actions {
-          flex-direction: column;
-        }
-        button,
-        input[type="text"] {
-          width: 100%;
-        }
       }
     </style>
   </head>
   <body>
     <main>
       <h1>감다살 첼린지</h1>
-      <p class="subtitle">감다살 첼린지는 모임에서 랜덤으로 한 사람을 뽑아 벌칙이나 미션을 수행하게 하는 간단한 게임입니다. 이름을 입력하고 공을 뽑아 오늘의 주인공을 정해 보세요.</p>
+      <p class="description">버튼을 누를 때마다 감다살 셀 구성원 중 한 명이 무작위로 선택됩니다. 오늘의 미션 담당자는 누구일까요?</p>
 
-      <form id="add-form" autocomplete="off">
-        <label for="name-input">이름 추가</label>
-        <div class="input-row">
-          <input id="name-input" type="text" placeholder="예: 홍길동" maxlength="30" required>
-          <button type="submit" class="primary-btn">추가</button>
-        </div>
-      </form>
-
-      <section>
-        <h2>현재 후보 (<span id="count">0</span>명)</h2>
-        <ul id="candidate-list">
-          <li class="empty-state">이름을 입력한 뒤 추가 버튼을 눌러 후보를 채워주세요.</li>
-        </ul>
-      </section>
-
-      <div class="actions">
-        <button id="draw-btn" class="primary-btn" disabled>공 뽑기</button>
-        <button id="reset-btn" class="secondary-btn" disabled>전체 초기화</button>
-      </div>
+      <button id="draw-btn" class="ball-button">공 뽑기</button>
 
       <section class="result-card" aria-live="polite">
         <div class="result-label">이번에 뽑힌 사람</div>
-        <div id="result-name" class="result-name">대기 중…</div>
-        <div id="result-hint" class="history">후보를 추가하고 공을 뽑아보세요.</div>
+        <div id="result-name" class="result-name">아직 뽑지 않았어요</div>
+        <div id="result-sub" class="result-sub">버튼을 눌러 공을 뽑아보세요.</div>
+      </section>
+
+      <ul class="chips" id="candidate-chips"></ul>
+
+      <section class="history" aria-live="polite">
+        <h2>추첨 기록</h2>
+        <div id="history-empty" class="empty-history">추첨을 시작하면 최근 10명의 기록이 여기에 표시됩니다.</div>
+        <ol id="history-list" hidden></ol>
       </section>
     </main>
 
     <script>
-      const state = { pool: ['이하연셀 정요한', '이하연셀 이하연', '이하연셀 강민욱'], history: [] };
-      const nameInput = document.getElementById('name-input');
-      const addForm = document.getElementById('add-form');
-      const candidateList = document.getElementById('candidate-list');
-      const countEl = document.getElementById('count');
+      const candidates = ['이하연셀 정요한', '이하연셀 이하연', '이하연셀 강민욱'];
+      const history = [];
       const drawBtn = document.getElementById('draw-btn');
-      const resetBtn = document.getElementById('reset-btn');
       const resultName = document.getElementById('result-name');
-      const resultHint = document.getElementById('result-hint');
-
-      const normalizeName = (value) => value.replace(/\s+/g, ' ').trim();
+      const resultSub = document.getElementById('result-sub');
+      const candidateChips = document.getElementById('candidate-chips');
+      const historyList = document.getElementById('history-list');
+      const historyEmpty = document.getElementById('history-empty');
 
       const renderCandidates = () => {
-        candidateList.innerHTML = '';
-        if (!state.pool.length) {
-          const empty = document.createElement('li');
-          empty.className = 'empty-state';
-          empty.textContent = '이름을 입력한 뒤 추가 버튼을 눌러 후보를 채워주세요.';
-          candidateList.append(empty);
-          countEl.textContent = '0';
-          drawBtn.disabled = true;
-          resetBtn.disabled = !state.history.length;
-          return;
-        }
-
-        state.pool.forEach((name, index) => {
-          const item = document.createElement('li');
-          item.className = 'candidate';
-
-          const label = document.createElement('span');
-          label.textContent = name;
-
-          const removeBtn = document.createElement('button');
-          removeBtn.type = 'button';
-          removeBtn.className = 'remove-btn';
-          removeBtn.setAttribute('aria-label', `${name} 삭제`);
-          removeBtn.textContent = '×';
-          removeBtn.addEventListener('click', () => {
-            state.pool.splice(index, 1);
-            renderCandidates();
-            updateResultHint();
-          });
-
-          item.append(label, removeBtn);
-          candidateList.append(item);
+        candidateChips.innerHTML = '';
+        candidates.forEach((name) => {
+          const li = document.createElement('li');
+          li.textContent = name;
+          candidateChips.append(li);
         });
-
-        countEl.textContent = String(state.pool.length);
-        drawBtn.disabled = state.pool.length === 0;
-        resetBtn.disabled = false;
       };
 
-      const updateResultHint = () => {
-        if (!state.history.length) {
-          resultHint.textContent = state.pool.length
-            ? '공을 뽑아 오늘의 주인공을 정해 보세요.'
-            : '후보를 추가하고 공을 뽑아보세요.';
+      const renderHistory = () => {
+        if (!history.length) {
+          historyEmpty.hidden = false;
+          historyList.hidden = true;
           return;
         }
-        const [latest, ...rest] = state.history;
-        if (rest.length) {
-          resultHint.innerHTML = `<strong>기록</strong>: ${[latest, ...rest].join(', ')}`;
-        } else {
-          resultHint.textContent = '다시 공을 뽑아 더 많은 사람을 선택할 수 있어요.';
-        }
+        historyEmpty.hidden = true;
+        historyList.hidden = false;
+        historyList.innerHTML = '';
+        history.slice(0, 10).forEach((entry) => {
+          const item = document.createElement('li');
+          item.textContent = entry;
+          historyList.append(item);
+        });
       };
 
-      addForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const normalized = normalizeName(nameInput.value);
-        if (!normalized) {
-          nameInput.value = '';
-          nameInput.focus();
-          return;
-        }
-        const duplicate = state.pool.find((item) => item.toLowerCase() === normalized.toLowerCase());
-        if (duplicate) {
-          alert('이미 추가된 이름입니다. 다른 이름을 입력해주세요.');
-          nameInput.focus();
-          return;
-        }
-        state.pool.push(normalized);
-        nameInput.value = '';
-        nameInput.focus();
-        renderCandidates();
-        updateResultHint();
-      });
+      const draw = () => {
+        const index = Math.floor(Math.random() * candidates.length);
+        const picked = candidates[index];
+        resultName.textContent = picked;
+        resultSub.textContent = '축하합니다! 한 번 더 뽑으려면 버튼을 눌러주세요.';
+        history.unshift(picked);
+        renderHistory();
+      };
 
       drawBtn.addEventListener('click', () => {
-        if (!state.pool.length) return;
-        const index = Math.floor(Math.random() * state.pool.length);
-        const [picked] = state.pool.splice(index, 1);
-        state.history.unshift(picked);
-        resultName.textContent = picked;
-        renderCandidates();
-        updateResultHint();
-      });
-
-      resetBtn.addEventListener('click', () => {
-        if (!state.pool.length && !state.history.length) return;
-        const confirmReset = confirm('후보 목록과 기록을 모두 초기화할까요?');
-        if (!confirmReset) return;
-        state.pool = [];
-        state.history = [];
-        resultName.textContent = '대기 중…';
-        renderCandidates();
-        updateResultHint();
+        drawBtn.disabled = true;
+        drawBtn.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+          drawBtn.style.transform = 'scale(1)';
+          drawBtn.disabled = false;
+        }, 180);
+        draw();
       });
 
       renderCandidates();
-      updateResultHint();
+      renderHistory();
     </script>
   </body>
 </html>

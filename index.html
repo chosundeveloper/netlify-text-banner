@@ -362,6 +362,52 @@
         font-weight: 600;
         color: #ffd4f7;
       }
+      .recent-uploads {
+        width: min(560px, 100%);
+        display: grid;
+        gap: 1rem;
+      }
+      .recent-uploads h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .upload-list {
+        display: grid;
+        gap: 0.9rem;
+      }
+      .upload-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.9rem 1.1rem;
+        border-radius: 1.2rem;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+      .upload-thumb {
+        width: 60px;
+        aspect-ratio: 16 / 10;
+        border-radius: 0.8rem;
+        background: linear-gradient(135deg, rgba(255, 154, 158, 0.4), rgba(250, 208, 196, 0.35));
+        display: grid;
+        place-items: center;
+        font-size: 1.2rem;
+      }
+      .upload-info {
+        text-align: left;
+      }
+      .upload-info strong {
+        display: block;
+        font-size: 1rem;
+        color: #ffe7f8;
+      }
+      .upload-info span {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
     </style>
   </head>
   <body>
@@ -434,6 +480,26 @@
         <strong>첼린지 미션</strong>
         <p>오늘의 감다살 첼린지는 <span id="cta-name">-</span>님! 선택된 사람은 <span>오늘 자정까지 감다살 첼린지 영상을 업로드</span>해 주세요. 늦으면 벌칙이 추가될 수 있어요 👀</p>
       </div>
+      <section class="recent-uploads">
+        <h2>최근 업로드 예시</h2>
+        <div class="upload-list">
+          <div class="upload-item">
+            <div class="upload-thumb">🎬</div>
+            <div class="upload-info">
+              <strong>이하연셀 정요한 — 새벽 큐티 VLOG</strong>
+              <span>2025-10-22 · 1분 12초</span>
+            </div>
+          </div>
+          <div class="upload-item">
+            <div class="upload-thumb">🎥</div>
+            <div class="upload-info">
+              <strong>이하연셀 강민욱 — 찬양 연습 라이브</strong>
+              <span>2025-10-21 · 58초</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <script>

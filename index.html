@@ -11,21 +11,24 @@
       * {
         box-sizing: border-box;
       }
-      html, body {
-        height: 100%;
-      }
       body {
         margin: 0;
         min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
         color: #f7f4ff;
         background: radial-gradient(circle at 18% 18%, #04020c 0%, #0f0b26 45%, #010008 100%);
         overflow-x: hidden;
         overflow-y: auto;
-        padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem);
+      }
+      .page {
+        position: relative;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.6rem);
+        box-sizing: border-box;
       }
       .backdrop {
         position: absolute;
@@ -42,6 +45,8 @@
         position: relative;
         z-index: 1;
         width: min(720px, 100%);
+        max-width: 720px;
+        margin: 0 auto;
         padding: clamp(2.4rem, 5.5vw, 4rem);
         border-radius: clamp(2rem, 4vw, 3rem);
         background: rgba(15, 12, 32, 0.78);
@@ -372,7 +377,7 @@
         color: #ffd4f7;
       }
       @media (max-width: 600px) {
-        body {
+        .page {
           padding: 1.6rem 1rem 2.2rem;
         }
         main {
@@ -405,6 +410,9 @@
         }
       }
       @media (max-width: 420px) {
+        .page {
+          padding: 1.4rem 0.9rem 2rem;
+        }
         .pot {
           width: 210px;
           height: 170px;
@@ -424,7 +432,7 @@
         }
       }
       @media (max-height: 780px) {
-        body {
+        .page {
           align-items: flex-start;
         }
       }
@@ -479,7 +487,8 @@
   </head>
   <body>
     <div class="backdrop"></div>
-    <main>
+    <div class="page">
+      <main>
       <span class="badge">감다살 첼린지 방송</span>
       <h1>오늘의 첼린지를 뽑아라!</h1>
       <div class="stage" id="stage">
@@ -568,6 +577,7 @@
       </section>
 
     </main>
+    </div>
 
     <script>
       const names = ['이하연셀 정요한', '강민욱', '이하연'];

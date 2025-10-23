@@ -218,7 +218,7 @@
     </main>
 
     <script>
-      const state = { pool: [], history: [] };
+      const state = { pool: ['이하연셀 정요한', '이하연셀 이하연', '이하연셀 강민욱'], history: [] };
       const nameInput = document.getElementById('name-input');
       const addForm = document.getElementById('add-form');
       const candidateList = document.getElementById('candidate-list');
@@ -272,7 +272,9 @@
 
       const updateResultHint = () => {
         if (!state.history.length) {
-          resultHint.textContent = '후보를 추가하고 공을 뽑아보세요.';
+          resultHint.textContent = state.pool.length
+            ? '공을 뽑아 오늘의 주인공을 정해 보세요.'
+            : '후보를 추가하고 공을 뽑아보세요.';
           return;
         }
         const [latest, ...rest] = state.history;

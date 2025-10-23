@@ -285,7 +285,7 @@ const LOG_LIMIT = 40;
 const GIST_CONFIG = {
   filename: 'gamdasal-uploads.json',
   description: '감다살 첼린지 영상 데이터',
-  public: false
+  public: true
 };
 
 // Gist ID를 저장할 키
@@ -382,8 +382,11 @@ const persistUploads = (archive) => {
     const payload = { version: archive.section.storageVersion, data: archive.uploads };
     localStorage.setItem(archive.section.storageKey, JSON.stringify(payload));
     
-    // Gist에도 동기화
-    syncToGist(archive);
+    // 자동으로 Gist에 동기화 (백그라운드)
+    syncToGist(archive).catch(error => {
+      console.warn('자동 동기화 실패:', error);
+      // 동기화 실패해도 로컬 저장은 유지
+    });
   } catch (error) {
     console.error('업로드 저장 실패', error);
   }
@@ -638,7 +641,7 @@ const uploadWithFallback = async (archive, file) => {
 
 const seedUploads = async (archive) => {
   try {
-    // 먼저 Gist에서 로드 시도
+    // 먼저 Gist에서 로드 시도 (자동 동기화)
     const gistLoaded = await loadFromGist(archive);
     
     if (gistLoaded) {
@@ -661,6 +664,10 @@ const seedUploads = async (archive) => {
       persistUploads(archive);
     } else {
       archive.uploads = storedData;
+      // 로컬 데이터가 있으면 자동으로 Gist에 동기화
+      syncToGist(archive).catch(error => {
+        console.warn('자동 동기화 실패:', error);
+      });
     }
   } catch (error) {
     archive.uploads = [...archive.section.defaults];

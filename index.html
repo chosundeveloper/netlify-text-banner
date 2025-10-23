@@ -281,6 +281,7 @@
         }
       ];
       const STORAGE_KEY = 'gamdasal-challenge-uploads';
+      const STORAGE_VERSION = '2025-10-23';
 
       const uploadList = document.getElementById('upload-list');
       const uploadForm = document.getElementById('upload-form');
@@ -302,7 +303,8 @@
 
       const persistUploads = () => {
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(uploads));
+          const payload = { version: STORAGE_VERSION, data: uploads };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
         } catch (error) {
           console.error('업로드 저장 실패', error);
         }
@@ -354,9 +356,12 @@
 
       const seedUploads = () => {
         try {
-          const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-          if (Array.isArray(stored) && stored.length) {
-            uploads = stored;
+          const storedRaw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+          if (storedRaw && storedRaw.version === STORAGE_VERSION && Array.isArray(storedRaw.data) && storedRaw.data.length) {
+            uploads = storedRaw.data;
+          } else if (Array.isArray(storedRaw)) {
+            uploads = storedRaw;
+            persistUploads();
           } else {
             uploads = [...DEFAULT_UPLOADS];
             persistUploads();

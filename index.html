@@ -27,7 +27,7 @@
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2.6rem);
+        padding: clamp(1.6rem, 4vw, 3.2rem) clamp(1.2rem, 3.5vw, 2.8rem);
         box-sizing: border-box;
       }
       .backdrop {
@@ -144,8 +144,7 @@
         border-radius: 50% / 58%;
         background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.18), rgba(86, 69, 176, 0.28), rgba(24, 20, 56, 0.92));
         box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 2.4rem 4rem rgba(0, 0, 0, 0.5);
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow: hidden;
       }
       .pot::before {
         content: '';
@@ -157,8 +156,7 @@
       .pot-cloud {
         position: absolute;
         inset: 18% 12% 10%;
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow: hidden;
       }
       .float-ball {
         position: absolute;
@@ -170,8 +168,14 @@
         animation: float 2.6s ease-in-out infinite;
       }
       @keyframes float {
-        0%, 100% { transform: translateY(0); opacity: 0.55; }
-        50% { transform: translateY(-16px); opacity: 0.9; }
+        0%, 100% {
+          transform: translateY(0);
+          opacity: 0.55;
+        }
+        50% {
+          transform: translateY(-16px);
+          opacity: 0.9;
+        }
       }
       .orbit {
         position: absolute;
@@ -210,8 +214,7 @@
         border-radius: 22px;
         background: linear-gradient(180deg, rgba(109, 97, 200, 0.3), rgba(24, 20, 60, 0.88));
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
-        overflow-x: hidden;
-        overflow-y: auto;
+        overflow: hidden;
       }
       .tube-glare {
         position: absolute;
@@ -238,9 +241,17 @@
         animation-delay: 0.6s;
       }
       @keyframes drop {
-        0% { transform: translateY(0); opacity: 0; }
-        20% { opacity: 1; }
-        100% { transform: translateY(160px); opacity: 1; }
+        0% {
+          transform: translateY(0);
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(160px);
+          opacity: 1;
+        }
       }
       .drawn-ball {
         position: absolute;
@@ -267,9 +278,18 @@
         animation: rise 1.8s ease-out forwards;
       }
       @keyframes rise {
-        0% { transform: translate(-50%, 80px) scale(0.6); opacity: 0; }
-        40% { transform: translate(-50%, -40px) scale(0.86); opacity: 1; }
-        100% { transform: translate(-50%, -140px) scale(1); opacity: 1; }
+        0% {
+          transform: translate(-50%, 80px) scale(0.6);
+          opacity: 0;
+        }
+        40% {
+          transform: translate(-50%, -40px) scale(0.86);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -140px) scale(1);
+          opacity: 1;
+        }
       }
       .tray {
         position: relative;
@@ -335,6 +355,27 @@
       .hint {
         font-size: 0.9rem;
         color: rgba(255, 255, 255, 0.68);
+        margin-bottom: 0.4rem;
+      }
+      .admin-actions {
+        display: flex;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .reset-button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.55rem 1.2rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.14);
+        color: rgba(26, 20, 54, 0.9);
+        cursor: pointer;
+        transition: filter 0.15s ease;
+      }
+      .reset-button:hover {
+        filter: brightness(1.1);
       }
       .sparkle {
         position: absolute;
@@ -345,9 +386,18 @@
         pointer-events: none;
       }
       @keyframes sparkle {
-        0% { transform: scale(0.15); opacity: 0.85; }
-        60% { transform: scale(1.45); opacity: 0.55; }
-        100% { transform: scale(0.15); opacity: 0; }
+        0% {
+          transform: scale(0.15);
+          opacity: 0.85;
+        }
+        60% {
+          transform: scale(1.45);
+          opacity: 0.55;
+        }
+        100% {
+          transform: scale(0.15);
+          opacity: 0;
+        }
       }
       .upload-cta {
         width: min(560px, 100%);
@@ -375,6 +425,149 @@
       .upload-cta span {
         font-weight: 600;
         color: #ffd4f7;
+      }
+      .recent-uploads {
+        width: min(560px, 100%);
+        display: grid;
+        gap: 1rem;
+      }
+      .recent-uploads h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .upload-note {
+        margin: 0;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .upload-list {
+        display: grid;
+        gap: 1rem;
+      }
+      .upload-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.2rem;
+        padding: 1rem 1.2rem;
+        border-radius: 1.3rem;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+      .upload-video {
+        flex: 0 0 180px;
+        max-width: 220px;
+        border-radius: 1.1rem;
+        overflow: hidden;
+        box-shadow: 0 0.8rem 1.6rem rgba(0, 0, 0, 0.35);
+      }
+      .upload-video video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.35);
+      }
+      .upload-info {
+        flex: 1 1 200px;
+        text-align: left;
+      }
+      .upload-info strong {
+        display: block;
+        font-size: 1rem;
+        color: #ffe7f8;
+      }
+      .upload-info span {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .upload-actions {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+      }
+      .upload-actions button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.16);
+        color: rgba(12, 10, 26, 0.85);
+        transition: filter 0.15s ease;
+      }
+      .upload-actions button:hover {
+        filter: brightness(1.08);
+      }
+      .upload-empty {
+        margin: 0;
+        padding: 1rem 1.2rem;
+        border-radius: 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.65);
+      }
+      .upload-form {
+        width: min(560px, 100%);
+        display: grid;
+        gap: 0.8rem;
+        padding: 1.4rem 1.6rem;
+        border-radius: 1.8rem;
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      .upload-form h2 {
+        margin: 0 0 0.2rem;
+        font-size: 1rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.78);
+      }
+      .upload-form label {
+        text-align: left;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .upload-form input,
+      .upload-form textarea {
+        width: 100%;
+        border: none;
+        border-radius: 0.9rem;
+        padding: 0.85rem 1rem;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      .upload-form input::placeholder,
+      .upload-form textarea::placeholder {
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .upload-form input:focus,
+      .upload-form textarea:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.32);
+      }
+      .upload-form-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .upload-form button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.75rem 1.8rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        color: #351d2f;
+        cursor: pointer;
+        box-shadow: 0 1.2rem 2.4rem rgba(255, 154, 158, 0.32);
+      }
+      .upload-form button:hover {
+        filter: brightness(1.04);
       }
       @media (max-width: 600px) {
         .page {
@@ -405,8 +598,20 @@
         .result-card {
           padding: 1.1rem 1.2rem;
         }
-        .upload-cta {
+        .upload-cta,
+        .upload-form {
           padding: 1.1rem 1.3rem;
+        }
+        .upload-item {
+          padding: 0.9rem;
+        }
+        .upload-video {
+          flex: 1 1 100%;
+          max-width: none;
+        }
+        .upload-actions {
+          width: 100%;
+          justify-content: flex-end;
         }
       }
       @media (max-width: 420px) {
@@ -436,160 +641,128 @@
           align-items: flex-start;
         }
       }
-
-      .recent-uploads {
-        width: min(560px, 100%);
-        display: grid;
-        gap: 1rem;
-      }
-      .recent-uploads h2 {
-        margin: 0;
-        font-size: 1.05rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.75);
-      }
-      .upload-list {
-        display: grid;
-        gap: 0.9rem;
-      }
-      .upload-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.9rem 1.1rem;
-        border-radius: 1.2rem;
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-      }
-      .upload-video {
-        flex: 0 0 160px;
-        max-width: 200px;
-        border-radius: 1.1rem;
-        overflow: hidden;
-        box-shadow: 0 0.8rem 1.6rem rgba(0, 0, 0, 0.35);
-      }
-      .upload-video video {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: rgba(0, 0, 0, 0.35);
-      }
-      .upload-info {
-        text-align: left;
-      }
-      .upload-info strong {
-        display: block;
-        font-size: 1rem;
-        color: #ffe7f8;
-      }
-      .upload-info span {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.7);
-      }
     </style>
   </head>
   <body>
     <div class="backdrop"></div>
     <div class="page">
       <main>
-      <span class="badge">감다살 첼린지 방송</span>
-      <h1>오늘의 첼린지를 뽑아라!</h1>
-      <div class="stage" id="stage">
-        <div class="pots">
-          <div class="pots-top">
-            <div class="pot-group">
-              <div class="ball-bin">
-                <div class="bin-grid">
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
-                  <span class="bin-ball"></span>
+        <span class="badge">감다살 첼린지 방송</span>
+        <h1>오늘의 첼린지를 뽑아라!</h1>
+        <div class="stage" id="stage">
+          <div class="pots">
+            <div class="pots-top">
+              <div class="pot-group">
+                <div class="ball-bin">
+                  <div class="bin-grid">
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                    <span class="bin-ball"></span>
+                  </div>
+                </div>
+                <div class="pot" id="pot">
+                  <div class="pot-cloud" id="pot-cloud"></div>
+                  <div class="orbit">
+                    <span class="orbit-ball" style="--i: 0"></span>
+                    <span class="orbit-ball" style="--i: 1"></span>
+                    <span class="orbit-ball" style="--i: 2"></span>
+                    <span class="orbit-ball" style="--i: 3"></span>
+                    <span class="orbit-ball" style="--i: 4"></span>
+                    <span class="orbit-ball" style="--i: 5"></span>
+                    <span class="orbit-ball" style="--i: 6"></span>
+                    <span class="orbit-ball" style="--i: 7"></span>
+                    <span class="orbit-ball" style="--i: 8"></span>
+                    <span class="orbit-ball" style="--i: 9"></span>
+                    <span class="orbit-ball" style="--i: 10"></span>
+                    <span class="orbit-ball" style="--i: 11"></span>
+                  </div>
+                  <div class="drawn-ball" id="drawn-ball">READY</div>
                 </div>
               </div>
-              <div class="pot" id="pot">
-                <div class="pot-cloud" id="pot-cloud"></div>
-                <div class="orbit">
-                  <span class="orbit-ball" style="--i: 0"></span>
-                  <span class="orbit-ball" style="--i: 1"></span>
-                  <span class="orbit-ball" style="--i: 2"></span>
-                  <span class="orbit-ball" style="--i: 3"></span>
-                  <span class="orbit-ball" style="--i: 4"></span>
-                  <span class="orbit-ball" style="--i: 5"></span>
-                  <span class="orbit-ball" style="--i: 6"></span>
-                  <span class="orbit-ball" style="--i: 7"></span>
-                  <span class="orbit-ball" style="--i: 8"></span>
-                  <span class="orbit-ball" style="--i: 9"></span>
-                  <span class="orbit-ball" style="--i: 10"></span>
-                  <span class="orbit-ball" style="--i: 11"></span>
-                </div>
-                <div class="drawn-ball" id="drawn-ball">READY</div>
+            </div>
+            <div class="tube">
+              <div class="tube-path">
+                <div class="tube-glare"></div>
+                <div id="tube-ball" class="tube-ball"></div>
               </div>
             </div>
-          </div>
-          <div class="tube">
-            <div class="tube-path">
-              <div class="tube-glare"></div>
-              <div id="tube-ball" class="tube-ball"></div>
-            </div>
-          </div>
-          <div class="tray">
-            <div class="result-card" id="result-card">
-              <div class="result-label">Today's Pick</div>
-              <p class="result-name" id="result-name">---</p>
-              <p class="result-desc">월드컵 조추첨처럼 한 명만 선택됩니다.</p>
+            <div class="tray">
+              <div class="result-card" id="result-card">
+                <div class="result-label">Today's Pick</div>
+                <p class="result-name" id="result-name">---</p>
+                <p class="result-desc">월드컵 조추첨처럼 한 명만 선택됩니다.</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <button id="draw-btn">첼린지 시작</button>
-      <p class="hint">* 방송처럼 단 한 번만 선택됩니다. 다시 하려면 새로고침하세요.</p>
-      <div id="upload-cta" class="upload-cta" hidden>
-        <strong>첼린지 미션</strong>
-        <p>오늘의 감다살 첼린지는 <span id="cta-name">-</span>님! 선택된 사람은 <span>오늘 자정까지 감다살 첼린지 영상을 업로드</span>해 주세요. 늦으면 벌칙이 추가될 수 있어요 👀</p>
-      </div>
-      <section class="recent-uploads">
-        <h2>최근 업로드 예시</h2>
-        <div class="upload-list">
-          <article class="upload-item">
-            <div class="upload-video">
-              <video controls preload="metadata" src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4" poster="https://dummyimage.com/320x180/1e1b3f/ffffff&text=정요한+VLOG"></video>
-            </div>
-            <div class="upload-info">
-              <strong>이하연셀 정요한 — 새벽 큐티 VLOG</strong>
-              <span>2025-10-22 · 1분 12초</span>
-            </div>
-          </article>
-          <article class="upload-item">
-            <div class="upload-video">
-              <video controls preload="metadata" src="https://samplelib.com/lib/preview/mp4/sample-10s.mp4" poster="https://dummyimage.com/320x180/2a2558/ffffff&text=강민욱+연습"></video>
-            </div>
-            <div class="upload-info">
-              <strong>이하연셀 강민욱 — 찬양 연습 라이브</strong>
-              <span>2025-10-21 · 58초</span>
-            </div>
-          </article>
+        <button id="draw-btn">첼린지 시작</button>
+        <p class="hint">* 방송처럼 단 한 번만 선택됩니다. 다시 하려면 새로고침 대신 관리자가 초기화를 진행하세요.</p>
+        <div class="admin-actions">
+          <button type="button" id="reset-draw" class="reset-button" hidden>추첨 초기화</button>
+          <button type="button" id="clear-uploads" class="reset-button">업로드 초기화</button>
         </div>
-      </section>
-
-    </main>
+        <div id="upload-cta" class="upload-cta" hidden>
+          <strong>첼린지 미션</strong>
+          <p>오늘의 감다살 첼린지는 <span id="cta-name">-</span>님! 선택된 사람은 <span>오늘 자정까지 감다살 첼린지 영상을 업로드</span>해 주세요. 늦으면 벌칙이 추가될 수 있어요 👀</p>
+        </div>
+        <section class="recent-uploads">
+          <h2>최근 업로드 예시</h2>
+          <div id="upload-list" class="upload-list"></div>
+          <p class="upload-note">실제 첼린지 영상을 기록하면 다음 접속에서도 계속 유지됩니다.</p>
+        </section>
+        <section class="upload-form" aria-labelledby="upload-form-title">
+          <h2 id="upload-form-title">새 영상 업로드 기록</h2>
+          <form id="upload-form" autocomplete="off">
+            <label for="upload-title">영상 제목</label>
+            <input id="upload-title" name="upload-title" type="text" maxlength="80" placeholder="예: 이하연셀 이하연 — 새벽 묵상" required>
+            <label for="upload-src">영상 링크 (mp4)</label>
+            <input id="upload-src" name="upload-src" type="url" placeholder="https://example.com/video.mp4" required>
+            <label for="upload-subtitle">추가 설명 (선택)</label>
+            <input id="upload-subtitle" name="upload-subtitle" type="text" maxlength="60" placeholder="예: 2025-10-23 · 1분 05초">
+            <label for="upload-poster">포스터 이미지 링크 (선택)</label>
+            <input id="upload-poster" name="upload-poster" type="url" placeholder="https://example.com/poster.jpg">
+            <div class="upload-form-actions">
+              <button type="submit">기록 추가</button>
+            </div>
+          </form>
+        </section>
+      </main>
     </div>
 
     <script>
-      const names = ['이하연셀 정요한', '강민욱', '이하연'];
+      const names = ['이하연셀 강민욱', '이하연셀 정요한', '이하연셀 이하연'];
+      const STORAGE_KEYS = {
+        draw: 'gamdasal-challenge-draw',
+        uploads: 'gamdasal-challenge-uploads'
+      };
+      const defaultUploads = [
+        {
+          title: '이하연셀 정요한 — 새벽 큐티 VLOG',
+          subtitle: '2025-10-22 · 1분 12초',
+          src: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
+          poster: 'https://dummyimage.com/320x180/1e1b3f/ffffff&text=%EC%A0%95%EC%9A%94%ED%95%9C+VLOG'
+        },
+        {
+          title: '이하연셀 강민욱 — 찬양 연습 라이브',
+          subtitle: '2025-10-21 · 58초',
+          src: 'https://samplelib.com/lib/preview/mp4/sample-10s.mp4',
+          poster: 'https://dummyimage.com/320x180/2a2558/ffffff&text=%EA%B0%95%EB%AF%BC%EC%9A%B1+LIVE'
+        }
+      ];
+
       const button = document.getElementById('draw-btn');
       const stage = document.getElementById('stage');
       const resultBall = document.getElementById('drawn-ball');
@@ -598,7 +771,119 @@
       const uploadCta = document.getElementById('upload-cta');
       const ctaName = document.getElementById('cta-name');
       const potCloud = document.getElementById('pot-cloud');
+      const resetDrawBtn = document.getElementById('reset-draw');
+      const clearUploadsBtn = document.getElementById('clear-uploads');
+      const uploadList = document.getElementById('upload-list');
+      const uploadForm = document.getElementById('upload-form');
+      const uploadTitleInput = document.getElementById('upload-title');
+      const uploadSrcInput = document.getElementById('upload-src');
+      const uploadSubtitleInput = document.getElementById('upload-subtitle');
+      const uploadPosterInput = document.getElementById('upload-poster');
+
       let hasDrawn = false;
+      let uploads = [];
+
+      const persistUploads = () => {
+        localStorage.setItem(STORAGE_KEYS.uploads, JSON.stringify(uploads));
+      };
+
+      const fallbackPoster = (title) => {
+        const safe = encodeURIComponent(title.slice(0, 18) || 'GamdAsal');
+        return `https://dummyimage.com/320x180/211d44/ffffff&text=${safe}`;
+      };
+
+      const formatNow = () => {
+        const now = new Date();
+        const pad = (value) => String(value).padStart(2, '0');
+        return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} · ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      };
+
+      const renderUploads = () => {
+        uploadList.innerHTML = '';
+        if (!uploads.length) {
+          const empty = document.createElement('p');
+          empty.className = 'upload-empty';
+          empty.textContent = '등록된 영상이 아직 없습니다. 위 양식을 사용해 첫 업로드를 기록해 보세요.';
+          uploadList.append(empty);
+          return;
+        }
+
+        uploads.forEach((item, index) => {
+          const article = document.createElement('article');
+          article.className = 'upload-item';
+
+          const videoWrap = document.createElement('div');
+          videoWrap.className = 'upload-video';
+          const video = document.createElement('video');
+          video.controls = true;
+          video.preload = 'metadata';
+          video.src = item.src;
+          if (item.poster) {
+            video.poster = item.poster;
+          }
+          videoWrap.append(video);
+
+          const info = document.createElement('div');
+          info.className = 'upload-info';
+          const title = document.createElement('strong');
+          title.textContent = item.title;
+          const subtitle = document.createElement('span');
+          subtitle.textContent = item.subtitle || '';
+          info.append(title, subtitle);
+
+          const actions = document.createElement('div');
+          actions.className = 'upload-actions';
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.textContent = '삭제';
+          removeBtn.dataset.remove = String(index);
+          actions.append(removeBtn);
+
+          article.append(videoWrap, info, actions);
+          uploadList.append(article);
+        });
+      };
+
+      const seedUploads = () => {
+        try {
+          const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.uploads) || 'null');
+          if (Array.isArray(stored)) {
+            uploads = stored;
+          }
+        } catch (error) {
+          uploads = [];
+        }
+        if (!uploads || !uploads.length) {
+          uploads = [...defaultUploads];
+          persistUploads();
+        }
+        renderUploads();
+      };
+
+      const updateAdminButtons = () => {
+        resetDrawBtn.hidden = !hasDrawn;
+        clearUploadsBtn.hidden = uploads.length === 0;
+      };
+
+      const applySavedDraw = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.draw) || 'null');
+          if (saved && saved.name) {
+            hasDrawn = true;
+            stage.classList.remove('drawing');
+            stage.classList.add('revealing');
+            tubeBall.style.opacity = '1';
+            resultBall.textContent = saved.name;
+            resultName.textContent = saved.name;
+            ctaName.textContent = saved.name;
+            button.disabled = true;
+            button.textContent = '첼린지 발표 완료';
+            uploadCta.hidden = false;
+          }
+        } catch (error) {
+          localStorage.removeItem(STORAGE_KEYS.draw);
+        }
+      };
 
       const seedCloud = () => {
         const count = 28;
@@ -645,18 +930,84 @@
 
         setTimeout(() => {
           const picked = names[Math.floor(Math.random() * names.length)];
+          const record = {
+            name: picked,
+            at: new Date().toISOString()
+          };
+          localStorage.setItem(STORAGE_KEYS.draw, JSON.stringify(record));
+
           resultBall.textContent = picked;
           resultName.textContent = picked;
           ctaName.textContent = picked;
           stage.classList.remove('drawing');
           stage.classList.add('revealing');
-          button.textContent = '첼린지 발표!';
+          button.textContent = '첼린지 발표 완료';
           uploadCta.hidden = false;
           createSparkles();
+          updateAdminButtons();
         }, 2200);
       });
 
+      uploadList.addEventListener('click', (event) => {
+        const target = event.target.closest('button[data-remove]');
+        if (!target) return;
+        const index = Number(target.dataset.remove);
+        if (Number.isNaN(index)) return;
+        const confirmRemove = window.confirm('이 업로드 기록을 삭제할까요?');
+        if (!confirmRemove) return;
+        uploads.splice(index, 1);
+        persistUploads();
+        renderUploads();
+        updateAdminButtons();
+      });
+
+      uploadForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const title = uploadTitleInput.value.trim();
+        const src = uploadSrcInput.value.trim();
+        if (!title || !src) {
+          window.alert('영상 제목과 링크를 입력해주세요.');
+          return;
+        }
+        const subtitle = uploadSubtitleInput.value.trim() || formatNow();
+        const poster = uploadPosterInput.value.trim() || fallbackPoster(title);
+        uploads.unshift({ title, subtitle, src, poster });
+        uploads = uploads.slice(0, 8);
+        persistUploads();
+        renderUploads();
+        updateAdminButtons();
+        uploadForm.reset();
+      });
+
+      resetDrawBtn.addEventListener('click', () => {
+        const confirmReset = window.confirm('추첨 기록을 초기화하고 다시 추첨할까요?');
+        if (!confirmReset) return;
+        localStorage.removeItem(STORAGE_KEYS.draw);
+        hasDrawn = false;
+        stage.classList.remove('drawing', 'revealing');
+        tubeBall.style.opacity = '0';
+        resultBall.textContent = 'READY';
+        resultName.textContent = '---';
+        ctaName.textContent = '-';
+        uploadCta.hidden = true;
+        button.disabled = false;
+        button.textContent = '첼린지 시작';
+        updateAdminButtons();
+      });
+
+      clearUploadsBtn.addEventListener('click', () => {
+        const confirmReset = window.confirm('업로드 목록을 기본 예시로 되돌릴까요?');
+        if (!confirmReset) return;
+        uploads = [...defaultUploads];
+        persistUploads();
+        renderUploads();
+        updateAdminButtons();
+      });
+
       seedCloud();
+      seedUploads();
+      applySavedDraw();
+      updateAdminButtons();
     </script>
   </body>
 </html>

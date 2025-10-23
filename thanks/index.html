@@ -357,14 +357,22 @@
       const seedUploads = () => {
         try {
           const storedRaw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-          if (storedRaw && storedRaw.version === STORAGE_VERSION && Array.isArray(storedRaw.data) && storedRaw.data.length) {
-            uploads = storedRaw.data;
+          let storedData = [];
+          if (storedRaw && Array.isArray(storedRaw.data)) {
+            storedData = storedRaw.data;
           } else if (Array.isArray(storedRaw)) {
-            uploads = storedRaw;
-            persistUploads();
-          } else {
+            storedData = storedRaw;
+          }
+
+          if (
+            !storedData.length ||
+            storedData.length < DEFAULT_UPLOADS.length ||
+            storedRaw?.version !== STORAGE_VERSION
+          ) {
             uploads = [...DEFAULT_UPLOADS];
             persistUploads();
+          } else {
+            uploads = storedData;
           }
         } catch (error) {
           uploads = [...DEFAULT_UPLOADS];

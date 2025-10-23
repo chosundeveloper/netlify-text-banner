@@ -26,3 +26,5 @@ GitHub Pages 주소: https://chosundeveloper.github.io/netlify-text-banner/
 ## THANKS 전용 페이지
 - https://chosundeveloper.github.io/netlify-text-banner/thanks/
 - `thanks/index.html`을 수정하면 THANKS 테마 전용 영상 목록을 따로 관리할 수 있습니다.
+
+- 업로드 도우미: https://chosundeveloper.github.io/netlify-text-banner/uploader/

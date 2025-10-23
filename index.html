@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8">
-    <title>감다살 로또 공 뽑기</title>
+    <title>감다살 로또 방송</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
       :root {
@@ -17,16 +17,16 @@
         display: grid;
         place-items: center;
         font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
-        color: #f8f6ff;
-        background: radial-gradient(circle at 15% 20%, #0c0a17 0%, #1b1737 35%, #06040d 80%);
+        color: #f7f4ff;
+        background: radial-gradient(circle at 15% 20%, #06040f 0%, #12102b 40%, #04020a 100%);
         overflow: hidden;
       }
       .backdrop {
         position: absolute;
         inset: -45vmax;
-        background: conic-gradient(from 160deg, rgba(86, 81, 255, 0.28), rgba(255, 114, 182, 0.14), rgba(86, 81, 255, 0.28));
-        filter: blur(125px) saturate(135%);
-        animation: swirl 24s linear infinite;
+        background: conic-gradient(from 160deg, rgba(88, 84, 255, 0.3), rgba(250, 113, 203, 0.14), rgba(88, 84, 255, 0.3));
+        filter: blur(140px) saturate(145%);
+        animation: swirl 26s linear infinite;
         pointer-events: none;
       }
       @keyframes swirl {
@@ -35,45 +35,55 @@
       main {
         position: relative;
         z-index: 1;
-        width: min(520px, 92vw);
-        padding: clamp(2.6rem, 6vw, 3.8rem);
-        border-radius: 2.4rem;
-        background: rgba(12, 10, 25, 0.72);
-        box-shadow: 0 2.8rem 4.8rem rgba(3, 0, 16, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(18px);
+        width: min(560px, 94vw);
+        padding: clamp(2.6rem, 6vw, 4.2rem);
+        border-radius: 2.6rem;
+        background: rgba(10, 8, 26, 0.75);
+        box-shadow: 0 3.2rem 5.2rem rgba(2, 0, 18, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
         display: grid;
-        gap: clamp(2.2rem, 5vw, 3.4rem);
+        gap: clamp(2.2rem, 5vw, 3.6rem);
         justify-items: center;
         text-align: center;
       }
       .badge {
-        display: inline-block;
-        padding: 0.48rem 1.2rem;
+        display: inline-flex;
+        gap: 0.4rem;
+        align-items: center;
+        padding: 0.5rem 1.4rem;
         border-radius: 999px;
-        background: rgba(255, 138, 206, 0.16);
-        color: rgba(255, 255, 255, 0.76);
+        background: rgba(255, 136, 212, 0.18);
+        color: rgba(255, 255, 255, 0.78);
         font-size: 0.82rem;
         letter-spacing: 0.32em;
         text-transform: uppercase;
       }
+      .badge::before {
+        content: '📺';
+        font-size: 1rem;
+      }
       h1 {
         margin: 0;
-        font-size: clamp(2.4rem, 5.5vw, 3.1rem);
-        letter-spacing: 0.05em;
-        text-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+        font-size: clamp(2.4rem, 5.8vw, 3.2rem);
+        letter-spacing: 0.06em;
+        text-shadow: 0 1rem 3.2rem rgba(0, 0, 0, 0.55);
+      }
+      .stage {
+        position: relative;
+        width: min(420px, 90vw);
       }
       .machine {
         position: relative;
-        width: min(360px, 80vw);
         display: grid;
         gap: 1.6rem;
       }
       .drum {
         position: relative;
+        width: 100%;
+        padding-top: 100%;
         border-radius: 50%;
-        padding: 2.6rem;
-        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.16), rgba(57, 45, 124, 0.25), rgba(22, 18, 54, 0.9));
-        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08), 0 1.8rem 3.2rem rgba(0, 0, 0, 0.4);
+        background: radial-gradient(circle at 28% 30%, rgba(255, 255, 255, 0.16), rgba(82, 67, 164, 0.22), rgba(24, 20, 56, 0.9));
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1), 0 2rem 3rem rgba(0, 0, 0, 0.45);
         overflow: hidden;
       }
       .drum::after {
@@ -83,19 +93,19 @@
         border-radius: 50%;
         border: 2px dashed rgba(255, 255, 255, 0.12);
       }
-      .orbit {
-        position: relative;
-        width: 100%;
-        padding-top: 100%;
+      .orbital {
+        position: absolute;
+        inset: 12%;
         animation: orbit 6s linear infinite;
+        transform-origin: center;
       }
-      .machine.drawing .orbit {
-        animation-duration: 1.4s;
+      .machine.drawing .orbital {
+        animation-duration: 1.2s;
       }
       @keyframes orbit {
         to { transform: rotate(-360deg); }
       }
-      .ball {
+      .mini-ball {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -103,48 +113,87 @@
         height: 38px;
         margin: -19px;
         border-radius: 50%;
-        background: radial-gradient(circle at 30% 25%, #fff3ba 0%, #ffd166 40%, #f78c6c 100%);
-        box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.35);
+        background: radial-gradient(circle at 30% 25%, #fff2b4 0%, #ffd36f 45%, #ff977a 100%);
+        box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.32);
+        transform: translate(-50%, -50%) rotate(calc(var(--i) * 60deg)) translateX(92px);
       }
-      .ball::after {
+      .mini-ball::after {
         content: '';
         position: absolute;
-        inset: 24%;
+        inset: 26%;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.32);
       }
-      .ball:nth-child(1) { transform: translate(-50%, -50%) rotate(0deg) translateX(90px); }
-      .ball:nth-child(2) { transform: translate(-50%, -50%) rotate(60deg) translateX(90px); }
-      .ball:nth-child(3) { transform: translate(-50%, -50%) rotate(120deg) translateX(90px); }
-      .ball:nth-child(4) { transform: translate(-50%, -50%) rotate(180deg) translateX(90px); }
-      .ball:nth-child(5) { transform: translate(-50%, -50%) rotate(240deg) translateX(90px); }
-      .ball:nth-child(6) { transform: translate(-50%, -50%) rotate(300deg) translateX(90px); }
+      .tube {
+        position: relative;
+        height: 120px;
+        display: grid;
+        place-items: center;
+      }
+      .tube-path {
+        position: relative;
+        width: 36px;
+        height: 100%;
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(109, 97, 200, 0.28), rgba(24, 20, 60, 0.85));
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+      }
+      .tube-glare {
+        position: absolute;
+        inset: 4px;
+        border-radius: 20px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+        opacity: 0.65;
+      }
+      .tube-ball {
+        position: absolute;
+        left: 50%;
+        top: -40px;
+        width: 34px;
+        height: 34px;
+        margin-left: -17px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 25%, #fff7c7 0%, #ffd57d 50%, #ff8b73 100%);
+        box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.32);
+        transform: translateY(0);
+        opacity: 0;
+      }
+      .machine.drawing .tube-ball {
+        animation: drop 1.2s ease-out forwards;
+        animation-delay: 0.6s;
+      }
+      @keyframes drop {
+        0% { transform: translateY(0); opacity: 0; }
+        20% { opacity: 1; }
+        100% { transform: translateY(150px); opacity: 1; }
+      }
       .tray {
         position: relative;
-        height: 110px;
+        height: 120px;
         border-radius: 999px;
-        background: linear-gradient(180deg, rgba(84, 70, 150, 0.45), rgba(22, 18, 54, 0.85));
-        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1), 0 14px 28px rgba(0, 0, 0, 0.35);
+        background: linear-gradient(180deg, rgba(72, 61, 140, 0.45), rgba(24, 20, 60, 0.88));
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 18px 32px rgba(0, 0, 0, 0.38);
         display: grid;
         place-items: center;
         padding: 1.4rem;
       }
       .result-ball {
-        width: clamp(120px, 35vw, 150px);
+        width: clamp(130px, 34vw, 160px);
         aspect-ratio: 1/1;
         border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, #ffffff 0%, #ffe0a0 40%, #ffad73 100%);
-        box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.42), 0 1.4rem 2.4rem rgba(255, 121, 97, 0.28);
+        background: radial-gradient(circle at 30% 30%, #ffffff 0%, #ffe3b9 38%, #ffb07b 100%);
+        box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.45), 0 1.5rem 2.6rem rgba(255, 143, 113, 0.32);
         display: grid;
         place-items: center;
-        font-size: clamp(1.05rem, 3.2vw, 1.3rem);
+        padding: 0 1.2rem;
+        font-size: clamp(1.1rem, 3.4vw, 1.35rem);
         font-weight: 700;
-        color: #2f1a17;
+        color: #2c1712;
         letter-spacing: 0.02em;
-        padding: 0 1rem;
         text-align: center;
         opacity: 0.35;
-        transform: translateY(18px) scale(0.92);
+        transform: translateY(22px) scale(0.9);
         transition: transform 0.4s ease, opacity 0.4s ease;
       }
       .result-ball.revealed {
@@ -154,21 +203,21 @@
       button {
         border: none;
         border-radius: 999px;
-        padding: 1rem 2.8rem;
+        padding: 1.05rem 3rem;
         font-size: 1.05rem;
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-        color: #351d2f;
+        color: #371a30;
         cursor: pointer;
-        box-shadow: 0 1.6rem 3.2rem rgba(255, 154, 158, 0.34);
+        box-shadow: 0 1.7rem 3.2rem rgba(255, 154, 158, 0.34);
         transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
       }
       button:hover:not(:disabled) {
         transform: translateY(-4px);
-        box-shadow: 0 2.1rem 3.4rem rgba(255, 154, 158, 0.4);
-        filter: brightness(1.03);
+        box-shadow: 0 2.3rem 3.5rem rgba(255, 154, 158, 0.4);
+        filter: brightness(1.04);
       }
       button:disabled {
         cursor: default;
@@ -177,46 +226,54 @@
         transform: none;
       }
       .hint {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.65);
+        font-size: 0.92rem;
+        color: rgba(255, 255, 255, 0.68);
       }
       .sparkle {
         position: absolute;
         width: 14px;
         height: 14px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 70%);
-        animation: sparkle 950ms ease-out forwards;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0) 70%);
+        animation: sparkle 980ms ease-out forwards;
         pointer-events: none;
       }
       @keyframes sparkle {
-        0% { transform: scale(0.2); opacity: 0.8; }
-        60% { transform: scale(1.4); opacity: 0.5; }
-        100% { transform: scale(0.2); opacity: 0; }
+        0% { transform: scale(0.15); opacity: 0.85; }
+        60% { transform: scale(1.45); opacity: 0.55; }
+        100% { transform: scale(0.15); opacity: 0; }
       }
     </style>
   </head>
   <body>
     <div class="backdrop"></div>
     <main>
-      <span class="badge">감다살 로또</span>
+      <span class="badge">감다살 로또 방송</span>
       <h1>오늘의 공을 뽑아라!</h1>
-      <div class="machine" id="machine">
-        <div class="drum">
-          <div class="orbit">
-            <span class="ball"></span>
-            <span class="ball"></span>
-            <span class="ball"></span>
-            <span class="ball"></span>
-            <span class="ball"></span>
-            <span class="ball"></span>
+      <div class="stage">
+        <div class="machine" id="machine">
+          <div class="drum">
+            <div class="orbital">
+              <span class="mini-ball" style="--i: 0"></span>
+              <span class="mini-ball" style="--i: 1"></span>
+              <span class="mini-ball" style="--i: 2"></span>
+              <span class="mini-ball" style="--i: 3"></span>
+              <span class="mini-ball" style="--i: 4"></span>
+              <span class="mini-ball" style="--i: 5"></span>
+            </div>
           </div>
-        </div>
-        <div class="tray">
-          <div id="result-ball" class="result-ball">READY</div>
+          <div class="tube">
+            <div class="tube-path">
+              <div class="tube-glare"></div>
+              <div id="tube-ball" class="tube-ball"></div>
+            </div>
+          </div>
+          <div class="tray">
+            <div id="result-ball" class="result-ball">READY</div>
+          </div>
         </div>
       </div>
       <button id="draw-btn">공 굴리기</button>
-      <p class="hint">* 한 번만 추첨할 수 있어요. 다시 하려면 새로고침!</p>
+      <p class="hint">* 방송처럼 단 한 번만 추첨됩니다. 다시 하려면 새로고침하세요.</p>
     </main>
 
     <script>
@@ -224,17 +281,18 @@
       const button = document.getElementById('draw-btn');
       const machine = document.getElementById('machine');
       const resultBall = document.getElementById('result-ball');
+      const tubeBall = document.getElementById('tube-ball');
       let hasDrawn = false;
 
       const createSparkles = () => {
-        for (let i = 0; i < 18; i += 1) {
+        for (let i = 0; i < 22; i += 1) {
           const sparkle = document.createElement('span');
           sparkle.className = 'sparkle';
-          sparkle.style.left = `${50 + (Math.random() - 0.5) * 160}%`;
-          sparkle.style.top = `${55 + (Math.random() - 0.5) * 120}%`;
-          sparkle.style.animationDelay = `${Math.random() * 0.2}s`;
+          sparkle.style.left = `${50 + (Math.random() - 0.5) * 180}%`;
+          sparkle.style.top = `${58 + (Math.random() - 0.5) * 120}%`;
+          sparkle.style.animationDelay = `${Math.random() * 0.25}s`;
           document.body.appendChild(sparkle);
-          setTimeout(() => sparkle.remove(), 900);
+          setTimeout(() => sparkle.remove(), 1000);
         }
       };
 
@@ -243,8 +301,13 @@
         hasDrawn = true;
         button.disabled = true;
         button.textContent = '추첨 중...';
-        machine.classList.add('drawing');
+        tubeBall.style.opacity = '0';
         resultBall.classList.remove('revealed');
+        machine.classList.add('drawing');
+
+        setTimeout(() => {
+          tubeBall.style.opacity = '1';
+        }, 550);
 
         setTimeout(() => {
           const picked = names[Math.floor(Math.random() * names.length)];
@@ -253,7 +316,7 @@
           machine.classList.remove('drawing');
           button.textContent = '추첨 완료!';
           createSparkles();
-        }, 2000);
+        }, 2200);
       });
     </script>
   </body>

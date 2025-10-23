@@ -232,12 +232,20 @@
         <div class="upload-list" id="log-list"></div>
         <div class="upload-actions" style="justify-content:flex-end; gap:0.6rem; flex-wrap:wrap;">
           <input id="gist-id-input" placeholder="Gist ID (공유 코드)" style="padding:0.5rem 0.8rem; border-radius:0.8rem; border:none; background:rgba(255,255,255,0.12); color:#fff; min-width:14rem;">
-          <input id="github-token-input" placeholder="GitHub Token (repo:gist)" style="padding:0.5rem 0.8rem; border-radius:0.8rem; border:none; background:rgba(255,255,255,0.12); color:#fff; min-width:16rem;" type="password">
+          <input id="github-token-input" placeholder="GitHub Token (gist 권한 필요)" style="padding:0.5rem 0.8rem; border-radius:0.8rem; border:none; background:rgba(255,255,255,0.12); color:#fff; min-width:16rem;" type="password">
           <button type="button" id="save-gist-config">저장</button>
           <button type="button" id="sync-gist">클라우드 동기화</button>
           <button type="button" id="copy-gist-id">공유 코드 복사</button>
           <button type="button" id="log-copy">로그 복사</button>
           <button type="button" id="log-clear">로그 초기화</button>
+        </div>
+        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
+          <strong>기기 간 동기화 설정:</strong><br>
+          1. GitHub → Settings → Developer settings → Personal access tokens → Generate new token<br>
+          2. "gist" 권한 체크 → 토큰 생성 → 복사<br>
+          3. 위 "GitHub Token" 입력창에 붙여넣기 → "저장"<br>
+          4. "클라우드 동기화" 클릭 → "공유 코드 복사"<br>
+          5. 다른 기기에서 Gist ID 입력 → "저장" → "클라우드 동기화"
         </div>
       </section>
 
@@ -420,6 +428,7 @@ const syncToGist = async (archive) => {
     
     const gistData = {
       description: GIST_CONFIG.description,
+      public: true,
       files: {
         [GIST_CONFIG.filename]: {
           content: JSON.stringify(data, null, 2)
@@ -443,12 +452,22 @@ const syncToGist = async (archive) => {
       });
       
       if (!response.ok) {
+        // 토큰 없이 실패하면 새 Gist 생성 시도
+        if (!token && response.status === 401) {
+          addLog(archive.section.id, 'Gist 동기화', '토큰 없음 - 새 Gist 생성 시도');
+          return; // 새 Gist 생성은 별도로 처리
+        }
         throw new Error(`Gist 업데이트 실패: ${response.status}`);
       }
       
       addLog(archive.section.id, 'Gist 동기화', '업데이트 완료');
     } else {
-      // 새 Gist 생성
+      // 새 Gist 생성 (토큰 없이는 실패할 수 있음)
+      if (!token) {
+        addLog(archive.section.id, 'Gist 동기화', '토큰 없음 - Gist 생성 건너뜀');
+        return;
+      }
+      
       const response = await fetch('https://api.github.com/gists', {
         method: 'POST',
         headers: {

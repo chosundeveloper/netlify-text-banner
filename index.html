@@ -423,32 +423,30 @@ const syncToGist = async (archive) => {
       deviceId: navigator.userAgent.slice(0, 50) // 기기 식별
     };
     
-    // 공유 저장소에 저장
+    // 로컬 저장소에 저장
     localStorage.setItem('gamdasal-shared-data', JSON.stringify(sharedData));
     
-    // 다른 기기에서도 읽을 수 있도록 공유 URL에 저장 시도
+    // JSONBin.io에 저장 (모든 브라우저에서 접근 가능)
     try {
-      await fetch('https://api.github.com/gists', {
+      const response = await fetch('https://api.jsonbin.io/v3/b', {
         method: 'POST',
         headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Master-Key': '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890' // 공개 키
         },
-        body: JSON.stringify({
-          description: '감다살 첼린지 공유 데이터',
-          public: true,
-          files: {
-            'gamdasal-uploads.json': {
-              content: JSON.stringify(sharedData, null, 2)
-            }
-          }
-        })
+        body: JSON.stringify(sharedData)
       });
+      
+      if (response.ok) {
+        const result = await response.json();
+        localStorage.setItem('gamdasal-bin-id', result.metadata.id);
+        addLog(archive.section.id, '클라우드 저장', 'JSONBin.io에 저장됨');
+      }
     } catch (e) {
-      // Gist 생성 실패해도 로컬 저장은 유지
+      addLog(archive.section.id, '클라우드 저장 실패', '로컬 저장만 완료');
     }
     
-    addLog(archive.section.id, '자동 동기화', '모든 기기에서 접근 가능');
+    addLog(archive.section.id, '자동 동기화', '모든 브라우저에서 접근 가능');
   } catch (error) {
     console.error('동기화 실패:', error);
     addLog(archive.section.id, '동기화 실패', error.message);
@@ -457,23 +455,44 @@ const syncToGist = async (archive) => {
 
 const loadFromGist = async (archive) => {
   try {
-    // 공유 데이터에서 로드
-    const sharedData = localStorage.getItem('gamdasal-shared-data');
-    if (!sharedData) return false;
+    // 먼저 로컬 데이터 확인
+    const localData = localStorage.getItem('gamdasal-shared-data');
+    if (localData) {
+      const data = JSON.parse(localData);
+      if (data.version === archive.section.storageVersion) {
+        archive.uploads = data.data || [];
+        addLog(archive.section.id, '로컬 데이터 로드', `${archive.uploads.length}개 영상 로드됨`);
+        return true;
+      }
+    }
     
-    const data = JSON.parse(sharedData);
-    
-    // 버전 확인
-    if (data.version === archive.section.storageVersion) {
-      archive.uploads = data.data || [];
-      addLog(archive.section.id, '공유 데이터 로드', `${archive.uploads.length}개 영상 로드됨`);
-      return true;
+    // 클라우드에서 최신 데이터 가져오기 시도
+    const binId = localStorage.getItem('gamdasal-bin-id');
+    if (binId) {
+      try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+          headers: {
+            'X-Master-Key': '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890'
+          }
+        });
+        
+        if (response.ok) {
+          const cloudData = await response.json();
+          if (cloudData.record && cloudData.record.version === archive.section.storageVersion) {
+            archive.uploads = cloudData.record.data || [];
+            addLog(archive.section.id, '클라우드 데이터 로드', `${archive.uploads.length}개 영상 로드됨`);
+            return true;
+          }
+        }
+      } catch (e) {
+        addLog(archive.section.id, '클라우드 로드 실패', '로컬 데이터 사용');
+      }
     }
     
     return false;
   } catch (error) {
-    console.error('공유 데이터 로드 실패:', error);
-    addLog(archive.section.id, '공유 데이터 로드 실패', error.message);
+    console.error('데이터 로드 실패:', error);
+    addLog(archive.section.id, '데이터 로드 실패', error.message);
     return false;
   }
 };

@@ -413,47 +413,57 @@ const mapRowToUpload = (row) => ({
 });
 
 const uploadToSupabaseStorage = async (archive, file) => {
-  const path = createStoragePath(archive, file);
-  const { error: uploadError } = await supabase
-    .storage
-    .from(SUPABASE_BUCKET)
-    .upload(path, file, { cacheControl: '3600', upsert: false });
-  if (uploadError) throw uploadError;
-  const { data } = supabase
-    .storage
-    .from(SUPABASE_BUCKET)
-    .getPublicUrl(path);
-  return { publicUrl: data.publicUrl, path };
+  // Base64로 변환하여 로컬 저장
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = reader.result;
+      const fileName = `upload_${Date.now()}_${file.name}`;
+      
+      // 로컬 저장소에 Base64 데이터 저장
+      const uploadData = {
+        id: Date.now().toString(),
+        name: file.name,
+        data: base64Data,
+        type: file.type,
+        size: file.size,
+        created_at: new Date().toISOString()
+      };
+      
+      const existingUploads = JSON.parse(localStorage.getItem('gamdasal-storage') || '[]');
+      existingUploads.push(uploadData);
+      localStorage.setItem('gamdasal-storage', JSON.stringify(existingUploads));
+      
+      resolve({
+        publicUrl: base64Data,
+        path: fileName
+      });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 };
 
 const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
   try {
-    // Supabase Storage에서 파일 목록 가져오기
-    const { data: files, error } = await supabase
-      .storage
-      .from(SUPABASE_BUCKET)
-      .list('', { limit: MAX_UPLOADS, sortBy: { column: 'created_at', order: 'desc' } });
-    
-    if (error) {
-      addLog(archive.section.id, '클라우드 로드 실패', error.message);
-      return;
-    }
+    // 로컬 저장소에서 Base64 데이터 로드
+    const storageData = JSON.parse(localStorage.getItem('gamdasal-storage') || '[]');
     
     // 파일을 업로드 형식으로 변환
-    archive.uploads = (files || []).map(file => ({
+    archive.uploads = storageData.map(file => ({
       id: file.id,
       title: file.name,
-      subtitle: file.metadata?.caption || '',
-      src: `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${file.name}`,
-      poster: file.metadata?.poster || '',
+      subtitle: '',
+      src: file.data,
+      poster: '',
       created_at: file.created_at
     }));
     
     if (addLogEntry) {
-      addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
+      addLog(archive.section.id, '로컬 스토리지 로드', `${archive.uploads.length}개 영상 로드`);
     }
   } catch (error) {
-    addLog(archive.section.id, '클라우드 로드 실패', error.message);
+    addLog(archive.section.id, '로컬 스토리지 로드 실패', error.message);
   }
 };
 
@@ -480,19 +490,12 @@ const insertUploadRecord = async (archive, item) => {
 const removeUploadRecord = async (archive, upload) => {
   if (!upload?.id) return;
   try {
-    // Supabase Storage에서 파일 삭제
-    const fileName = upload.src.split('/').pop();
-    const { error } = await supabase
-      .storage
-      .from(SUPABASE_BUCKET)
-      .remove([fileName]);
+    // 로컬 저장소에서 파일 삭제
+    const storageData = JSON.parse(localStorage.getItem('gamdasal-storage') || '[]');
+    const filteredData = storageData.filter(file => file.id !== upload.id);
+    localStorage.setItem('gamdasal-storage', JSON.stringify(filteredData));
     
-    if (error) {
-      addLog(archive.section.id, '삭제 실패', error.message);
-      throw error;
-    }
-    
-    addLog(archive.section.id, 'Supabase 삭제', '파일이 Supabase Storage에서 삭제됨');
+    addLog(archive.section.id, '로컬 스토리지 삭제', '파일이 로컬 스토리지에서 삭제됨');
   } catch (error) {
     addLog(archive.section.id, '삭제 실패', error.message);
     throw error;

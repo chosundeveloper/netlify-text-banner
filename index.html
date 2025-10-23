@@ -299,25 +299,11 @@ const syncCloudBtn = document.getElementById('sync-cloud');
 
 let logs = [];
 
-let supabaseSessionPromise = null;
-
-const ensureSession = async () => {
-  if (supabaseSessionPromise) return supabaseSessionPromise;
-  supabaseSessionPromise = (async () => {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    if (data.session) return data.session;
-    const { data: signInData, error: signInError } = await supabase.auth.signInAnonymously();
-    if (signInError) throw signInError;
-    return signInData.session;
-  })();
-
-  try {
-    return await supabaseSessionPromise;
-  } catch (error) {
-    supabaseSessionPromise = null;
-    throw error;
-  }
+// 익명 로그인 없이 직접 API 호출
+const SUPABASE_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_ANON_KEY,
+  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
 };
 
 // 간단한 클라우드 동기화
@@ -442,38 +428,59 @@ const uploadToSupabaseStorage = async (archive, file) => {
 };
 
 const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
-  await ensureSession();
-  const { data, error } = await supabase
-    .from(SUPABASE_TABLE)
-    .select('id,title,subtitle,src,poster,created_at')
-    .order('created_at', { ascending: false })
-    .limit(MAX_UPLOADS);
-  if (error) throw error;
-  archive.uploads = (data || []).map(mapRowToUpload);
-  if (addLogEntry) {
-    addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?select=id,title,subtitle,src,poster,created_at&order=created_at.desc&limit=${MAX_UPLOADS}`, {
+      headers: SUPABASE_HEADERS
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    
+    archive.uploads = (data || []).map(mapRowToUpload);
+    if (addLogEntry) {
+      addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
+    }
+  } catch (error) {
+    addLog(archive.section.id, '클라우드 로드 실패', error.message);
+    throw error;
   }
 };
 
 const insertUploadRecord = async (archive, item) => {
-  await ensureSession();
-  const { data, error } = await supabase
-    .from(SUPABASE_TABLE)
-    .insert([{ title: item.title, subtitle: item.subtitle, src: item.src, poster: item.poster }])
-    .select('id,title,subtitle,src,poster,created_at')
-    .single();
-  if (error) throw error;
-  return mapRowToUpload(data);
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}`, {
+      method: 'POST',
+      headers: SUPABASE_HEADERS,
+      body: JSON.stringify({
+        title: item.title,
+        subtitle: item.subtitle,
+        src: item.src,
+        poster: item.poster
+      })
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    return mapRowToUpload(data[0]);
+  } catch (error) {
+    addLog(archive.section.id, '업로드 저장 실패', error.message);
+    throw error;
+  }
 };
 
 const removeUploadRecord = async (archive, upload) => {
   if (!upload?.id) return;
-  await ensureSession();
-  const { error } = await supabase
-    .from(SUPABASE_TABLE)
-    .delete()
-    .eq('id', upload.id);
-  if (error) throw error;
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${upload.id}`, {
+      method: 'DELETE',
+      headers: SUPABASE_HEADERS
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  } catch (error) {
+    addLog(archive.section.id, '삭제 실패', error.message);
+    throw error;
+  }
 };
 
 const renderUploads = (archive) => {

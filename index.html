@@ -426,21 +426,38 @@ const syncToGist = async (archive) => {
     // 로컬 저장소에 저장
     localStorage.setItem('gamdasal-shared-data', JSON.stringify(sharedData));
     
-    // JSONBin.io에 저장 (모든 브라우저에서 접근 가능)
+    // GitHub Gist에 저장 (모든 브라우저에서 접근 가능)
     try {
-      const response = await fetch('https://api.jsonbin.io/v3/b', {
-        method: 'POST',
+      const gistId = localStorage.getItem('gamdasal-gist-id');
+      const url = gistId 
+        ? `https://api.github.com/gists/${gistId}`
+        : 'https://api.github.com/gists';
+      
+      const gistData = {
+        description: '감다살 첼린지 데이터',
+        public: true,
+        files: {
+          'gamdasal-data.json': {
+            content: JSON.stringify(sharedData, null, 2)
+          }
+        }
+      };
+      
+      const response = await fetch(url, {
+        method: gistId ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Master-Key': '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890' // 공개 키
+          'Accept': 'application/vnd.github.v3+json'
         },
-        body: JSON.stringify(sharedData)
+        body: JSON.stringify(gistData)
       });
       
       if (response.ok) {
         const result = await response.json();
-        localStorage.setItem('gamdasal-bin-id', result.metadata.id);
-        addLog(archive.section.id, '클라우드 저장', 'JSONBin.io에 저장됨');
+        if (!gistId) {
+          localStorage.setItem('gamdasal-gist-id', result.id);
+        }
+        addLog(archive.section.id, '클라우드 저장', 'GitHub Gist에 저장됨');
       }
     } catch (e) {
       addLog(archive.section.id, '클라우드 저장 실패', '로컬 저장만 완료');
@@ -466,22 +483,22 @@ const loadFromGist = async (archive) => {
       }
     }
     
-    // 클라우드에서 최신 데이터 가져오기 시도
-    const binId = localStorage.getItem('gamdasal-bin-id');
-    if (binId) {
+    // GitHub Gist에서 최신 데이터 가져오기 시도
+    const gistId = localStorage.getItem('gamdasal-gist-id');
+    if (gistId) {
       try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-          headers: {
-            'X-Master-Key': '$2a$10$abcdefghijklmnopqrstuvwxyz1234567890'
-          }
-        });
+        const response = await fetch(`https://api.github.com/gists/${gistId}`);
         
         if (response.ok) {
-          const cloudData = await response.json();
-          if (cloudData.record && cloudData.record.version === archive.section.storageVersion) {
-            archive.uploads = cloudData.record.data || [];
-            addLog(archive.section.id, '클라우드 데이터 로드', `${archive.uploads.length}개 영상 로드됨`);
-            return true;
+          const gistData = await response.json();
+          const fileContent = gistData.files['gamdasal-data.json'];
+          if (fileContent) {
+            const cloudData = JSON.parse(fileContent.content);
+            if (cloudData.version === archive.section.storageVersion) {
+              archive.uploads = cloudData.data || [];
+              addLog(archive.section.id, '클라우드 데이터 로드', `${archive.uploads.length}개 영상 로드됨`);
+              return true;
+            }
           }
         }
       } catch (e) {

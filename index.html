@@ -19,7 +19,8 @@
         font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
         color: #f7f4ff;
         background: radial-gradient(circle at 18% 18%, #04020c 0%, #0f0b26 45%, #010008 100%);
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
       .backdrop {
         position: absolute;
@@ -133,7 +134,8 @@
         border-radius: 50% / 58%;
         background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.18), rgba(86, 69, 176, 0.28), rgba(24, 20, 56, 0.92));
         box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12), 0 2.4rem 4rem rgba(0, 0, 0, 0.5);
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
       .pot::before {
         content: '';
@@ -145,7 +147,8 @@
       .pot-cloud {
         position: absolute;
         inset: 18% 12% 10%;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
       .float-ball {
         position: absolute;
@@ -197,7 +200,8 @@
         border-radius: 22px;
         background: linear-gradient(180deg, rgba(109, 97, 200, 0.3), rgba(24, 20, 60, 0.88));
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
       .tube-glare {
         position: absolute;
@@ -361,6 +365,33 @@
       .upload-cta span {
         font-weight: 600;
         color: #ffd4f7;
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 2.2rem 1.6rem 2.4rem;
+          gap: 2.2rem;
+        }
+        .pot-group {
+          flex-direction: column;
+          gap: 1.4rem;
+        }
+        .ball-bin {
+          width: 140px;
+          height: 180px;
+        }
+        .pot {
+          width: 260px;
+          height: 200px;
+        }
+        .tray {
+          width: 240px;
+        }
+        .result-card {
+          padding: 1.2rem 1.3rem;
+        }
+        .upload-cta {
+          padding: 1.2rem 1.4rem;
+        }
       }
       .recent-uploads {
         width: min(560px, 100%);
@@ -547,6 +578,7 @@
         button.disabled = true;
         button.textContent = '선택 중...';
         uploadCta.hidden = true;
+        stage.classList.remove('revealing');
         resultBall.textContent = '';
         resultBall.style.opacity = '0';
         resultName.textContent = '---';

@@ -437,6 +437,12 @@
           • 별도 설정 불필요 - 바로 사용 가능<br>
           • 폰에서 업로드 → 컴퓨터에서 즉시 확인 가능
         </div>
+        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
+          <strong>🧪 Supabase 연결 테스트:</strong><br>
+          <button type="button" id="test-supabase" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Supabase 연결 테스트</button>
+          <button type="button" id="test-database" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Database 테스트</button>
+          <button type="button" id="test-storage" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Storage 테스트</button>
+        </div>
       </section>
 
       <template id="archive-template">
@@ -491,6 +497,9 @@ const logListEl = document.getElementById('log-list');
 const logCopyBtn = document.getElementById('log-copy');
 const logClearBtn = document.getElementById('log-clear');
 const syncCloudBtn = document.getElementById('sync-cloud');
+const testSupabaseBtn = document.getElementById('test-supabase');
+const testDatabaseBtn = document.getElementById('test-database');
+const testStorageBtn = document.getElementById('test-storage');
 
 let logs = [];
 
@@ -502,6 +511,57 @@ const SUPABASE_HEADERS = {
 };
 
 // 간단한 클라우드 동기화
+
+// Supabase 테스트 함수들
+const testSupabaseConnection = async () => {
+  try {
+    addLog('test', 'Supabase 연결 테스트', '연결 시도 중...');
+    const { data, error } = await supabase.from('video_uploads').select('count').limit(1);
+    if (error) {
+      addLog('test', 'Supabase 연결 실패', error.message);
+    } else {
+      addLog('test', 'Supabase 연결 성공', 'Database 접근 가능');
+    }
+  } catch (error) {
+    addLog('test', 'Supabase 연결 오류', error.message);
+  }
+};
+
+const testDatabase = async () => {
+  try {
+    addLog('test', 'Database 테스트', '테이블 존재 확인 중...');
+    const { data, error } = await supabase
+      .from(SUPABASE_TABLE)
+      .select('*')
+      .limit(1);
+    
+    if (error) {
+      addLog('test', 'Database 테스트 실패', error.message);
+    } else {
+      addLog('test', 'Database 테스트 성공', `테이블 접근 가능 (${data?.length || 0}개 레코드)`);
+    }
+  } catch (error) {
+    addLog('test', 'Database 테스트 오류', error.message);
+  }
+};
+
+const testStorage = async () => {
+  try {
+    addLog('test', 'Storage 테스트', '버킷 접근 확인 중...');
+    const { data, error } = await supabase
+      .storage
+      .from(SUPABASE_BUCKET)
+      .list('', { limit: 1 });
+    
+    if (error) {
+      addLog('test', 'Storage 테스트 실패', error.message);
+    } else {
+      addLog('test', 'Storage 테스트 성공', `버킷 접근 가능 (${data?.length || 0}개 파일)`);
+    }
+  } catch (error) {
+    addLog('test', 'Storage 테스트 오류', error.message);
+  }
+};
 
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
@@ -985,6 +1045,17 @@ if (syncCloudBtn) {
       syncCloudBtn.textContent = '클라우드 동기화';
     }
   });
+}
+
+// 테스트 버튼 이벤트 리스너
+if (testSupabaseBtn) {
+  testSupabaseBtn.addEventListener('click', testSupabaseConnection);
+}
+if (testDatabaseBtn) {
+  testDatabaseBtn.addEventListener('click', testDatabase);
+}
+if (testStorageBtn) {
+  testStorageBtn.addEventListener('click', testStorage);
 }
     </script>
   </body>

@@ -451,10 +451,10 @@
           <button type="button" id="test-database" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Database 테스트</button>
           <button type="button" id="test-storage" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Storage 테스트</button>
           <br><br>
-          <strong>⚠️ RLS 정책 설정 필요:</strong><br>
-          1. Supabase 대시보드 → Authentication → Policies<br>
-          2. video_uploads 테이블의 RLS 비활성화 또는<br>
-          3. "Enable insert for anon users" 정책 추가
+          <strong>⚠️ Supabase 설정 필요:</strong><br>
+          1. <strong>Storage 버킷 생성:</strong> Storage → Buckets → "videos" 버킷 생성 (Public)<br>
+          2. <strong>Database RLS:</strong> Authentication → Policies → video_uploads RLS 비활성화<br>
+          3. <strong>Storage RLS:</strong> Storage → Policies → videos 버킷 정책 설정
         </div>
       </section>
 

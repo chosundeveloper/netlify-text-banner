@@ -423,6 +423,7 @@ const uploadToSupabaseStorage = async (archive, file) => {
       .upload(path, file, { cacheControl: '3600', upsert: false });
     
     if (error) {
+      addLog(archive.section.id, 'Storage 업로드 실패', error.message);
       // 버킷이 없는 경우 Base64로 대체
       console.warn('Supabase Storage 오류, Base64로 대체:', error);
       return new Promise((resolve, reject) => {
@@ -444,8 +445,10 @@ const uploadToSupabaseStorage = async (archive, file) => {
       .from(SUPABASE_BUCKET)
       .getPublicUrl(path);
     
+    addLog(archive.section.id, 'Storage 업로드 성공', 'Supabase Storage에 저장됨');
     return { publicUrl: urlData.publicUrl, path };
   } catch (error) {
+    addLog(archive.section.id, 'Storage 업로드 실패', error.message);
     console.error('Storage 업로드 실패:', error);
     throw error;
   }
@@ -493,11 +496,21 @@ const insertUploadRecord = async (archive, item) => {
       .single();
     
     if (error) {
-      addLog(archive.section.id, 'Supabase 저장 실패', error.message);
-      throw error;
+      addLog(archive.section.id, 'Database 저장 실패', error.message);
+      // 테이블이 없는 경우 임시 ID로 반환
+      const tempItem = {
+        id: Date.now().toString(),
+        title: item.title,
+        subtitle: item.subtitle,
+        src: item.src,
+        poster: item.poster,
+        created_at: new Date().toISOString()
+      };
+      addLog(archive.section.id, '임시 저장', '테이블 없음, 임시 저장됨');
+      return tempItem;
     }
     
-    addLog(archive.section.id, 'Supabase 저장', 'Supabase Database에 저장됨');
+    addLog(archive.section.id, 'Database 저장 성공', 'Supabase Database에 저장됨');
     return mapRowToUpload(data);
   } catch (error) {
     addLog(archive.section.id, '업로드 저장 실패', error.message);

@@ -6,54 +6,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-      :root { color-scheme: light dark; }
-      * { box-sizing: border-box; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
-        font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
-        color: #f5f2ff;
-        background: radial-gradient(circle at 18% 18%, #05020d 0%, #170d38 45%, #020008 100%);
-        display: flex;
-        justify-content: center;
-        padding: clamp(2rem, 5vw, 3.8rem) clamp(1.6rem, 4vw, 3.2rem);
+        padding: 20px;
+        color: #333;
       }
       main {
-        width: min(900px, 100%);
-        display: grid;
-        gap: clamp(2.2rem, 5vw, 3.4rem);
-        background: rgba(19, 13, 40, 0.82);
-        border-radius: clamp(2.2rem, 4vw, 3.4rem);
-        padding: clamp(2.6rem, 5vw, 3.6rem);
-        box-shadow: 0 3.8rem 5.6rem rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(18px);
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       }
       header {
         text-align: center;
-        display: grid;
-        gap: 0.9rem;
+        margin-bottom: 30px;
       }
       header h1 {
-        margin: 0;
-        font-size: clamp(2.5rem, 6vw, 3.6rem);
-        letter-spacing: 0.05em;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: #333;
       }
       header p {
-        margin: 0;
-        color: rgba(255, 255, 255, 0.76);
-        font-size: 1.06rem;
+        color: #666;
+        font-size: 1.1rem;
       }
       #archives {
-        display: grid;
-        gap: clamp(2.2rem, 4vw, 3rem);
+        margin-top: 30px;
       }
       .archive {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+      }
+      .archive-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .archive-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
+      .archive-description {
+        color: #666;
+        font-size: 1rem;
+      }
+      .upload-list {
         display: grid;
-        gap: 1.6rem;
-        padding: clamp(1.6rem, 3.5vw, 2.4rem);
-        border-radius: 2rem;
-        background: rgba(255, 255, 255, 0.07);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        gap: 15px;
+      }
+      .upload-item {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 10px;
+        background: white;
+        border: 1px solid #e9ecef;
+      }
+      .upload-video {
+        flex: 1;
+        max-width: 300px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #000;
+      }
+      .upload-video video {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .upload-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 120px;
+      }
+      .upload-actions button {
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        color: #333;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .upload-actions button:hover {
+        background: #f8f9fa;
+      }
+      .upload-form {
+        display: grid;
+        gap: 15px;
+        padding: 20px;
+        border-radius: 10px;
+        background: white;
+        border: 1px solid #e9ecef;
+      }
+      .upload-form input,
+      .upload-form textarea {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        color: #333;
+        font-size: 16px;
+        font-family: inherit;
+      }
+      .upload-form input::placeholder,
+      .upload-form textarea::placeholder {
+        color: #999;
+      }
+      .upload-form input:focus,
+      .upload-form textarea:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+      .upload-form textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .submit-button {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .submit-button:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+      .submit-button:disabled { 
+        opacity: 0.6; 
+        cursor: not-allowed; 
+        transform: none;
+      }
+      .log-item {
+        padding: 10px;
+        margin: 5px 0;
+        background: #f8f9fa;
+        border-radius: 5px;
+        font-size: 14px;
+        border-left: 3px solid #667eea;
+      }
+      @media (max-width: 768px) {
+        body { padding: 10px; }
+        main { padding: 20px; }
+        header h1 { font-size: 2rem; }
+        .upload-item { flex-direction: column; }
+        .upload-video { max-width: 100%; }
+        .upload-actions { flex-direction: row; flex-wrap: wrap; }
+        .upload-actions button { flex: 1; min-width: 100px; }
       }
       .archive-header {
         text-align: center;
@@ -207,12 +322,67 @@
       .submit-button:hover { filter: brightness(1.05); }
       .submit-button:disabled { opacity: 0.55; cursor: default; filter: none; }
       @media (max-width: 720px) {
-        body { padding: 1.8rem 1.1rem 2.6rem; }
-        main { padding: 2rem 1.4rem 2.8rem; }
-        .upload-item { padding: 0.9rem; }
-        .upload-video { flex: 1 1 100%; max-width: none; }
-        .upload-actions { width: 100%; justify-content: flex-end; }
-        .upload-form { padding: 1.4rem 1.5rem; }
+        body { 
+          padding: 1rem 0.8rem 2rem; 
+          font-size: 14px;
+        }
+        main { 
+          padding: 1.5rem 1rem 2rem; 
+          border-radius: 1.5rem;
+        }
+        header h1 {
+          font-size: 2rem;
+          margin-bottom: 0.5rem;
+        }
+        header p {
+          font-size: 0.9rem;
+        }
+        .upload-item { 
+          padding: 0.8rem; 
+          margin-bottom: 1rem;
+        }
+        .upload-video { 
+          flex: 1 1 100%; 
+          max-width: none; 
+          margin-bottom: 1rem;
+        }
+        .upload-actions { 
+          width: 100%; 
+          justify-content: center;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .upload-form { 
+          padding: 1rem; 
+          margin: 1rem 0;
+        }
+        .upload-form input, .upload-form textarea {
+          font-size: 16px; /* iOS 줌 방지 */
+          padding: 0.8rem;
+        }
+        .submit-button {
+          width: 100%;
+          padding: 1rem;
+          font-size: 1rem;
+        }
+        .archive-header h2 {
+          font-size: 1.3rem;
+        }
+        .archive-description {
+          font-size: 0.85rem;
+        }
+        .upload-list {
+          gap: 0.8rem;
+        }
+        .log-item {
+          padding: 0.8rem;
+          font-size: 0.85rem;
+        }
+        .upload-actions button {
+          padding: 0.8rem 1rem;
+          font-size: 0.9rem;
+          margin: 0.2rem;
+        }
       }
     </style>
   </head>

@@ -526,35 +526,7 @@
 
       <div id="archives"></div>
 
-      <section class="archive" id="log-section">
-        <div class="archive-header">
-          <h2 class="archive-title">업로드 로그</h2>
-          <p class="archive-description">최근 업로드 시도와 응답을 확인할 수 있습니다.</p>
-        </div>
-        <div class="upload-list" id="log-list"></div>
-        <div class="upload-actions" style="justify-content:flex-end; gap:0.6rem; flex-wrap:wrap;">
-          <button type="button" id="sync-cloud">클라우드 동기화</button>
-          <button type="button" id="log-copy">로그 복사</button>
-          <button type="button" id="log-clear">로그 초기화</button>
-        </div>
-        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
-          <strong>✅ 자동 동기화 활성화:</strong><br>
-          • 어느 기기에서든 업로드하면 모든 기기에서 자동으로 보입니다<br>
-          • 별도 설정 불필요 - 바로 사용 가능<br>
-          • 폰에서 업로드 → 컴퓨터에서 즉시 확인 가능
-        </div>
-        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
-          <strong>🧪 Supabase 연결 테스트:</strong><br>
-          <button type="button" id="test-supabase" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Supabase 연결 테스트</button>
-          <button type="button" id="test-database" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Database 테스트</button>
-          <button type="button" id="test-storage" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Storage 테스트</button>
-          <br><br>
-          <strong>⚠️ Supabase 설정 필요:</strong><br>
-          1. <strong>Storage 버킷 생성:</strong> Storage → Buckets → "videos" 버킷 생성 (Public)<br>
-          2. <strong>Database RLS:</strong> Authentication → Policies → video_uploads RLS 비활성화<br>
-          3. <strong>Storage RLS:</strong> Storage → Policies → videos 버킷 정책 설정
-        </div>
-      </section>
+      
 
       <template id="archive-template">
         <section class="archive">
@@ -585,25 +557,40 @@ function generateQRCode() {
   const currentUrl = window.location.href;
   const qrContainer = document.getElementById('qr-code-container');
   const urlSpan = document.getElementById('current-url');
-  
+
   // 현재 URL 표시
   urlSpan.textContent = currentUrl;
-  
-  // QR 코드 생성
-  QRCode.toCanvas(qrContainer, currentUrl, {
-    width: 150,
-    height: 150,
-    margin: 2,
-    color: {
-      dark: '#000000',
-      light: '#FFFFFF'
+
+  // 기존 내용 초기화 후 캔버스 생성
+  qrContainer.innerHTML = '';
+  try {
+    if (window.QRCode && typeof QRCode.toCanvas === 'function') {
+      const canvas = document.createElement('canvas');
+      canvas.width = 150;
+      canvas.height = 150;
+      qrContainer.appendChild(canvas);
+      QRCode.toCanvas(canvas, currentUrl, {
+        width: 150,
+        height: 150,
+        margin: 2,
+        color: { dark: '#000000', light: '#FFFFFF' }
+      }, function (error) {
+        if (error) throw error;
+      });
+    } else {
+      throw new Error('QRCode 라이브러리 사용 불가');
     }
-  }, function (error) {
-    if (error) {
-      console.error('QR 코드 생성 오류:', error);
-      qrContainer.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">QR 코드 생성 실패</div>';
-    }
-  });
+  } catch (err) {
+    console.warn('캔버스 QR 생성 실패, 이미지 폴백 사용:', err);
+    const img = document.createElement('img');
+    img.width = 150;
+    img.height = 150;
+    img.alt = 'QR code';
+    // 공개 QR API 폴백
+    const encoded = encodeURIComponent(currentUrl);
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=2&data=${encoded}`;
+    qrContainer.appendChild(img);
+  }
 }
 
 // 페이지 로드 시 QR 코드 생성

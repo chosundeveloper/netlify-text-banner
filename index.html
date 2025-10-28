@@ -5,6 +5,7 @@
     <title>감다살 영상 아카이브</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
       :root { color-scheme: light dark; }
       * { box-sizing: border-box; }
@@ -512,6 +513,15 @@
             </div>
           </div>
         </div>
+        
+        <!-- QR 코드 섹션 -->
+        <div class="qr-section">
+          <div class="qr-text">모바일에서 접속하려면 QR코드를 스캔하세요</div>
+          <div class="qr-code" id="qr-code-container">
+            <!-- QR 코드가 여기에 생성됩니다 -->
+          </div>
+          <div class="qr-text">URL: <span id="current-url"></span></div>
+        </div>
       </header>
 
       <div id="archives"></div>
@@ -570,6 +580,35 @@
     </main>
 
     <script>
+// QR 코드 생성 함수
+function generateQRCode() {
+  const currentUrl = window.location.href;
+  const qrContainer = document.getElementById('qr-code-container');
+  const urlSpan = document.getElementById('current-url');
+  
+  // 현재 URL 표시
+  urlSpan.textContent = currentUrl;
+  
+  // QR 코드 생성
+  QRCode.toCanvas(qrContainer, currentUrl, {
+    width: 150,
+    height: 150,
+    margin: 2,
+    color: {
+      dark: '#000000',
+      light: '#FFFFFF'
+    }
+  }, function (error) {
+    if (error) {
+      console.error('QR 코드 생성 오류:', error);
+      qrContainer.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">QR 코드 생성 실패</div>';
+    }
+  });
+}
+
+// 페이지 로드 시 QR 코드 생성
+document.addEventListener('DOMContentLoaded', generateQRCode);
+
 const MAX_UPLOADS = 12;
 const sections = [
   {

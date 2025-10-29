@@ -561,36 +561,31 @@ function generateQRCode() {
   // 현재 URL 표시
   urlSpan.textContent = currentUrl;
 
-  // 기존 내용 초기화 후 캔버스 생성
+  // 기존 내용 초기화 후 이미지 우선 생성
   qrContainer.innerHTML = '';
-  try {
-    if (window.QRCode && typeof QRCode.toCanvas === 'function') {
-      const canvas = document.createElement('canvas');
-      canvas.width = 150;
-      canvas.height = 150;
-      qrContainer.appendChild(canvas);
-      QRCode.toCanvas(canvas, currentUrl, {
-        width: 150,
-        height: 150,
-        margin: 2,
-        color: { dark: '#000000', light: '#FFFFFF' }
-      }, function (error) {
-        if (error) throw error;
-      });
-    } else {
-      throw new Error('QRCode 라이브러리 사용 불가');
-    }
-  } catch (err) {
-    console.warn('캔버스 QR 생성 실패, 이미지 폴백 사용:', err);
-    const img = document.createElement('img');
-    img.width = 150;
-    img.height = 150;
-    img.alt = 'QR code';
-    // 공개 QR API 폴백
-    const encoded = encodeURIComponent(currentUrl);
-    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=2&data=${encoded}`;
-    qrContainer.appendChild(img);
-  }
+  const encoded = encodeURIComponent(currentUrl);
+  const img = document.createElement('img');
+  img.width = 150;
+  img.height = 150;
+  img.alt = 'QR code';
+  img.referrerPolicy = 'no-referrer';
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=2&data=${encoded}`;
+  img.onerror = () => {
+    // 1차 실패 시 Google Charts로 폴백
+    img.src = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encoded}`;
+    img.onerror = () => {
+      // 최종 폴백: URL만 표기
+      qrContainer.innerHTML = '<div style="color:#ccc; font-size:0.9rem; text-align:center;">QR 이미지를 불러오지 못했습니다. 아래 URL을 눌러 접속하세요.</div>';
+      const a = document.createElement('a');
+      a.href = currentUrl;
+      a.textContent = currentUrl;
+      a.style.wordBreak = 'break-all';
+      a.style.color = '#fff';
+      a.target = '_blank';
+      qrContainer.appendChild(a);
+    };
+  };
+  qrContainer.appendChild(img);
 }
 
 // 페이지 로드 시 QR 코드 생성
@@ -717,6 +712,7 @@ const persistLogs = () => {
 };
 
 const renderLogs = () => {
+  if (!logListEl) return;
   logListEl.innerHTML = '';
   if (!logs.length) {
     const empty = document.createElement('p');

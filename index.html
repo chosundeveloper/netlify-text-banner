@@ -1,12 +1,1141 @@
 <!doctype html>
 <html lang="ko">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>감다살 첼린지 · Netlify Text Banner</title>
+    <meta charset="utf-8">
+    <title>감다살 영상 아카이브</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+        color: #f5f2ff;
+        background: radial-gradient(circle at 18% 18%, #05020d 0%, #170d38 45%, #020008 100%);
+        display: flex;
+        justify-content: center;
+        padding: clamp(2rem, 5vw, 3.8rem) clamp(1.6rem, 4vw, 3.2rem);
+        overflow-x: hidden;
+        max-width: 100vw;
+      }
+      main {
+        width: min(900px, 100%);
+        max-width: 100%;
+        display: grid;
+        gap: clamp(2.2rem, 5vw, 3.4rem);
+        background: rgba(19, 13, 40, 0.82);
+        border-radius: clamp(2.2rem, 4vw, 3.4rem);
+        padding: clamp(2.6rem, 5vw, 3.6rem);
+        box-shadow: 0 3.8rem 5.6rem rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(18px);
+        overflow-x: hidden;
+      }
+      header {
+        text-align: center;
+        display: grid;
+        gap: 0.9rem;
+      }
+      header h1 {
+        margin: 0;
+        font-size: clamp(2.5rem, 6vw, 3.6rem);
+        letter-spacing: 0.05em;
+      }
+      header p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 1.06rem;
+      }
+      #archives {
+        display: grid;
+        gap: clamp(2.2rem, 4vw, 3rem);
+      }
+      .archive {
+        display: grid;
+        gap: 1.6rem;
+        padding: clamp(1.6rem, 3.5vw, 2.4rem);
+        border-radius: 2rem;
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      .archive-header {
+        text-align: center;
+        display: grid;
+        gap: 0.6rem;
+      }
+      .archive-title {
+        margin: 0;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .archive-description {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.98rem;
+      }
+      .upload-list {
+        display: grid;
+        gap: 1rem;
+      }
+      .upload-item {
+        display: flex;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 1rem 1.2rem;
+        border-radius: 1.4rem;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      .upload-video {
+        flex: 0 0 200px;
+        max-width: 240px;
+        border-radius: 1.2rem;
+        overflow: hidden;
+        box-shadow: 0 1.1rem 2.2rem rgba(0, 0, 0, 0.45);
+      }
+      .upload-video video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.3);
+      }
+      .upload-info {
+        flex: 1 1 240px;
+        text-align: left;
+      }
+      .upload-info strong {
+        display: block;
+        font-size: 1.05rem;
+        color: #ffe7f8;
+        margin-bottom: 0.4rem;
+      }
+      .upload-info span {
+        display: block;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .upload-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        min-width: 120px;
+      }
+      .upload-actions button {
+        padding: 0.8rem 1.2rem;
+        border: none;
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #f5f2ff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+      .upload-actions button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+      }
+      .upload-actions button:active {
+        transform: translateY(0);
+      }
+      .upload-form {
+        display: grid;
+        gap: 1.2rem;
+        padding: 1.8rem;
+        border-radius: 1.4rem;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+      .upload-form input,
+      .upload-form textarea {
+        padding: 1rem;
+        border: none;
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #f5f2ff;
+        font-size: 1rem;
+        font-family: inherit;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
+      }
+      .upload-form input::placeholder,
+      .upload-form textarea::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .upload-form input:focus,
+      .upload-form textarea:focus {
+        outline: none;
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .upload-form textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .submit-button {
+        padding: 1.2rem 2rem;
+        border: none;
+        border-radius: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        color: #341d2f;
+        cursor: pointer;
+        box-shadow: 0 1.3rem 2.4rem rgba(255, 154, 158, 0.34);
+      }
+      .submit-button:hover { filter: brightness(1.05); }
+      .submit-button:disabled { opacity: 0.55; cursor: default; filter: none; }
+      @media (max-width: 720px) {
+        body { padding: 1.8rem 1.1rem 2.6rem; }
+        main { padding: 2rem 1.4rem 2.8rem; }
+        .upload-item { padding: 0.9rem; }
+        .upload-video { flex: 1 1 100%; max-width: none; }
+        .upload-actions { width: 100%; justify-content: flex-end; }
+        .upload-form { padding: 1.4rem 1.5rem; }
+      }
+      .archive-header {
+        text-align: center;
+        display: grid;
+        gap: 0.6rem;
+      }
+      .archive-title {
+        margin: 0;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+      }
+      .archive-description {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.98rem;
+      }
+      .upload-list {
+        display: grid;
+        gap: 1rem;
+      }
+      .upload-item {
+        display: flex;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 1rem 1.2rem;
+        border-radius: 1.4rem;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      .upload-video {
+        flex: 0 0 200px;
+        max-width: 240px;
+        border-radius: 1.2rem;
+        overflow: hidden;
+        box-shadow: 0 1.1rem 2.2rem rgba(0, 0, 0, 0.45);
+      }
+      .upload-video video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: rgba(0, 0, 0, 0.3);
+      }
+      .upload-info {
+        flex: 1 1 240px;
+        text-align: left;
+      }
+      .upload-info strong {
+        display: block;
+        font-size: 1.05rem;
+        color: #ffe7f8;
+      }
+      .upload-info span {
+        font-size: 0.92rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .upload-actions {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+      }
+      .upload-actions button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.5rem 0.95rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.18);
+        color: rgba(24, 20, 54, 0.9);
+        cursor: pointer;
+        transition: filter 0.15s ease;
+      }
+      .upload-actions button:hover { filter: brightness(1.08); }
+      .upload-empty {
+        margin: 0;
+        padding: 1rem 1.2rem;
+        border-radius: 1.2rem;
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.65);
+        text-align: center;
+      }
+      .upload-form {
+        display: grid;
+        gap: 1rem;
+        padding: 1.5rem 1.6rem;
+        border-radius: 1.6rem;
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+      .upload-form label {
+        text-align: left;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.78);
+      }
+      .upload-title {
+        width: 100%;
+        border: none;
+        border-radius: 1rem;
+        padding: 0.9rem 1rem;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+      .upload-title::placeholder { color: rgba(255, 255, 255, 0.55); }
+      .upload-title:focus { outline: 2px solid rgba(255, 255, 255, 0.3); }
+      .dropzone {
+        position: relative;
+        border: 2px dashed rgba(255, 255, 255, 0.22);
+        border-radius: 1.6rem;
+        padding: 1.6rem 1.4rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.74);
+        display: grid;
+        gap: 0.7rem;
+        background: rgba(255, 255, 255, 0.06);
+        transition: border-color 0.2s ease, background 0.2s ease;
+      }
+      .dropzone input { display: none; }
+      .dropzone.hover { border-color: #fad0c4; background: rgba(255, 255, 255, 0.12); }
+      .dropzone.has-file { border-color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); }
+      .dropzone.uploading { border-color: rgba(255, 154, 158, 0.6); background: rgba(255, 154, 158, 0.18); }
+      .dropzone-status { font-size: 0.92rem; color: rgba(255, 255, 255, 0.75); }
+      .select-button {
+        justify-self: center;
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.3rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.16);
+        color: rgba(26, 22, 60, 0.9);
+        cursor: pointer;
+        transition: filter 0.15s ease;
+      }
+      .select-button:hover { filter: brightness(1.1); }
+      .upload-hint { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); text-align: left; }
+      .submit-button {
+        justify-self: flex-end;
+        border: none;
+        border-radius: 999px;
+        padding: 0.85rem 1.9rem;
+        font-size: 0.96rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        color: #341d2f;
+        cursor: pointer;
+        box-shadow: 0 1.3rem 2.4rem rgba(255, 154, 158, 0.34);
+      }
+      .submit-button:hover { filter: brightness(1.05); }
+      .submit-button:disabled { opacity: 0.55; cursor: default; filter: none; }
+      @media (max-width: 720px) {
+        body { 
+          padding: 1rem 0.8rem 2rem; 
+          font-size: 14px;
+        }
+        main { 
+          padding: 1.5rem 1rem 2rem; 
+          border-radius: 1.5rem;
+        }
+        header h1 {
+          font-size: 2rem;
+          margin-bottom: 0.5rem;
+        }
+        header p {
+          font-size: 0.9rem;
+        }
+        .upload-item { 
+          padding: 0.8rem; 
+          margin-bottom: 1rem;
+        }
+        .upload-video { 
+          flex: 1 1 100%; 
+          max-width: none; 
+          margin-bottom: 1rem;
+        }
+        .upload-actions { 
+          width: 100%; 
+          justify-content: center;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .upload-form { 
+          padding: 1rem; 
+          margin: 1rem 0;
+        }
+        .upload-form input, .upload-form textarea {
+          font-size: 16px; /* iOS 줌 방지 */
+          padding: 0.8rem;
+        }
+        .submit-button {
+          width: 100%;
+          padding: 1rem;
+          font-size: 1rem;
+        }
+        .archive-header h2 {
+          font-size: 1.3rem;
+        }
+        .archive-description {
+          font-size: 0.85rem;
+        }
+        .upload-list {
+          gap: 0.8rem;
+        }
+        .log-item {
+          padding: 0.8rem;
+          font-size: 0.85rem;
+        }
+        .upload-actions button {
+          padding: 0.8rem 1rem;
+          font-size: 0.9rem;
+          margin: 0.2rem;
+        }
+        
+        /* 감사 영상 섹션 모바일 최적화 */
+        .intro-video-container {
+          padding: 1.5rem !important;
+        }
+        
+        .intro-video-container h3 {
+          font-size: 1.1rem !important;
+        }
+        
+        .intro-video-container p {
+          font-size: 0.9rem !important;
+        }
+        
+        .feature-cards {
+          gap: 0.8rem !important;
+        }
+        
+        .feature-card {
+          padding: 0.8rem !important;
+          min-width: 100px !important;
+        }
+        
+        .feature-card div:first-child {
+          font-size: 1.2rem !important;
+        }
+        
+        .feature-card div:last-child {
+          font-size: 0.8rem !important;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <main>
+      <header>
+        <h1>감다살 첼린지</h1>
+        <p>감다살 셀의 미션/첼린지 영상을 등록하고 시청하세요.</p>
+        <div style="margin: 2rem 0; text-align: center;">
+          <div class="intro-video-container" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); 
+                      padding: 2rem; border-radius: 1.5rem; backdrop-filter: blur(10px); 
+                      border: 1px solid rgba(255,255,255,0.2); margin-bottom: 1.5rem;">
+            <h3 style="margin: 0 0 1rem 0; color: #f5f2ff; font-size: 1.3rem; font-weight: 600;">
+              💝 감사, 하루의 발견
+            </h3>
+            <p style="margin: 0 0 1.5rem 0; color: rgba(255,255,255,0.9); font-size: 1rem; line-height: 1.5;">
+              매일 작은 감사한 순간들을 발견하고 기록하는 특별한 여정을 시작해보세요
+            </p>
+            <video controls style="max-width: 100%; height: auto; border-radius: 1rem; 
+                                  box-shadow: 0 8px 32px rgba(0,0,0,0.3); 
+                                  border: 2px solid rgba(255,255,255,0.1);">
+              <source src="감사, 하루의 발견.mp4" type="video/mp4">
+              감사, 하루의 발견 영상
+            </video>
+          </div>
+          <div class="feature-cards" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+            <div class="feature-card" style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); 
+                        border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.1); min-width: 120px;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📝</div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">매일 기록</div>
+            </div>
+            <div class="feature-card" style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); 
+                        border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.1); min-width: 120px;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🤝</div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">함께 공유</div>
+            </div>
+            <div class="feature-card" style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); 
+                        border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.1); min-width: 120px;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🌟</div>
+              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">행복 발견</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div id="archives"></div>
+
+      <section class="archive" id="log-section">
+        <div class="archive-header">
+          <h2 class="archive-title">업로드 로그</h2>
+          <p class="archive-description">최근 업로드 시도와 응답을 확인할 수 있습니다.</p>
+        </div>
+        <div class="upload-list" id="log-list"></div>
+        <div class="upload-actions" style="justify-content:flex-end; gap:0.6rem; flex-wrap:wrap;">
+          <button type="button" id="sync-cloud">클라우드 동기화</button>
+          <button type="button" id="log-copy">로그 복사</button>
+          <button type="button" id="log-clear">로그 초기화</button>
+        </div>
+        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
+          <strong>✅ 자동 동기화 활성화:</strong><br>
+          • 어느 기기에서든 업로드하면 모든 기기에서 자동으로 보입니다<br>
+          • 별도 설정 불필요 - 바로 사용 가능<br>
+          • 폰에서 업로드 → 컴퓨터에서 즉시 확인 가능
+        </div>
+        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
+          <strong>🧪 Supabase 연결 테스트:</strong><br>
+          <button type="button" id="test-supabase" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Supabase 연결 테스트</button>
+          <button type="button" id="test-database" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Database 테스트</button>
+          <button type="button" id="test-storage" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Storage 테스트</button>
+          <br><br>
+          <strong>⚠️ Supabase 설정 필요:</strong><br>
+          1. <strong>Storage 버킷 생성:</strong> Storage → Buckets → "videos" 버킷 생성 (Public)<br>
+          2. <strong>Database RLS:</strong> Authentication → Policies → video_uploads RLS 비활성화<br>
+          3. <strong>Storage RLS:</strong> Storage → Policies → videos 버킷 정책 설정
+        </div>
+      </section>
+
+      <template id="archive-template">
+        <section class="archive">
+          <div class="archive-header">
+            <h2 class="archive-title"></h2>
+            <p class="archive-description"></p>
+          </div>
+          <div class="upload-list"></div>
+          <form class="upload-form" autocomplete="off">
+            <label>영상 제목</label>
+            <input class="upload-title" type="text" maxlength="80" placeholder="예: 이하연셀 미션 브이로그" required>
+            <div class="dropzone">
+              <strong>영상 또는 이미지 파일을 끌어다 놓거나 아래 버튼을 눌러 선택하세요.</strong>
+              <span class="dropzone-status">선택된 파일이 없습니다.</span>
+              <button type="button" class="select-button">파일 선택</button>
+              <input class="upload-file" type="file" accept="video/*,image/*">
+            </div>
+            <small class="upload-hint">Supabase 클라우드에 저장되어 모든 기기에서 즉시 확인할 수 있습니다.</small>
+            <button type="submit" class="submit-button">업로드</button>
+          </form>
+        </section>
+      </template>
+    </main>
+
+    <script>
+const MAX_UPLOADS = 12;
+const sections = [
+  {
+    id: 'challenge',
+    title: '감다살 첼린지',
+    description: '감다살 셀의 미션/첼린지 영상을 공유하는 공간입니다.',
+    storageKey: 'gamdasal-challenge-uploads',
+    storageVersion: '2025-10-24-challenge-v2',
+    posterColor: '211d44',
+    defaults: []
+  }
+];
+
+const LOG_STORAGE_KEY = 'gamdasal-upload-logs';
+const LOG_LIMIT = 40;
+
+const SUPABASE_URL = 'https://ykdmlgrlpwkqyyemcefz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZG1sZ3JscHdrcXl5ZW1jZWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNDI3NTMsImV4cCI6MjA3NjgxODc1M30.pRfCXTTXZHfp5Fohy4LLrHNujqds4Tir3pSMQIZLCvI';
+const SUPABASE_BUCKET = 'videos';
+const SUPABASE_TABLE = 'video_uploads';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const template = document.getElementById('archive-template');
+const container = document.getElementById('archives');
+const logListEl = document.getElementById('log-list');
+const logCopyBtn = document.getElementById('log-copy');
+const logClearBtn = document.getElementById('log-clear');
+const syncCloudBtn = document.getElementById('sync-cloud');
+const testSupabaseBtn = document.getElementById('test-supabase');
+const testDatabaseBtn = document.getElementById('test-database');
+const testStorageBtn = document.getElementById('test-storage');
+
+let logs = [];
+
+// 익명 로그인 없이 직접 API 호출
+const SUPABASE_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_ANON_KEY,
+  'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+  'Prefer': 'return=minimal'
+};
+
+// 간단한 클라우드 동기화
+
+// Supabase 테스트 함수들
+const testSupabaseConnection = async () => {
+  try {
+    addLog('test', 'Supabase 연결 테스트', '연결 시도 중...');
+    const { data, error } = await supabase.from('video_uploads').select('count').limit(1);
+    if (error) {
+      addLog('test', 'Supabase 연결 실패', error.message);
+    } else {
+      addLog('test', 'Supabase 연결 성공', 'Database 접근 가능');
+    }
+  } catch (error) {
+    addLog('test', 'Supabase 연결 오류', error.message);
+  }
+};
+
+const testDatabase = async () => {
+  try {
+    addLog('test', 'Database 테스트', '테이블 존재 확인 중...');
+    const { data, error } = await supabase
+      .from(SUPABASE_TABLE)
+      .select('*')
+      .limit(1);
+    
+    if (error) {
+      addLog('test', 'Database 테스트 실패', error.message);
+    } else {
+      addLog('test', 'Database 테스트 성공', `테이블 접근 가능 (${data?.length || 0}개 레코드)`);
+    }
+  } catch (error) {
+    addLog('test', 'Database 테스트 오류', error.message);
+  }
+};
+
+const testStorage = async () => {
+  try {
+    addLog('test', 'Storage 테스트', '버킷 접근 확인 중...');
+    const { data, error } = await supabase
+      .storage
+      .from(SUPABASE_BUCKET)
+      .list('', { limit: 1 });
+    
+    if (error) {
+      addLog('test', 'Storage 테스트 실패', error.message);
+    } else {
+      addLog('test', 'Storage 테스트 성공', `버킷 접근 가능 (${data?.length || 0}개 파일)`);
+    }
+  } catch (error) {
+    addLog('test', 'Storage 테스트 오류', error.message);
+  }
+};
+
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+const formatNow = () => {
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} · ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+};
+
+const loadLogs = () => {
+  try {
+    logs = JSON.parse(localStorage.getItem(LOG_STORAGE_KEY) || '[]');
+    if (!Array.isArray(logs)) logs = [];
+  } catch (error) {
+    logs = [];
+  }
+};
+
+const persistLogs = () => {
+  try {
+    localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(logs));
+  } catch (error) {
+    console.error('로그 저장 실패', error);
+  }
+};
+
+const renderLogs = () => {
+  logListEl.innerHTML = '';
+  if (!logs.length) {
+    const empty = document.createElement('p');
+    empty.className = 'upload-empty';
+    empty.textContent = '아직 업로드 로그가 없습니다.';
+    logListEl.append(empty);
+    return;
+  }
+  logs.slice().reverse().forEach((log) => {
+    const item = document.createElement('article');
+    item.className = 'upload-item';
+    const info = document.createElement('div');
+    info.className = 'upload-info';
+    const strong = document.createElement('strong');
+    strong.textContent = `[${log.section.toUpperCase()}] ${log.event}`;
+    const span = document.createElement('span');
+    span.textContent = `${log.time} · ${log.message}`;
+    info.append(strong, span);
+    item.append(info);
+    if (log.details) {
+      const pre = document.createElement('pre');
+      pre.style.margin = '0';
+      pre.style.maxWidth = '100%';
+      pre.style.whiteSpace = 'pre-wrap';
+      pre.style.wordBreak = 'break-all';
+      pre.textContent = log.details;
+      item.append(pre);
+    }
+    logListEl.append(item);
+  });
+};
+
+const addLog = (sectionId, event, message, details) => {
+  logs.push({ section: sectionId, event, message, details, time: new Date().toISOString() });
+  if (logs.length > LOG_LIMIT) {
+    logs = logs.slice(logs.length - LOG_LIMIT);
+  }
+  persistLogs();
+  renderLogs();
+};
+
+const fallbackPoster = (section, title) => {
+  const safe = encodeURIComponent((title || section.title).slice(0, 18));
+  return `https://dummyimage.com/320x180/${section.posterColor}/ffffff&text=${safe}`;
+};
+
+const sanitizeFileName = (name) => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80) || 'upload';
+};
+
+const createUuid = () => {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return `id-${Math.random().toString(36).slice(2, 11)}-${Date.now().toString(36)}`;
+};
+
+const createStoragePath = (archive, file) => {
+  const extension = (file.name.split('.').pop() || 'mp4').toLowerCase();
+  const base = sanitizeFileName(file.name.replace(/\.[^.]+$/, ''));
+  const folder = `${archive.section.id}`;
+  return `${folder}/${createUuid()}-${base}.${extension}`;
+};
+
+const mapRowToUpload = (row) => ({
+  id: row.id,
+  title: row.title,
+  subtitle: row.subtitle,
+  src: row.src,
+  poster: row.poster,
+  created_at: row.created_at
+});
+
+const uploadToSupabaseStorage = async (archive, file) => {
+  try {
+    const path = createStoragePath(archive, file);
+    
+    // Supabase Storage에 파일 업로드
+    const { data, error } = await supabase
+      .storage
+      .from(SUPABASE_BUCKET)
+      .upload(path, file, { cacheControl: '3600', upsert: false });
+    
+    if (error) {
+      addLog(archive.section.id, 'Storage 업로드 실패', error.message);
+      // 버킷이 없는 경우 Base64로 대체
+      console.warn('Supabase Storage 오류, Base64로 대체:', error);
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            publicUrl: reader.result,
+            path: `base64_${Date.now()}_${file.name}`
+          });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    // 공개 URL 가져오기
+    const { data: urlData } = supabase
+      .storage
+      .from(SUPABASE_BUCKET)
+      .getPublicUrl(path);
+    
+    addLog(archive.section.id, 'Storage 업로드 성공', 'Supabase Storage에 저장됨');
+    return { publicUrl: urlData.publicUrl, path };
+  } catch (error) {
+    addLog(archive.section.id, 'Storage 업로드 실패', error.message);
+    console.error('Storage 업로드 실패:', error);
+    throw error;
+  }
+};
+
+const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
+  try {
+    // Supabase Database에서만 데이터 로드
+    const { data, error } = await supabase
+      .from(SUPABASE_TABLE)
+      .select('id,title,subtitle,src,poster,created_at')
+      .order('created_at', { ascending: false })
+      .limit(MAX_UPLOADS);
+    
+    if (error) {
+      console.warn('Supabase Database 오류:', error);
+      addLog(archive.section.id, '클라우드 로드 실패', error.message);
+      archive.uploads = [];
+    } else {
+      archive.uploads = (data || []).map(mapRowToUpload);
+      if (addLogEntry) {
+        addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
+      }
+    }
+  } catch (error) {
+    addLog(archive.section.id, '클라우드 로드 실패', error.message);
+    archive.uploads = [];
+  }
+};
+
+const insertUploadRecord = async (archive, item) => {
+  try {
+    // Supabase Database에만 저장
+    const { data, error } = await supabase
+      .from(SUPABASE_TABLE)
+      .insert([{
+        title: item.title,
+        subtitle: item.subtitle,
+        src: item.src,
+        poster: item.poster
+      }])
+      .select('id,title,subtitle,src,poster,created_at')
+      .single();
+    
+    if (error) {
+      addLog(archive.section.id, 'Supabase 저장 실패', error.message);
+      throw error;
+    }
+    
+    addLog(archive.section.id, 'Supabase 저장', 'Supabase Database에 저장됨');
+    return mapRowToUpload(data);
+  } catch (error) {
+    addLog(archive.section.id, '업로드 저장 실패', error.message);
+    throw error;
+  }
+};
+
+const removeUploadRecord = async (archive, upload) => {
+  if (!upload?.id) return;
+  try {
+    // Supabase Database에서 삭제
+    const { error } = await supabase
+      .from(SUPABASE_TABLE)
+      .delete()
+      .eq('id', upload.id);
+    
+    if (error) {
+      addLog(archive.section.id, 'Supabase 삭제 실패', error.message);
+      throw error;
+    }
+    
+    addLog(archive.section.id, 'Supabase 삭제', 'Supabase Database에서 삭제됨');
+  } catch (error) {
+    addLog(archive.section.id, '삭제 실패', error.message);
+    throw error;
+  }
+};
+
+const renderUploads = (archive) => {
+  const list = archive.elements.list;
+  list.innerHTML = '';
+  if (!archive.uploads.length) {
+    const empty = document.createElement('p');
+    empty.className = 'upload-empty';
+    empty.textContent = '등록된 영상이 아직 없습니다. 위 폼을 사용해 추가해 보세요.';
+    list.append(empty);
+    return;
+  }
+  archive.uploads.forEach((item, index) => {
+    const article = document.createElement('article');
+    article.className = 'upload-item';
+
+    const videoWrap = document.createElement('div');
+    videoWrap.className = 'upload-video';
+    const video = document.createElement('video');
+    video.controls = true;
+    video.preload = 'metadata';
+    video.src = item.src;
+    video.poster = item.poster;
+    videoWrap.append(video);
+
+    const info = document.createElement('div');
+    info.className = 'upload-info';
+    const title = document.createElement('strong');
+    title.textContent = item.title;
+    const subtitle = document.createElement('span');
+    subtitle.textContent = item.subtitle;
+    info.append(title, subtitle);
+
+    const actions = document.createElement('div');
+    actions.className = 'upload-actions';
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '삭제';
+    removeBtn.dataset.remove = index;
+    if (item.id) {
+      removeBtn.dataset.id = item.id;
+    }
+    actions.append(removeBtn);
+
+    article.append(videoWrap, info, actions);
+    list.append(article);
+  });
+};
+
+const resetSelectedFile = (archive) => {
+  archive.selectedFile = null;
+  archive.elements.dropzone.classList.remove('has-file', 'uploading');
+  archive.elements.dropzoneStatus.textContent = '선택된 파일이 없습니다.';
+};
+
+const setSelectedFile = (archive, file) => {
+  if (!file) return;
+  if (!file.type.startsWith('video/') && !file.type.startsWith('image/')) {
+    alert('영상 또는 이미지 파일만 업로드할 수 있습니다.');
+    return;
+  }
+  archive.selectedFile = file;
+  archive.elements.dropzone.classList.add('has-file');
+  archive.elements.dropzoneStatus.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
+};
+
+const uploadToCloud = async (archive, file) => {
+  archive.elements.dropzone.classList.add('uploading');
+  archive.elements.dropzoneStatus.textContent = '업로드 중입니다…';
+  archive.elements.submitButton.disabled = true;
+
+  addLog(archive.section.id, '업로드 시작', file.name, `size=${(file.size / 1024 / 1024).toFixed(2)}MB`);
+
+  try {
+    archive.elements.dropzoneStatus.textContent = '클라우드 업로드 중...';
+    const { publicUrl, path } = await uploadToSupabaseStorage(archive, file);
+    addLog(archive.section.id, '클라우드 업로드', publicUrl, path);
+    return { publicUrl, path };
+  } catch (error) {
+    addLog(archive.section.id, '클라우드 업로드 실패', error.message);
+    throw error;
+  }
+};
+
+const seedUploads = async (archive) => {
+  try {
+    await fetchUploadsFromCloud(archive);
+  } catch (error) {
+    console.error('클라우드 로드 실패:', error);
+    addLog(archive.section.id, '클라우드 로드 실패', error.message || '알 수 없는 오류');
+    archive.uploads = [...archive.section.defaults];
+  }
+  renderUploads(archive);
+};
+
+const handleRemove = async (event, archive) => {
+  const target = event.target.closest('button[data-remove]');
+  if (!target) return;
+  const index = Number(target.dataset.remove);
+  if (Number.isNaN(index)) return;
+  const upload = archive.uploads[index];
+  if (!upload) return;
+  if (!confirm('이 영상을 삭제할까요?')) return;
+
+  try {
+    await removeUploadRecord(archive, upload);
+    archive.uploads.splice(index, 1);
+    renderUploads(archive);
+    addLog(archive.section.id, '영상 삭제', upload.title, upload.id ? `id=${upload.id}` : undefined);
+  } catch (error) {
+    console.error('삭제 실패:', error);
+    addLog(archive.section.id, '삭제 실패', error.message || '알 수 없는 오류');
+    alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
+  }
+};
+
+const handleSubmit = async (event, archive) => {
+  event.preventDefault();
+  const title = archive.elements.titleInput.value.trim();
+  if (!title) {
+    alert('영상 제목을 입력해주세요.');
+    return;
+  }
+  if (!archive.selectedFile) {
+    alert('업로드할 영상 파일을 선택해주세요.');
+    return;
+  }
+  let uploadMetadata = null;
+  try {
+    uploadMetadata = await uploadToCloud(archive, archive.selectedFile);
+    const newItem = {
+      title,
+      subtitle: formatNow(),
+      src: uploadMetadata.publicUrl,
+      poster: fallbackPoster(archive.section, title)
+    };
+    const saved = await insertUploadRecord(archive, newItem);
+    archive.uploads.unshift(saved);
+    archive.uploads = archive.uploads.slice(0, MAX_UPLOADS);
+    renderUploads(archive);
+    archive.elements.form.reset();
+    resetSelectedFile(archive);
+    archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
+    addLog(archive.section.id, '업로드 완료', saved.title, saved.id ? `id=${saved.id}` : undefined);
+  } catch (error) {
+    console.error(error);
+    archive.elements.dropzoneStatus.textContent = '업로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
+    addLog(archive.section.id, '업로드 실패', error.message || String(error));
+    alert('업로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    if (uploadMetadata?.path) {
+      try {
+        await supabase.storage.from(SUPABASE_BUCKET).remove([uploadMetadata.path]);
+        addLog(archive.section.id, '정리 완료', '부분 업로드 파일 삭제', uploadMetadata.path);
+      } catch (cleanupError) {
+        console.warn('임시 파일 삭제 실패:', cleanupError);
+      }
+    }
+  } finally {
+    archive.elements.dropzone.classList.remove('uploading');
+    archive.elements.submitButton.disabled = false;
+  }
+};
+
+const createArchive = (section) => {
+  const fragment = template.content.cloneNode(true);
+  const archiveEl = fragment.querySelector('.archive');
+  archiveEl.dataset.section = section.id;
+  archiveEl.querySelector('.archive-title').textContent = section.title;
+  archiveEl.querySelector('.archive-description').textContent = section.description;
+
+  const list = archiveEl.querySelector('.upload-list');
+  const form = archiveEl.querySelector('.upload-form');
+  const titleInput = archiveEl.querySelector('.upload-title');
+  const dropzone = archiveEl.querySelector('.dropzone');
+  const dropzoneStatus = archiveEl.querySelector('.dropzone-status');
+  const selectButton = archiveEl.querySelector('.select-button');
+  const fileInput = archiveEl.querySelector('.upload-file');
+  const submitButton = archiveEl.querySelector('.submit-button');
+
+  const archive = {
+    section,
+    elements: { list, form, titleInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton },
+    uploads: [],
+    selectedFile: null,
+  };
+
+  selectButton.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (event) => {
+    setSelectedFile(archive, event.target.files?.[0]);
+    fileInput.value = '';
+  });
+  ['dragenter', 'dragover'].forEach((type) => {
+    dropzone.addEventListener(type, (event) => {
+      event.preventDefault();
+      dropzone.classList.add('hover');
+    });
+  });
+  ['dragleave', 'drop'].forEach((type) => {
+    dropzone.addEventListener(type, (event) => {
+      event.preventDefault();
+      dropzone.classList.remove('hover');
+    });
+  });
+  dropzone.addEventListener('drop', (event) => {
+    setSelectedFile(archive, event.dataTransfer.files?.[0]);
+  });
+  form.addEventListener('submit', (event) => handleSubmit(event, archive));
+  list.addEventListener('click', (event) => handleRemove(event, archive));
+  resetSelectedFile(archive);
+
+  container.appendChild(fragment);
+  archive.elements = { list, form, titleInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton };
+  archive.elements.titleInput = titleInput;
+  archive.elements.dropzone = dropzone;
+  archive.elements.dropzoneStatus = dropzoneStatus;
+  archive.elements.selectButton = selectButton;
+  archive.elements.fileInput = fileInput;
+  archive.elements.submitButton = submitButton;
+  return archive;
+};
+
+const archives = sections.map(createArchive);
+loadLogs();
+renderLogs();
+archives.forEach(async (archive) => await seedUploads(archive));
+
+logCopyBtn.addEventListener('click', async () => {
+  const payload = JSON.stringify(logs, null, 2);
+  try {
+    await navigator.clipboard.writeText(payload);
+    alert('로그가 클립보드에 복사되었습니다.');
+  } catch (error) {
+    alert('클립보드 복사에 실패했습니다.');
+  }
+});
+
+logClearBtn.addEventListener('click', () => {
+  if (!logs.length) return;
+  if (!confirm('로그를 초기화할까요?')) return;
+  logs = [];
+  persistLogs();
+  renderLogs();
+});
+
+if (syncCloudBtn) {
+  syncCloudBtn.addEventListener('click', async () => {
+    if (!archives.length) return;
+    const archive = archives[0];
+
+    syncCloudBtn.disabled = true;
+    syncCloudBtn.textContent = '동기화 중...';
+
+    try {
+      await fetchUploadsFromCloud(archive, { addLogEntry: true });
+      renderUploads(archive);
+      alert('클라우드에서 최신 목록을 불러왔습니다.');
+    } catch (error) {
+      console.error('동기화 실패:', error);
+      addLog(archive.section.id, '동기화 실패', error.message || '알 수 없는 오류');
+      alert('동기화에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      syncCloudBtn.disabled = false;
+      syncCloudBtn.textContent = '클라우드 동기화';
+    }
+  });
+}
+
+// 테스트 버튼 이벤트 리스너
+if (testSupabaseBtn) {
+  testSupabaseBtn.addEventListener('click', testSupabaseConnection);
+}
+if (testDatabaseBtn) {
+  testDatabaseBtn.addEventListener('click', testDatabase);
+}
+if (testStorageBtn) {
+  testStorageBtn.addEventListener('click', testStorage);
+}
+    </script>
   </body>
 </html>

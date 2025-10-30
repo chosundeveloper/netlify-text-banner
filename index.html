@@ -493,35 +493,7 @@
 
       <div id="archives"></div>
 
-      <section class="archive" id="log-section">
-        <div class="archive-header">
-          <h2 class="archive-title">업로드 로그</h2>
-          <p class="archive-description">최근 업로드 시도와 응답을 확인할 수 있습니다.</p>
-        </div>
-        <div class="upload-list" id="log-list"></div>
-        <div class="upload-actions" style="justify-content:flex-end; gap:0.6rem; flex-wrap:wrap;">
-          <button type="button" id="sync-cloud">클라우드 동기화</button>
-          <button type="button" id="log-copy">로그 복사</button>
-          <button type="button" id="log-clear">로그 초기화</button>
-        </div>
-        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
-          <strong>✅ 자동 동기화 활성화:</strong><br>
-          • 어느 기기에서든 업로드하면 모든 기기에서 자동으로 보입니다<br>
-          • 별도 설정 불필요 - 바로 사용 가능<br>
-          • 폰에서 업로드 → 컴퓨터에서 즉시 확인 가능
-        </div>
-        <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:1rem; font-size:0.9rem; color:rgba(255,255,255,0.8);">
-          <strong>🧪 Supabase 연결 테스트:</strong><br>
-          <button type="button" id="test-supabase" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Supabase 연결 테스트</button>
-          <button type="button" id="test-database" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Database 테스트</button>
-          <button type="button" id="test-storage" style="margin:5px; padding:8px 16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#f5f2ff; cursor:pointer;">Storage 테스트</button>
-          <br><br>
-          <strong>⚠️ Supabase 설정 필요:</strong><br>
-          1. <strong>Storage 버킷 생성:</strong> Storage → Buckets → "videos" 버킷 생성 (Public)<br>
-          2. <strong>Database RLS:</strong> Authentication → Policies → video_uploads RLS 비활성화<br>
-          3. <strong>Storage RLS:</strong> Storage → Policies → videos 버킷 정책 설정
-        </div>
-      </section>
+      <!-- 업로드 로그 섹션 제거됨 -->
 
       <template id="archive-template">
         <section class="archive">
@@ -547,6 +519,7 @@
     </main>
 
     <script>
+const ENABLE_LOGS = false;
 const MAX_UPLOADS = 12;
 const sections = [
   {
@@ -571,13 +544,13 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const template = document.getElementById('archive-template');
 const container = document.getElementById('archives');
-const logListEl = document.getElementById('log-list');
-const logCopyBtn = document.getElementById('log-copy');
-const logClearBtn = document.getElementById('log-clear');
-const syncCloudBtn = document.getElementById('sync-cloud');
-const testSupabaseBtn = document.getElementById('test-supabase');
-const testDatabaseBtn = document.getElementById('test-database');
-const testStorageBtn = document.getElementById('test-storage');
+const logListEl = null;
+const logCopyBtn = null;
+const logClearBtn = null;
+const syncCloudBtn = null;
+const testSupabaseBtn = null;
+const testDatabaseBtn = null;
+const testStorageBtn = null;
 
 let logs = [];
 
@@ -651,6 +624,7 @@ const formatNow = () => {
 };
 
 const loadLogs = () => {
+  if (!ENABLE_LOGS) return;
   try {
     logs = JSON.parse(localStorage.getItem(LOG_STORAGE_KEY) || '[]');
     if (!Array.isArray(logs)) logs = [];
@@ -660,6 +634,7 @@ const loadLogs = () => {
 };
 
 const persistLogs = () => {
+  if (!ENABLE_LOGS) return;
   try {
     localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(logs));
   } catch (error) {
@@ -668,6 +643,7 @@ const persistLogs = () => {
 };
 
 const renderLogs = () => {
+  if (!ENABLE_LOGS || !logListEl) return;
   logListEl.innerHTML = '';
   if (!logs.length) {
     const empty = document.createElement('p');
@@ -701,6 +677,7 @@ const renderLogs = () => {
 };
 
 const addLog = (sectionId, event, message, details) => {
+  if (!ENABLE_LOGS) return;
   logs.push({ section: sectionId, event, message, details, time: new Date().toISOString() });
   if (logs.length > LOG_LIMIT) {
     logs = logs.slice(logs.length - LOG_LIMIT);
@@ -1085,23 +1062,27 @@ loadLogs();
 renderLogs();
 archives.forEach(async (archive) => await seedUploads(archive));
 
-logCopyBtn.addEventListener('click', async () => {
-  const payload = JSON.stringify(logs, null, 2);
-  try {
-    await navigator.clipboard.writeText(payload);
-    alert('로그가 클립보드에 복사되었습니다.');
-  } catch (error) {
-    alert('클립보드 복사에 실패했습니다.');
-  }
-});
+if (ENABLE_LOGS && logCopyBtn) {
+  logCopyBtn.addEventListener('click', async () => {
+    const payload = JSON.stringify(logs, null, 2);
+    try {
+      await navigator.clipboard.writeText(payload);
+      alert('로그가 클립보드에 복사되었습니다.');
+    } catch (error) {
+      alert('클립보드 복사에 실패했습니다.');
+    }
+  });
+}
 
-logClearBtn.addEventListener('click', () => {
-  if (!logs.length) return;
-  if (!confirm('로그를 초기화할까요?')) return;
-  logs = [];
-  persistLogs();
-  renderLogs();
-});
+if (ENABLE_LOGS && logClearBtn) {
+  logClearBtn.addEventListener('click', () => {
+    if (!logs.length) return;
+    if (!confirm('로그를 초기화할까요?')) return;
+    logs = [];
+    persistLogs();
+    renderLogs();
+  });
+}
 
 if (syncCloudBtn) {
   syncCloudBtn.addEventListener('click', async () => {

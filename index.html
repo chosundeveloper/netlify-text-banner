@@ -517,6 +517,22 @@
           </form>
         </section>
       </template>
+ 
+      <!-- 지목 모달 -->
+      <div id="nominate-modal" style="position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); z-index: 50;">
+        <div style="width: min(520px, 92%); background: rgba(19,13,40,0.95); border-radius: 1rem; padding: 1.2rem 1.2rem 1rem; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12);">
+          <h3 style="margin: 0 0 0.6rem 0; color: #f5f2ff; font-size: 1.1rem;">다음 첼린지 참여자를 지목하세요</h3>
+          <p style="margin: 0 0 0.8rem 0; color: rgba(255,255,255,0.75); font-size: 0.92rem;">셀명과 이름을 입력해주세요. 업로드 항목에 함께 표시됩니다.</p>
+          <div style="display: grid; gap: 0.8rem;">
+            <input id="nominate-cell" type="text" placeholder="셀명 (예: 감다살 셀)" style="padding: 0.8rem 0.9rem; border: none; border-radius: 0.6rem; background: rgba(255,255,255,0.08); color: #fff;">
+            <input id="nominate-name" type="text" placeholder="이름 (예: 홍길동)" style="padding: 0.8rem 0.9rem; border: none; border-radius: 0.6rem; background: rgba(255,255,255,0.08); color: #fff;">
+          </div>
+          <div style="display:flex; gap:0.6rem; justify-content:flex-end; margin-top: 1rem;">
+            <button id="nominate-skip" type="button" style="padding: 0.6rem 1rem; border:none; border-radius: 999px; background: rgba(255,255,255,0.14); color:#f5f2ff;">나중에</button>
+            <button id="nominate-confirm" type="button" style="padding: 0.6rem 1.1rem; border:none; border-radius: 999px; background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); color:#341d2f; font-weight:600;">확인</button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <script>
@@ -552,6 +568,16 @@ const syncCloudBtn = null;
 const testSupabaseBtn = null;
 const testDatabaseBtn = null;
 const testStorageBtn = null;
+
+// Nomination modal elements
+const nominateModal = document.getElementById('nominate-modal');
+const nominateCellInput = document.getElementById('nominate-cell');
+const nominateNameInput = document.getElementById('nominate-name');
+const nominateConfirmBtn = document.getElementById('nominate-confirm');
+const nominateSkipBtn = document.getElementById('nominate-skip');
+
+/** 업로드 완료 후 지목을 연결하기 위한 마지막 업로드 항목 참조 */
+let lastUploadedItem = null;
 
 let logs = [];
 
@@ -981,6 +1007,14 @@ const handleSubmit = async (event, archive) => {
     resetSelectedFile(archive);
     archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
     addLog(archive.section.id, '업로드 완료', saved.title, saved.id ? `id=${saved.id}` : undefined);
+
+    // 업로드 완료 후 지목 모달 표시
+    lastUploadedItem = saved;
+    if (nominateModal) {
+      nominateCellInput && (nominateCellInput.value = '');
+      nominateNameInput && (nominateNameInput.value = '');
+      nominateModal.style.display = 'flex';
+    }
   } catch (error) {
     console.error(error);
     archive.elements.dropzoneStatus.textContent = '업로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
@@ -1082,6 +1116,46 @@ if (ENABLE_LOGS && logClearBtn) {
     logs = [];
     persistLogs();
     renderLogs();
+  });
+}
+
+// 지목 모달 이벤트
+if (nominateConfirmBtn) {
+  nominateConfirmBtn.addEventListener('click', async () => {
+    const cell = (nominateCellInput?.value || '').trim();
+    const name = (nominateNameInput?.value || '').trim();
+    if (!lastUploadedItem) {
+      nominateModal.style.display = 'none';
+      return;
+    }
+    const mention = (cell || name) ? `다음 지목: ${cell ? cell + ' · ' : ''}${name}` : '';
+    if (mention) {
+      // 로컬 반영
+      lastUploadedItem.subtitle = `${lastUploadedItem.subtitle} · ${mention}`;
+      // 원격 업데이트 시도
+      try {
+        if (lastUploadedItem.id) {
+          const { error } = await supabase
+            .from(SUPABASE_TABLE)
+            .update({ subtitle: lastUploadedItem.subtitle })
+            .eq('id', lastUploadedItem.id);
+          if (error) console.warn('지목 저장 실패:', error.message);
+        }
+      } catch (e) {
+        console.warn('지목 저장 오류:', e);
+      }
+      // 화면 갱신
+      renderUploads(archives[0]);
+    }
+    nominateModal.style.display = 'none';
+    lastUploadedItem = null;
+  });
+}
+
+if (nominateSkipBtn) {
+  nominateSkipBtn.addEventListener('click', () => {
+    if (nominateModal) nominateModal.style.display = 'none';
+    lastUploadedItem = null;
   });
 }
 

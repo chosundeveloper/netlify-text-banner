@@ -21,24 +21,7 @@ export const App: React.FC = () => {
 				<div>🌟 행복 발견</div>
 			</section>
 
-			<section className="logs">
-				<h3>업로드 로그</h3>
-				<p>최근 업로드 시도와 응답을 확인할 수 있습니다.</p>
-				<div className="actions">
-					<button>클라우드 동기화</button>
-					<button>로그 복사</button>
-					<button>로그 초기화</button>
-				</div>
-				<p><strong>✅ 자동 동기화 활성화:</strong><br />
-				 • 어느 기기에서든 업로드하면 모든 기기에서 자동으로 보입니다<br />
-				 • 별도 설정 불필요 - 바로 사용 가능<br />
-				 • 폰에서 업로드 → 컴퓨터에서 즉시 확인 가능</p>
-				<p><strong>🧪 Supabase 연결 테스트:</strong> Database 테스트 · Storage 테스트</p>
-				<p><strong>⚠️ Supabase 설정 필요:</strong><br />
-				 1. Storage → Buckets → "videos" 버킷 생성 (Public)<br />
-				 2. Authentication → Policies → video_uploads RLS 비활성화<br />
-				 3. Storage → Policies → videos 버킷 정책 설정</p>
-			</section>
+			{/* 업로드 로그 섹션 제거 */}
 
 			<section className="upload">
 				<h3>영상 제목</h3>

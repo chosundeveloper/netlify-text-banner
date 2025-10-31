@@ -208,6 +208,8 @@
         body { 
           padding: 1rem 0.8rem 2rem; 
           font-size: 14px;
+          display: block; /* avoid flex centering issues on iOS */
+          overflow-x: auto; /* allow scroll if anything overflows */
         }
         main { 
           padding: 1.2rem 0.8rem 1.6rem; 
@@ -215,6 +217,7 @@
           overflow-x: visible; /* allow content to render fully without visual cut */
           width: -webkit-fill-available;
           max-width: 100%;
+          margin: 0 auto; /* center within body */
         }
         header { 
           width: -webkit-fill-available; 

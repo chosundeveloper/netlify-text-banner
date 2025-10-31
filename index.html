@@ -529,9 +529,12 @@
           </div>
           <div class="upload-list"></div>
           <form class="upload-form" autocomplete="off">
-            <label>등록자 (셀 / 이름)</label>
-            <input class="upload-author" type="text" maxlength="60" placeholder="예: 감다살 셀 / 이하연" required>
-            <label>영상 제목</label>
+            <label>등록자</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+              <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
+              <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
+            </div>
+            <label style="margin-top: 0.8rem;">영상 제목</label>
             <input class="upload-title" type="text" maxlength="80" placeholder="예: 미션 브이로그" required>
             <div class="dropzone">
               <strong>영상 또는 이미지 파일을 끌어다 놓거나 아래 버튼을 눌러 선택하세요.</strong>
@@ -1017,9 +1020,8 @@ const renderNominatedList = (archives) => {
     registerBtn.addEventListener('click', function() {
       const targetCell = this.dataset.cell || '';
       const targetName = this.dataset.name || '';
-      const authorValue = targetCell && targetName ? `${targetCell} / ${targetName}` : (targetCell || targetName || '');
       
-      console.log('등록하기 버튼 클릭:', { targetCell, targetName, authorValue });
+      console.log('등록하기 버튼 클릭:', { targetCell, targetName });
       
       // 등록 폼 찾기
       if (!archives || archives.length === 0) {
@@ -1035,15 +1037,17 @@ const renderNominatedList = (archives) => {
         return;
       }
       
-      const authorInput = archive.elements.authorInput;
-      if (!authorInput) {
-        console.error('authorInput을 찾을 수 없습니다:', archive.elements);
+      const cellInput = archive.elements.cellInput;
+      const nameInput = archive.elements.nameInput;
+      if (!cellInput || !nameInput) {
+        console.error('셀 또는 이름 입력 필드를 찾을 수 없습니다:', archive.elements);
         alert('등록자 입력 필드를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
         return;
       }
       
-      console.log('등록자 입력 필드에 값 설정:', authorValue);
-      authorInput.value = authorValue;
+      console.log('등록자 입력 필드에 값 설정:', { targetCell, targetName });
+      cellInput.value = targetCell;
+      nameInput.value = targetName;
       
       // 폼으로 스크롤
       archive.elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1250,12 +1254,18 @@ const handleRemove = async (event, archive) => {
 
 const handleSubmit = async (event, archive) => {
   event.preventDefault();
-  const author = archive.elements.authorInput.value.trim();
-  if (!author) {
-    alert('등록자를 입력해주세요. (예: 감다살 셀 / 이하연)');
-    archive.elements.authorInput.focus();
+  const cell = archive.elements.cellInput.value.trim();
+  const name = archive.elements.nameInput.value.trim();
+  if (!cell || !name) {
+    alert('등록자의 셀명과 이름을 모두 입력해주세요.');
+    if (!cell) {
+      archive.elements.cellInput.focus();
+    } else {
+      archive.elements.nameInput.focus();
+    }
     return;
   }
+  const author = `${cell} / ${name}`;
   const title = archive.elements.titleInput.value.trim();
   if (!title) {
     alert('영상 제목을 입력해주세요.');
@@ -1318,7 +1328,8 @@ const createArchive = (section) => {
 
   const list = archiveEl.querySelector('.upload-list');
   const form = archiveEl.querySelector('.upload-form');
-  const authorInput = archiveEl.querySelector('.upload-author');
+  const cellInput = archiveEl.querySelector('.upload-cell');
+  const nameInput = archiveEl.querySelector('.upload-name');
   const titleInput = archiveEl.querySelector('.upload-title');
   const dropzone = archiveEl.querySelector('.dropzone');
   const dropzoneStatus = archiveEl.querySelector('.dropzone-status');
@@ -1328,7 +1339,7 @@ const createArchive = (section) => {
 
   const archive = {
     section,
-    elements: { list, form, authorInput, titleInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton },
+    elements: { list, form, cellInput, nameInput, titleInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton },
     uploads: [],
     selectedFile: null,
   };
@@ -1358,13 +1369,7 @@ const createArchive = (section) => {
   resetSelectedFile(archive);
 
   container.appendChild(fragment);
-  archive.elements = { list, form, titleInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton };
-  archive.elements.titleInput = titleInput;
-  archive.elements.dropzone = dropzone;
-  archive.elements.dropzoneStatus = dropzoneStatus;
-  archive.elements.selectButton = selectButton;
-  archive.elements.fileInput = fileInput;
-  archive.elements.submitButton = submitButton;
+  // archive.elements는 이미 위에서 설정했으므로 여기서는 업데이트만 필요하면 업데이트
   return archive;
 };
 

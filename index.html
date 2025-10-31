@@ -552,9 +552,13 @@
       <div id="nominate-modal" style="position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); z-index: 50;">
         <div style="width: min(520px, 92%); background: rgba(19,13,40,0.95); border-radius: 1rem; padding: 1.2rem 1.2rem 1rem; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12);">
           <h3 style="margin: 0 0 0.6rem 0; color: #f5f2ff; font-size: 1.1rem;">다음 첼린지 참여자를 지목하세요</h3>
-          <p style="margin: 0 0 0.8rem 0; color: rgba(255,255,255,0.75); font-size: 0.92rem;">"셀 / 이름" 형식으로 입력해주세요. 업로드 항목에 함께 표시됩니다.</p>
+          <p style="margin: 0 0 0.8rem 0; color: rgba(255,255,255,0.75); font-size: 0.92rem;">셀명과 이름을 각각 입력해주세요. 업로드 항목에 함께 표시됩니다.</p>
           <div style="display: grid; gap: 0.8rem;">
-            <input id="nominate-input" type="text" placeholder="예: 감다살 셀 / 이하연" style="padding: 0.8rem 0.9rem; border: none; border-radius: 0.6rem; background: rgba(255,255,255,0.08); color: #fff;">
+            <label style="color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 500;">지목할 사람</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+              <input id="nominate-cell-input" type="text" placeholder="셀명 (예: 감다살 셀)" maxlength="40" style="padding: 0.8rem 0.9rem; border: none; border-radius: 0.6rem; background: rgba(255,255,255,0.08); color: #fff;">
+              <input id="nominate-name-input" type="text" placeholder="이름 (예: 이하연)" maxlength="40" style="padding: 0.8rem 0.9rem; border: none; border-radius: 0.6rem; background: rgba(255,255,255,0.08); color: #fff;">
+            </div>
           </div>
           <div style="display:flex; gap:0.6rem; justify-content:flex-end; margin-top: 1rem;">
             <button id="nominate-skip" type="button" style="padding: 0.6rem 1rem; border:none; border-radius: 999px; background: rgba(255,255,255,0.14); color:#f5f2ff;">나중에</button>
@@ -600,7 +604,8 @@ const testStorageBtn = null;
 
 // Nomination modal elements
 const nominateModal = document.getElementById('nominate-modal');
-const nominateInput = document.getElementById('nominate-input');
+const nominateCellInput = document.getElementById('nominate-cell-input');
+const nominateNameInput = document.getElementById('nominate-name-input');
 const nominateConfirmBtn = document.getElementById('nominate-confirm');
 const nominateSkipBtn = document.getElementById('nominate-skip');
 
@@ -1296,9 +1301,14 @@ const handleSubmit = async (event, archive) => {
 
     // 업로드 완료 후 지목 모달 표시
     lastUploadedItem = saved;
-    if (nominateModal && nominateInput) {
-      nominateInput.value = '';
+    if (nominateModal && nominateCellInput && nominateNameInput) {
+      nominateCellInput.value = '';
+      nominateNameInput.value = '';
       nominateModal.style.display = 'flex';
+      // 셀 입력 필드로 포커스
+      setTimeout(() => {
+        if (nominateCellInput) nominateCellInput.focus();
+      }, 100);
     }
   } catch (error) {
     console.error(error);
@@ -1401,23 +1411,21 @@ if (ENABLE_LOGS && logClearBtn) {
 }
 
 // 지목 모달 이벤트
-if (nominateConfirmBtn && nominateInput) {
+if (nominateConfirmBtn && nominateCellInput && nominateNameInput) {
   nominateConfirmBtn.addEventListener('click', async () => {
-    const nominationValue = (nominateInput?.value || '').trim();
+    const cell = (nominateCellInput?.value || '').trim();
+    const name = (nominateNameInput?.value || '').trim();
     if (!lastUploadedItem) {
       nominateModal.style.display = 'none';
       return;
     }
     
     let mention = '';
-    if (nominationValue) {
-      // "셀 / 이름" 형식 파싱
-      const parts = nominationValue.split('/').map(s => s.trim()).filter(s => s);
-      if (parts.length >= 2) {
-        mention = `다음 지목: ${parts[0]} / ${parts[1]}`;
-      } else if (parts.length === 1) {
-        mention = `다음 지목: ${parts[0]}`;
-      }
+    if (cell && name) {
+      mention = `다음 지목: ${cell} / ${name}`;
+    } else if (cell || name) {
+      // 둘 중 하나만 입력된 경우도 처리
+      mention = `다음 지목: ${cell || name}`;
     }
     
     if (mention) {
@@ -1439,6 +1447,9 @@ if (nominateConfirmBtn && nominateInput) {
       renderUploads(archives[0]);
     }
     nominateModal.style.display = 'none';
+    // 입력 필드 초기화
+    if (nominateCellInput) nominateCellInput.value = '';
+    if (nominateNameInput) nominateNameInput.value = '';
     lastUploadedItem = null;
   });
 }
@@ -1446,6 +1457,9 @@ if (nominateConfirmBtn && nominateInput) {
 if (nominateSkipBtn) {
   nominateSkipBtn.addEventListener('click', () => {
     if (nominateModal) nominateModal.style.display = 'none';
+    // 입력 필드 초기화
+    if (nominateCellInput) nominateCellInput.value = '';
+    if (nominateNameInput) nominateNameInput.value = '';
     lastUploadedItem = null;
   });
 }

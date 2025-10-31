@@ -441,7 +441,7 @@
           padding: 0.8rem !important;
         }
         
-        #qr-code {
+        #qr-code-img {
           width: 160px !important;
           height: 160px !important;
         }
@@ -472,7 +472,7 @@
         <p>감다살 셀의 미션/첼린지 영상을 등록하고 시청하세요.</p>
         <div style="margin: 1rem auto; text-align: center;">
           <div id="qr-code-container" style="display: inline-block; padding: 1rem; background: rgba(255,255,255,0.95); border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-            <canvas id="qr-code"></canvas>
+            <img id="qr-code-img" alt="QR Code" style="display: block; width: 200px; height: 200px;">
           </div>
           <p style="margin: 0.6rem 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.8);">📱 QR 코드로 모바일에서 접속</p>
         </div>
@@ -1211,36 +1211,57 @@ if (testStorageBtn) {
 }
 
 // QR 코드 생성 (페이지 로드 후 실행)
-function generateQRCode() {
-  if (typeof QRCode !== 'undefined') {
-    const qrCanvas = document.getElementById('qr-code');
-    if (qrCanvas) {
-      const currentUrl = window.location.href;
-      QRCode.toCanvas(qrCanvas, currentUrl, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      }, function (error) {
-        if (error) {
-          console.error('QR 코드 생성 실패:', error);
-        }
-      });
+(function() {
+  function generateQRCode() {
+    const qrImg = document.getElementById('qr-code-img');
+    if (!qrImg) {
+      console.error('QR 코드 이미지를 찾을 수 없습니다.');
+      return;
     }
-  } else {
-    // 라이브러리 로드를 기다림
-    setTimeout(generateQRCode, 100);
+    
+    try {
+      const currentUrl = window.location.href;
+      console.log('QR 코드 생성 시작:', currentUrl);
+      
+      // 외부 API를 사용하여 QR 코드 생성
+      const apiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=1&data=' + encodeURIComponent(currentUrl);
+      qrImg.src = apiUrl;
+      qrImg.onload = function() {
+        console.log('QR 코드 로드 성공');
+      };
+      qrImg.onerror = function() {
+        console.error('QR 코드 로드 실패');
+        // 대체: 로컬 라이브러리 사용 시도
+        if (typeof QRCode !== 'undefined') {
+          const canvas = document.createElement('canvas');
+          QRCode.toCanvas(canvas, currentUrl, {
+            width: 200,
+            margin: 1,
+            color: {
+              dark: '#000000',
+              light: '#FFFFFF'
+            }
+          }, function(error) {
+            if (!error) {
+              qrImg.src = canvas.toDataURL();
+            } else {
+              console.error('QR 코드 생성 실패:', error);
+            }
+          });
+        }
+      };
+    } catch (error) {
+      console.error('QR 코드 생성 오류:', error);
+    }
   }
-}
-
-// DOM 로드 완료 후 QR 코드 생성
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', generateQRCode);
-} else {
-  generateQRCode();
-}
+  
+  // DOM 로드 완료 후 실행
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', generateQRCode);
+  } else {
+    generateQRCode();
+  }
+})();
     </script>
   </body>
 </html>

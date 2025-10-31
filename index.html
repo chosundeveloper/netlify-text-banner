@@ -5,6 +5,7 @@
     <title>감다살 영상 아카이브</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
       :root { color-scheme: light dark; }
       * { box-sizing: border-box; }
@@ -435,6 +436,16 @@
           font-size: 0.9rem !important;
         }
         
+        /* QR 코드 모바일 최적화 */
+        #qr-code-container {
+          padding: 0.8rem !important;
+        }
+        
+        #qr-code {
+          width: 160px !important;
+          height: 160px !important;
+        }
+        
         .feature-cards {
           gap: 0.8rem !important;
         }
@@ -459,6 +470,12 @@
       <header>
         <h1>감다살 첼린지</h1>
         <p>감다살 셀의 미션/첼린지 영상을 등록하고 시청하세요.</p>
+        <div style="margin: 1rem auto; text-align: center;">
+          <div id="qr-code-container" style="display: inline-block; padding: 1rem; background: rgba(255,255,255,0.95); border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <canvas id="qr-code"></canvas>
+          </div>
+          <p style="margin: 0.6rem 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.8);">📱 QR 코드로 모바일에서 접속</p>
+        </div>
       </header>
 
       <section class="two-col" style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; align-items:start;">
@@ -1191,6 +1208,38 @@ if (testDatabaseBtn) {
 }
 if (testStorageBtn) {
   testStorageBtn.addEventListener('click', testStorage);
+}
+
+// QR 코드 생성 (페이지 로드 후 실행)
+function generateQRCode() {
+  if (typeof QRCode !== 'undefined') {
+    const qrCanvas = document.getElementById('qr-code');
+    if (qrCanvas) {
+      const currentUrl = window.location.href;
+      QRCode.toCanvas(qrCanvas, currentUrl, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      }, function (error) {
+        if (error) {
+          console.error('QR 코드 생성 실패:', error);
+        }
+      });
+    }
+  } else {
+    // 라이브러리 로드를 기다림
+    setTimeout(generateQRCode, 100);
+  }
+}
+
+// DOM 로드 완료 후 QR 코드 생성
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', generateQRCode);
+} else {
+  generateQRCode();
 }
     </script>
   </body>

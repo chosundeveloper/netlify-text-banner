@@ -941,14 +941,29 @@ const renderUploads = (archive) => {
     const article = document.createElement('article');
     article.className = 'upload-item';
 
-    const videoWrap = document.createElement('div');
-    videoWrap.className = 'upload-video';
-    const video = document.createElement('video');
-    video.controls = true;
-    video.preload = 'metadata';
-    video.src = item.src;
-    video.poster = item.poster;
-    videoWrap.append(video);
+    const mediaWrap = document.createElement('div');
+    mediaWrap.className = 'upload-video';
+    const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(item.src || '');
+    if (isImage) {
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = item.src;
+      img.alt = item.title || '이미지';
+      img.style.display = 'block';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.background = 'rgba(0,0,0,0.3)';
+      mediaWrap.append(img);
+    } else {
+      const video = document.createElement('video');
+      video.controls = true;
+      video.preload = 'metadata';
+      video.src = item.src;
+      video.poster = item.poster;
+      mediaWrap.append(video);
+    }
 
     const info = document.createElement('div');
     info.className = 'upload-info';
@@ -1033,7 +1048,7 @@ const renderUploads = (archive) => {
     }
     actions.append(removeBtn);
 
-    article.append(videoWrap, info, actions);
+    article.append(mediaWrap, info, actions);
     list.append(article);
   });
   

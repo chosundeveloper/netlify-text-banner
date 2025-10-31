@@ -210,215 +210,42 @@
           font-size: 14px;
         }
         main { 
-          padding: 1.5rem 1rem 2rem; 
+          padding: 1.2rem 0.8rem 1.6rem; 
           border-radius: 1.5rem;
           overflow-x: visible; /* allow content to render fully without visual cut */
+          width: -webkit-fill-available;
+          max-width: 100%;
+        }
+        header { 
+          width: -webkit-fill-available; 
+          max-width: 100%; 
+          margin: 0 auto; 
+          overflow-x: visible;
         }
         header h1 {
           font-size: 2rem;
           margin-bottom: 0.5rem;
           letter-spacing: 0; /* prevent text from extending outside container */
+          text-align: center;
+          padding: 0 6px;
         }
         header p {
           font-size: 0.9rem;
           text-align: center;
-          max-width: 28ch;
+          max-width: calc(100% - 16px);
           margin: 0 auto;
           line-height: 1.5;
-          padding: 0 0.4rem;
+          padding: 0 6px;
           overflow-wrap: anywhere;
           word-break: break-word;
         }
-        header { overflow-x: visible; }
-        .upload-item { padding: 0.9rem; }
-        .upload-video { flex: 1 1 100%; max-width: none; }
-        .upload-actions { width: 100%; justify-content: flex-end; }
-        .upload-form { padding: 1.4rem 1.5rem; }
-      }
-      .archive-header {
-        text-align: center;
-        display: grid;
-        gap: 0.6rem;
-      }
-      .archive-title {
-        margin: 0;
-        font-size: clamp(1.6rem, 4vw, 2.2rem);
-      }
-      .archive-description {
-        margin: 0;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.98rem;
-      }
-      .upload-list {
-        display: grid;
-        gap: 1rem;
-      }
-      .upload-item {
-        display: flex;
-        gap: 1.2rem;
-        flex-wrap: wrap;
-        align-items: center;
-        padding: 1rem 1.2rem;
-        border-radius: 1.4rem;
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-      .upload-video {
-        flex: 0 0 200px;
-        max-width: 240px;
-        border-radius: 1.2rem;
-        overflow: hidden;
-        box-shadow: 0 1.1rem 2.2rem rgba(0, 0, 0, 0.45);
-      }
-      .upload-video video {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        background: rgba(0, 0, 0, 0.3);
-      }
-      .upload-info {
-        flex: 1 1 240px;
-        text-align: left;
-      }
-      .upload-info strong {
-        display: block;
-        font-size: 1.05rem;
-        color: #ffe7f8;
-      }
-      .upload-info span {
-        font-size: 0.92rem;
-        color: rgba(255, 255, 255, 0.7);
-      }
-      .upload-actions {
-        display: flex;
-        gap: 0.6rem;
-        align-items: center;
-      }
-      .upload-actions button {
-        border: none;
-        border-radius: 999px;
-        padding: 0.5rem 0.95rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        background: rgba(255, 255, 255, 0.18);
-        color: rgba(24, 20, 54, 0.9);
-        cursor: pointer;
-        transition: filter 0.15s ease;
-      }
-      .upload-actions button:hover { filter: brightness(1.08); }
-      .upload-empty {
-        margin: 0;
-        padding: 1rem 1.2rem;
-        border-radius: 1.2rem;
-        background: rgba(255, 255, 255, 0.06);
-        color: rgba(255, 255, 255, 0.65);
-        text-align: center;
-      }
-      .upload-form {
-        display: grid;
-        gap: 1rem;
-        padding: 1.5rem 1.6rem;
-        border-radius: 1.6rem;
-        background: rgba(255, 255, 255, 0.07);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-      }
-      .upload-form label {
-        text-align: left;
-        font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.78);
-      }
-      .upload-title {
-        width: 100%;
-        border: none;
-        border-radius: 1rem;
-        padding: 0.9rem 1rem;
-        font-size: 1rem;
-        background: rgba(255, 255, 255, 0.12);
-        color: #fff;
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-      }
-      .upload-title::placeholder { color: rgba(255, 255, 255, 0.55); }
-      .upload-title:focus { outline: 2px solid rgba(255, 255, 255, 0.3); }
-      .dropzone {
-        position: relative;
-        border: 2px dashed rgba(255, 255, 255, 0.22);
-        border-radius: 1.6rem;
-        padding: 1.6rem 1.4rem;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.74);
-        display: grid;
-        gap: 0.7rem;
-        background: rgba(255, 255, 255, 0.06);
-        transition: border-color 0.2s ease, background 0.2s ease;
-      }
-      .dropzone input { display: none; }
-      .dropzone.hover { border-color: #fad0c4; background: rgba(255, 255, 255, 0.12); }
-      .dropzone.has-file { border-color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); }
-      .dropzone.uploading { border-color: rgba(255, 154, 158, 0.6); background: rgba(255, 154, 158, 0.18); }
-      .dropzone-status { font-size: 0.92rem; color: rgba(255, 255, 255, 0.75); }
-      .select-button {
-        justify-self: center;
-        border: none;
-        border-radius: 999px;
-        padding: 0.6rem 1.3rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        background: rgba(255, 255, 255, 0.16);
-        color: rgba(26, 22, 60, 0.9);
-        cursor: pointer;
-        transition: filter 0.15s ease;
-      }
-      .select-button:hover { filter: brightness(1.1); }
-      .upload-hint { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); text-align: left; }
-      .submit-button {
-        justify-self: flex-end;
-        border: none;
-        border-radius: 999px;
-        padding: 0.85rem 1.9rem;
-        font-size: 0.96rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-        color: #341d2f;
-        cursor: pointer;
-        box-shadow: 0 1.3rem 2.4rem rgba(255, 154, 158, 0.34);
-      }
-      .submit-button:hover { filter: brightness(1.05); }
-      .submit-button:disabled { opacity: 0.55; cursor: default; filter: none; }
-      @media (max-width: 720px) {
-        body { 
-          padding: 1rem 0.8rem 2rem; 
-          font-size: 14px;
+        #qr-code-container { 
+          display: block; 
+          margin: 0.3rem auto 0; 
+          max-width: calc(100% - 16px);
         }
-        main { 
-          padding: 1.5rem 1rem 2rem; 
-          border-radius: 1.5rem;
-          overflow-x: visible; /* allow content to render fully without visual cut */
-        }
-        header h1 {
-          font-size: 2rem;
-          margin-bottom: 0.5rem;
-          letter-spacing: 0; /* prevent text from extending outside container */
-        }
-        header p {
-          font-size: 0.9rem;
-          text-align: center;
-          max-width: 28ch;
-          margin: 0 auto;
-          line-height: 1.5;
-          padding: 0 0.4rem;
-          overflow-wrap: anywhere;
-          word-break: break-word;
-        }
-        header { overflow-x: visible; }
-        /* QR block must not overflow */
-        #qr-code-container { max-width: 100%; }
-        #qr-code-img { width: 96px !important; height: 96px !important; }
-        /* Intro blocks must fit viewport */
-        .intro-video-container { max-width: 100% !important; }
+        #qr-code-img { width: 84px !important; height: 84px !important; }
+        .intro-video-container { max-width: calc(100% - 16px) !important; margin: 0 auto; }
         .intro-video-frame { max-width: 100% !important; }
         .upload-item { 
           padding: 0.8rem; 
@@ -513,8 +340,8 @@
       /* 초소형(아이폰 SE 등) 화면 대응 */
       @media (max-width: 360px) {
         header h1 { font-size: 1.8rem; }
-        header p { max-width: none; padding: 0 0.6rem; }
-        #qr-code-img { width: 80px !important; height: 80px !important; }
+        header p { max-width: calc(100% - 12px); padding: 0 6px; }
+        #qr-code-img { width: 72px !important; height: 72px !important; }
         .intro-video-container { padding: 1rem !important; }
       }
     </style>
@@ -1619,3 +1446,4 @@ if (testStorageBtn) {
     </script>
   </body>
 </html>
+

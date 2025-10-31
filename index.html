@@ -372,6 +372,10 @@
         header h1 {
           font-size: 2rem;
           margin-bottom: 0.5rem;
+          text-align: center;
+          padding: 0 0.5rem;
+          overflow-wrap: anywhere;
+          word-break: break-word;
         }
         header p {
           font-size: 0.9rem;
@@ -383,6 +387,13 @@
           overflow-wrap: anywhere;
           word-break: break-word;
         }
+        header { padding: 0 0.4rem; }
+        /* QR block must not overflow */
+        #qr-code-container { max-width: 100%; }
+        #qr-code-img { width: 96px !important; height: 96px !important; }
+        /* Intro blocks must fit viewport */
+        .intro-video-container { max-width: 100% !important; }
+        .intro-video-frame { max-width: 100% !important; }
         .upload-item { 
           padding: 0.8rem; 
           margin-bottom: 1rem;

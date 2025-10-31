@@ -11,6 +11,7 @@
       * { box-sizing: border-box; }
       html, body { -webkit-text-size-adjust: 100%; }
       html { width: 100%; overflow-x: hidden; }
+      img, video { max-width: 100%; height: auto; }
       body {
         margin: 0;
         min-height: 100vh;
@@ -20,6 +21,8 @@
         display: flex;
         justify-content: center;
         padding: clamp(2rem, 5vw, 3.8rem) clamp(1.6rem, 4vw, 3.2rem);
+        padding-left: max(clamp(1.6rem, 4vw, 3.2rem), env(safe-area-inset-left));
+        padding-right: max(clamp(1.6rem, 4vw, 3.2rem), env(safe-area-inset-right));
         overflow-x: hidden;
         width: 100%;
       }
@@ -459,11 +462,14 @@
         /* QR 코드 모바일 최적화 */
         #qr-code-container {
           padding: 0.5rem !important;
+          margin: 0 auto;
+          max-width: 100%;
         }
         
         #qr-code-img {
           width: 100px !important;
           height: 100px !important;
+          max-width: 100%;
         }
         
         .feature-cards {
@@ -482,6 +488,13 @@
         .feature-card div:last-child {
           font-size: 0.8rem !important;
         }
+      }
+      /* 초소형(아이폰 SE 등) 화면 대응 */
+      @media (max-width: 360px) {
+        header h1 { font-size: 1.8rem; }
+        header p { max-width: none; padding: 0 0.6rem; }
+        #qr-code-img { width: 80px !important; height: 80px !important; }
+        .intro-video-container { padding: 1rem !important; }
       }
     </style>
   </head>

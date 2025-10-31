@@ -293,6 +293,9 @@
           max-width: calc(50% - 0.5rem) !important; 
           box-sizing: border-box; 
         }
+        /* Stack cell/name inputs vertically on small screens */
+        .two-inputs { grid-template-columns: 1fr !important; gap: 0.5rem !important; }
+        .upload-cell, .upload-name { width: 100%; box-sizing: border-box; }
       }
       
       /* 초소형(아이폰 SE 등) 화면 대응 */
@@ -371,7 +374,7 @@
           <div class="upload-list"></div>
           <form class="upload-form" autocomplete="off">
             <label>등록자</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+            <div class="two-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
               <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
               <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
             </div>

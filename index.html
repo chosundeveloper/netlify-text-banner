@@ -963,27 +963,36 @@ const renderNominatedList = (archives) => {
     item.style.background = 'rgba(255,255,255,0.05)';
     item.style.borderRadius = '0.6rem';
     item.style.border = '1px solid rgba(255,255,255,0.1)';
-    
+    item.style.gap = '0.6rem';
+    item.style.flexWrap = 'wrap';
+    item.style.maxWidth = '100%';
+
     const leftGroup = document.createElement('div');
     leftGroup.style.display = 'flex';
     leftGroup.style.gap = '0.8rem';
     leftGroup.style.alignItems = 'center';
-    leftGroup.style.flex = '1';
-    
+    leftGroup.style.flex = '1 1 auto';
+    leftGroup.style.minWidth = '0';
+
     const info = document.createElement('div');
     info.style.display = 'flex';
     info.style.gap = '0.6rem';
     info.style.alignItems = 'center';
-    
+    info.style.flex = '1 1 auto';
+    info.style.minWidth = '0';
+    info.style.overflow = 'hidden';
+    info.style.flexWrap = 'wrap';
+    info.style.wordBreak = 'break-word';
+
     const cellSpan = document.createElement('span');
     cellSpan.style.color = '#f5f2ff';
     cellSpan.style.fontWeight = '600';
     cellSpan.textContent = cell || '미지정';
-    
+
     const nameSpan = document.createElement('span');
     nameSpan.style.color = 'rgba(255,255,255,0.8)';
     nameSpan.textContent = name;
-    
+
     if (cell) {
       info.appendChild(cellSpan);
       if (name) {
@@ -996,7 +1005,7 @@ const renderNominatedList = (archives) => {
     } else if (name) {
       info.appendChild(nameSpan);
     }
-    
+
     const countBadge = document.createElement('span');
     countBadge.style.background = 'rgba(255,154,158,0.3)';
     countBadge.style.color = '#ff9a9e';
@@ -1005,7 +1014,7 @@ const renderNominatedList = (archives) => {
     countBadge.style.fontSize = '0.75rem';
     countBadge.style.fontWeight = '600';
     countBadge.textContent = `${count}회`;
-    
+
     const registerBtn = document.createElement('button');
     registerBtn.type = 'button';
     registerBtn.textContent = '등록하기';
@@ -1018,6 +1027,9 @@ const renderNominatedList = (archives) => {
     registerBtn.style.fontWeight = '600';
     registerBtn.style.cursor = 'pointer';
     registerBtn.style.transition = 'filter 0.15s ease';
+    registerBtn.style.flexShrink = '0';
+    registerBtn.style.marginLeft = 'auto';
+    registerBtn.style.marginTop = '0.2rem';
     registerBtn.onmouseover = function() { this.style.filter = 'brightness(1.05)'; };
     registerBtn.onmouseout = function() { this.style.filter = 'none'; };
     registerBtn.dataset.cell = cell || '';

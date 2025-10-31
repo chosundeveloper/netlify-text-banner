@@ -211,18 +211,21 @@
 
       @media (max-width: 720px) {
         body { 
-          padding: 1rem 0.8rem 2rem; 
+          padding: 0.8rem 0.6rem 1.2rem; 
           font-size: 14px;
           display: block; /* avoid flex centering issues on iOS */
           overflow-x: hidden; /* prevent horizontal scroll */
+          padding-left: max(0.6rem, env(safe-area-inset-left));
+          padding-right: max(0.6rem, env(safe-area-inset-right));
         }
         main { 
-          padding: 1.2rem 0.8rem 1.6rem; 
+          padding: 1rem 0.6rem 1.2rem; 
           border-radius: 1.5rem;
           overflow-x: hidden; /* prevent horizontal scroll */
           width: 100%;
           max-width: 100vw; /* never exceed viewport width */
           margin: 0 auto; /* center within body */
+          box-sizing: border-box;
         }
         /* Ensure all major blocks never exceed the viewport width */
         section, .archive, #nominated-list-section, .intro-video-container, .upload-form, .upload-item {
@@ -250,7 +253,7 @@
           overflow-x: hidden;
         }
         header h1 {
-          font-size: 2rem;
+          font-size: 1.9rem;
           margin-bottom: 0.5rem;
           letter-spacing: 0; /* prevent text from extending outside container */
           text-align: center;
@@ -258,7 +261,7 @@
           max-width: calc(100% - 12px);
           margin-left: auto;
           margin-right: auto;
-          line-height: 1.15;
+          line-height: 1.2;
           overflow-wrap: anywhere;
           word-break: break-word;
         }

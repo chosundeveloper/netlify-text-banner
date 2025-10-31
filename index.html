@@ -1019,19 +1019,41 @@ const renderNominatedList = (archives) => {
       const targetName = this.dataset.name || '';
       const authorValue = targetCell && targetName ? `${targetCell} / ${targetName}` : (targetCell || targetName || '');
       
+      console.log('등록하기 버튼 클릭:', { targetCell, targetName, authorValue });
+      
       // 등록 폼 찾기
-      if (archives && archives.length > 0 && archives[0].elements) {
-        const authorInput = archives[0].elements.authorInput;
-        if (authorInput) {
-          authorInput.value = authorValue;
-          // 폼으로 스크롤
-          archives[0].elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // 제목 입력 필드로 포커스
-          setTimeout(() => {
-            archives[0].elements.titleInput?.focus();
-          }, 300);
-        }
+      if (!archives || archives.length === 0) {
+        console.error('archives가 없습니다.');
+        alert('등록 폼을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+        return;
       }
+      
+      const archive = archives[0];
+      if (!archive || !archive.elements) {
+        console.error('archive 또는 elements가 없습니다.');
+        alert('등록 폼을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+        return;
+      }
+      
+      const authorInput = archive.elements.authorInput;
+      if (!authorInput) {
+        console.error('authorInput을 찾을 수 없습니다:', archive.elements);
+        alert('등록자 입력 필드를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+        return;
+      }
+      
+      console.log('등록자 입력 필드에 값 설정:', authorValue);
+      authorInput.value = authorValue;
+      
+      // 폼으로 스크롤
+      archive.elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // 제목 입력 필드로 포커스
+      setTimeout(() => {
+        if (archive.elements.titleInput) {
+          archive.elements.titleInput.focus();
+        }
+      }, 300);
     });
     
     leftGroup.appendChild(info);
@@ -1070,9 +1092,73 @@ const renderUploads = (archive) => {
     info.className = 'upload-info';
     const title = document.createElement('strong');
     title.textContent = item.title;
-    const subtitle = document.createElement('span');
-    subtitle.textContent = item.subtitle;
-    info.append(title, subtitle);
+    
+    // subtitle 파싱: "등록자 · 시간 · 다음 지목: 셀 / 이름" 형식
+    let authorInfo = '';
+    let timeInfo = '';
+    let nominationInfo = '';
+    
+    if (item.subtitle) {
+      // 지목 정보 분리
+      const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
+      if (nomMatch) {
+        nominationInfo = nomMatch[1].trim();
+      }
+      
+      // 지목 정보를 제외한 부분에서 등록자와 시간 추출
+      let remainingSubtitle = item.subtitle;
+      if (nomMatch) {
+        remainingSubtitle = item.subtitle.replace(/·\s*다음 지목:.*$/, '').trim();
+      }
+      
+      // "등록자 · 시간" 형식 파싱
+      const parts = remainingSubtitle.split('·').map(s => s.trim()).filter(s => s);
+      if (parts.length >= 2) {
+        authorInfo = parts[0];
+        timeInfo = parts[1];
+      } else if (parts.length === 1) {
+        // 시간 형식 확인 (YYYY-MM-DD · HH:MM 형식)
+        if (/\d{4}-\d{2}-\d{2}/.test(parts[0])) {
+          timeInfo = parts[0];
+        } else {
+          authorInfo = parts[0];
+        }
+      }
+    }
+    
+    const subtitleContainer = document.createElement('div');
+    subtitleContainer.style.display = 'flex';
+    subtitleContainer.style.flexDirection = 'column';
+    subtitleContainer.style.gap = '0.3rem';
+    subtitleContainer.style.marginTop = '0.4rem';
+    
+    if (authorInfo || timeInfo) {
+      const authorTime = document.createElement('span');
+      authorTime.style.fontSize = '0.9rem';
+      authorTime.style.color = 'rgba(255,255,255,0.7)';
+      if (authorInfo && timeInfo) {
+        authorTime.textContent = `${authorInfo} · ${timeInfo}`;
+      } else if (authorInfo) {
+        authorTime.textContent = authorInfo;
+      } else if (timeInfo) {
+        authorTime.textContent = timeInfo;
+      }
+      subtitleContainer.appendChild(authorTime);
+    }
+    
+    if (nominationInfo) {
+      const nomination = document.createElement('span');
+      nomination.style.fontSize = '0.85rem';
+      nomination.style.color = '#ff9a9e';
+      nomination.style.fontWeight = '500';
+      nomination.textContent = `👉 다음 지목: ${nominationInfo}`;
+      subtitleContainer.appendChild(nomination);
+    }
+    
+    info.append(title);
+    if (subtitleContainer.children.length > 0) {
+      info.appendChild(subtitleContainer);
+    }
 
     const actions = document.createElement('div');
     actions.className = 'upload-actions';

@@ -218,8 +218,8 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         gap: 1.5rem;
-        justify-items: center;
-        text-align: center;
+        justify-items: stretch;
+        text-align: left;
         padding: 1.5rem;
         border-radius: 20px;
         background: var(--surface-solid);
@@ -229,11 +229,13 @@
       .upload-video {
         grid-area: video;
         width: 100%;
-        max-width: 420px;
+        max-width: clamp(320px, 75vw, 560px);
         border-radius: 20px;
         overflow: hidden;
         background: rgba(108, 99, 255, 0.08);
         box-shadow: var(--shadow-soft);
+        margin: 0 auto;
+        aspect-ratio: 16 / 9;
       }
       .upload-video video,
       .upload-video img {
@@ -244,17 +246,45 @@
       .upload-info {
         grid-area: info;
         display: grid;
-        gap: 0.75rem;
-        justify-items: center;
+        gap: 1rem;
+        justify-items: stretch;
       }
-      .upload-info-meta { font-size: 1.05rem; color: var(--text-strong); font-weight: 600; }
-      .upload-info-nomination { font-size: 0.9rem; color: var(--accent); font-weight: 600; }
+      .upload-info-meta { font-size: 0.95rem; color: var(--text-soft); }
+      .upload-meta {
+        display: grid;
+        gap: 0.65rem;
+      }
+      .upload-meta-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.6rem;
+        align-items: baseline;
+      }
+      .upload-meta-label {
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(108, 99, 255, 0.12);
+        color: var(--primary-dark);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .upload-meta-value {
+        font-size: 1.05rem;
+        color: var(--text-strong);
+        font-weight: 600;
+      }
+      .upload-meta-timestamp { color: var(--text-soft); font-weight: 500; font-size: 0.95rem; }
+      .upload-meta-nomination {
+        color: var(--accent);
+        font-weight: 600;
+      }
       .upload-actions {
         grid-area: actions;
         display: flex;
         gap: 0.75rem;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start;
       }
       .upload-actions button {
         background: rgba(108, 99, 255, 0.12);
@@ -434,6 +464,9 @@
         .nominated-item { justify-content: center; text-align: center; }
         .nominated-item-left { justify-content: center; }
         .upload-form { padding: 1.3rem; }
+        .upload-item { padding: 1.25rem; }
+        .upload-video { max-width: 100%; }
+        .upload-actions { justify-content: center; }
       }
     </style>
   </head>
@@ -1048,26 +1081,76 @@ const renderUploads = (archive) => {
     const info = document.createElement('div');
     info.className = 'upload-info';
     
-    // Subtitle parsing
+    const metaList = document.createElement('div');
+    metaList.className = 'upload-meta';
+
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
       const nominationInfo = nomMatch ? nomMatch[1].trim() : '';
-      const remainingSubtitle = nomMatch ? item.subtitle.replace(/·\s*다음 지목:.*$/, '').trim() : item.subtitle;
+      const baseSubtitle = nomMatch ? item.subtitle.replace(/·\s*다음 지목:.*$/, '').trim() : item.subtitle;
 
-      if (remainingSubtitle) {
-        const meta = document.createElement('span');
-        meta.className = 'upload-info-meta';
-        meta.textContent = remainingSubtitle;
-        info.appendChild(meta);
+      const parts = baseSubtitle
+        .split('·')
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+      const uploaderText = parts.length ? parts[0] : '';
+      const timestampText = parts.length > 1 ? parts.slice(1).join(' · ') : '';
+
+      if (uploaderText) {
+        const row = document.createElement('div');
+        row.className = 'upload-meta-row';
+        const label = document.createElement('span');
+        label.className = 'upload-meta-label';
+        label.textContent = '등록자';
+        const value = document.createElement('span');
+        value.className = 'upload-meta-value';
+        value.textContent = uploaderText;
+        row.append(label, value);
+        metaList.appendChild(row);
       }
-      
+
+      if (timestampText) {
+        const row = document.createElement('div');
+        row.className = 'upload-meta-row';
+        const label = document.createElement('span');
+        label.className = 'upload-meta-label';
+        label.textContent = '업로드';
+        const value = document.createElement('span');
+        value.className = 'upload-meta-value upload-meta-timestamp';
+        value.textContent = timestampText;
+        row.append(label, value);
+        metaList.appendChild(row);
+      }
+
       if (nominationInfo) {
-        const nomination = document.createElement('span');
-        nomination.className = 'upload-info-nomination';
-        nomination.textContent = `👉 다음 지목: ${nominationInfo}`;
-        info.appendChild(nomination);
+        const row = document.createElement('div');
+        row.className = 'upload-meta-row';
+        const label = document.createElement('span');
+        label.className = 'upload-meta-label';
+        label.textContent = '다음 지목';
+        const value = document.createElement('span');
+        value.className = 'upload-meta-value upload-meta-nomination';
+        value.textContent = nominationInfo;
+        row.append(label, value);
+        metaList.appendChild(row);
       }
     }
+
+    if (!metaList.children.length) {
+      const fallback = document.createElement('div');
+      fallback.className = 'upload-meta-row';
+      const label = document.createElement('span');
+      label.className = 'upload-meta-label';
+      label.textContent = '정보';
+      const value = document.createElement('span');
+      value.className = 'upload-meta-value';
+      value.textContent = '등록 정보가 없습니다.';
+      fallback.append(label, value);
+      metaList.appendChild(fallback);
+    }
+
+    info.appendChild(metaList);
 
     const actions = document.createElement('div');
     actions.className = 'upload-actions';

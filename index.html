@@ -104,7 +104,7 @@
         display: flex;
         gap: 1.2rem;
         flex-wrap: wrap;
-        align-items: center;
+        align-items: flex-start;
         padding: 1rem 1.2rem;
         border-radius: 1.4rem;
         background: rgba(255, 255, 255, 0.95);
@@ -116,15 +116,14 @@
         box-sizing: border-box;
       }
       .upload-video {
-        flex: 0 0 200px;
-        max-width: 240px;
+        flex: 1 1 220px;
+        width: 100%;
+        max-width: 320px;
         aspect-ratio: 16 / 9;
         border-radius: 1.2rem;
         overflow: hidden;
         box-shadow: 0 12px 24px rgba(79, 108, 183, 0.2);
         min-width: 0;
-        width: 100%;
-        max-width: min(240px, 100%);
       }
       .upload-video video {
         display: block;
@@ -134,7 +133,7 @@
         background: #dbe4ff;
       }
       .upload-info {
-        flex: 1 1 240px;
+        flex: 2 1 260px;
         text-align: left;
         min-width: 0;
       }
@@ -143,18 +142,23 @@
         font-size: 1.05rem;
         color: #273474;
         margin-bottom: 0.4rem;
+        word-break: break-word;
       }
       .upload-info span {
         display: block;
         font-size: 0.92rem;
         color: #5f6da3;
+        word-break: break-word;
       }
       .upload-actions {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 0.8rem;
+        align-items: center;
+        justify-content: flex-end;
+        margin-left: auto;
         min-width: 0;
-        width: 100%;
+        width: auto;
       }
       button {
         font-family: inherit;
@@ -170,6 +174,8 @@
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         box-shadow: 0 12px 24px rgba(140, 168, 255, 0.26);
+        flex: 0 0 auto;
+        white-space: nowrap;
       }
       .upload-actions button:hover {
         transform: translateY(-1px);
@@ -577,6 +583,7 @@
           flex-wrap: wrap;
           justify-content: flex-end;
           gap: 0.6rem;
+          margin-left: 0;
         }
         .upload-actions button {
           flex: 0 1 auto;

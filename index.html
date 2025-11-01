@@ -196,45 +196,92 @@
         font-weight: 700;
         text-align: center;
       }
-      #nominated-list { display: grid; gap: 1rem; }
-      #nominated-list p {
-        margin: 0;
-        padding: 1.5rem;
-        border-radius: 16px;
-        background: var(--surface-solid);
-        border: 1px solid var(--border);
-        color: var(--text-soft);
-        text-align: center;
-      }
-      .nominated-item {
+      #nominated-list {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
         gap: 1rem;
+        padding: 0.4rem 0.2rem;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+      }
+      #nominated-list::-webkit-scrollbar { display: none; }
+      #nominated-list .nominated-empty {
+        margin: 0;
         padding: 1.2rem 1.6rem;
         border-radius: 18px;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(253, 251, 246, 0.88));
-        border: 1px solid rgba(91, 109, 138, 0.14);
-        box-shadow: 0 22px 40px rgba(63, 86, 120, 0.12);
-        flex-wrap: wrap;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px dashed rgba(91, 109, 138, 0.24);
+        color: rgba(63, 78, 100, 0.7);
+        text-align: center;
+        width: 100%;
       }
-      .nominated-item-left { display: flex; align-items: center; gap: 1rem; flex: 1 1 auto; min-width: 200px; }
-      .nominated-item-info { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; color: var(--text-strong); font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
-      .nominated-item-cell { color: var(--text-strong); }
-      .nominated-item-name { color: var(--text-soft); font-weight: 500; }
-      .nominated-item-separator { color: rgba(92, 95, 127, 0.4); }
-      .nominated-item-button {
-        background: rgba(91, 109, 138, 0.12);
+      .nominated-story {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.55rem;
+        min-width: 78px;
+        scroll-snap-align: start;
+        color: var(--text-muted);
+      }
+      .nominated-story-button {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 0;
+        padding: 3px;
+        background: linear-gradient(150deg, rgba(91, 109, 138, 0.25), rgba(242, 193, 93, 0.38));
+        box-shadow: 0 20px 36px rgba(63, 86, 120, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .nominated-story-button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+      .nominated-story-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 26px 48px rgba(63, 86, 120, 0.22);
+      }
+      .nominated-story-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #fdfbf6, rgba(255, 255, 255, 0.94));
         color: var(--primary-dark);
-        padding: 0.6rem 1.4rem;
-        border-radius: 999px;
-        border: none;
-        font-weight: 600;
-        transition: transform 0.2s ease, background 0.2s ease;
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: -0.01em;
       }
-      .nominated-item-button:hover {
-        transform: translateY(-2px);
-        background: rgba(91, 109, 138, 0.18);
+      .nominated-story-count {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        min-width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--primary-dark);
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+      }
+      .nominated-story-caption {
+        font-size: 0.85rem;
+        color: rgba(63, 78, 100, 0.75);
+        text-align: center;
+        max-width: 84px;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
       }
 
       .archive {
@@ -250,7 +297,11 @@
       .archive-title { margin: 0; font-size: clamp(1.8rem, 5vw, 2.3rem); color: var(--text-strong); font-weight: 700; }
       .archive-description { margin: 0; color: var(--text-soft); max-width: 58ch; justify-self: center; }
 
-      .upload-list { display: grid; gap: 2rem; }
+      .upload-list {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
       .upload-empty {
         margin: 0;
         text-align: center;
@@ -267,8 +318,9 @@
           'video'
           'info';
         gap: 1.6rem;
-        justify-items: center;
-        text-align: center;
+        justify-items: stretch;
+        align-items: start;
+        text-align: left;
         padding: clamp(1.6rem, 3.5vw, 2.2rem);
         border-radius: 26px;
         background: linear-gradient(165deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88));
@@ -306,34 +358,38 @@
         gap: 1.2rem;
         text-align: left;
       }
+      .upload-title {
+        margin: 0;
+        font-size: clamp(1.15rem, 2vw, 1.35rem);
+        color: var(--text-strong);
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
       .upload-meta {
         display: grid;
         gap: 0.9rem;
       }
-      .upload-meta-row {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.75rem;
+      .upload-byline {
+        display: flex;
         align-items: center;
+        gap: 0.4rem;
+        font-size: clamp(0.96rem, 1.6vw, 1.05rem);
+        color: rgba(63, 78, 100, 0.75);
       }
-      .upload-meta-label {
-        padding: 0.35rem 0.95rem;
+      .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; }
+      .upload-dot { color: rgba(63, 78, 100, 0.45); }
+      .upload-time { color: rgba(63, 78, 100, 0.62); }
+      .upload-nomination {
+        align-self: flex-start;
+        padding: 0.45rem 0.95rem;
         border-radius: 999px;
-        background: rgba(91, 109, 138, 0.08);
+        background: rgba(242, 193, 93, 0.2);
         color: var(--primary-dark);
-        font-size: 0.9rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-      }
-      .upload-meta-value {
-        font-size: clamp(1.06rem, 1.8vw, 1.2rem);
-        color: var(--text-strong);
+        font-size: 0.95rem;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        letter-spacing: 0.02em;
       }
-      .upload-meta-timestamp { color: rgba(63, 78, 100, 0.72); font-weight: 500; font-size: clamp(0.96rem, 1.6vw, 1.05rem); }
-      .upload-meta-nomination { color: var(--accent); font-weight: 600; }
+      .upload-placeholder { color: rgba(63, 78, 100, 0.6); font-size: 0.95rem; }
       .upload-actions {
         grid-area: actions;
         display: flex;
@@ -538,8 +594,11 @@
         .archive { border-radius: 20px; padding: 1.8rem; }
         .two-inputs,
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
-        .nominated-item { justify-content: center; text-align: center; }
-        .nominated-item-left { justify-content: center; }
+        #nominated-list { gap: 0.75rem; }
+        .nominated-story { min-width: 68px; }
+        .nominated-story-button { width: 60px; height: 60px; }
+        .nominated-story-avatar { width: 52px; height: 52px; font-size: 0.92rem; }
+        .nominated-story-caption { font-size: 0.78rem; }
         .upload-form { padding: 1.6rem; }
         .upload-item { padding: 1.6rem; }
         .upload-video { max-width: 100%; }
@@ -1069,90 +1128,73 @@ const renderNominatedList = (archives) => {
   
   if (nominated.length === 0) {
     const empty = document.createElement('p');
+    empty.className = 'nominated-empty';
     empty.textContent = '아직 지목된 사람이 없습니다.';
     nominatedListEl.appendChild(empty);
     return;
   }
   
-  nominated.forEach(({ cell, name, count }) => {
-    const item = document.createElement('div');
-    item.className = 'nominated-item';
-
-    const leftGroup = document.createElement('div');
-    leftGroup.className = 'nominated-item-left';
-
-    const info = document.createElement('div');
-    info.className = 'nominated-item-info';
-
-    const cellSpan = document.createElement('span');
-    cellSpan.className = 'nominated-item-cell';
-    cellSpan.textContent = cell || '미지정';
-
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'nominated-item-name';
-    nameSpan.textContent = name;
-
-    if (cell) {
-      info.appendChild(cellSpan);
-      if (name) {
-        const separator = document.createElement('span');
-        separator.className = 'nominated-item-separator';
-        separator.textContent = ' / ';
-        info.appendChild(separator);
-        info.appendChild(nameSpan);
-      }
-    } else if (name) {
-      info.appendChild(nameSpan);
+  const moveToUpload = (targetCell, targetName) => {
+    if (!archives || archives.length === 0) {
+      alert('등록 폼을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      return;
     }
 
+    const archive = archives[0];
+    if (!archive || !archive.elements) {
+      alert('등록 폼을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      return;
+    }
 
-    const registerBtn = document.createElement('button');
-    registerBtn.type = 'button';
-    registerBtn.textContent = '등록하기';
-    registerBtn.className = 'nominated-item-button';
-    registerBtn.dataset.cell = cell || '';
-    registerBtn.dataset.name = name || '';
-    registerBtn.addEventListener('click', function() {
-      const targetCell = this.dataset.cell || '';
-      const targetName = this.dataset.name || '';
-      
-      // 등록 폼 찾기
-      if (!archives || archives.length === 0) {
-        alert('등록 폼을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
-        return;
+    const cellInput = archive.elements.cellInput;
+    const nameInput = archive.elements.nameInput;
+    if (!cellInput || !nameInput) {
+      alert('등록자 입력 필드를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
+      return;
+    }
+
+    cellInput.value = targetCell;
+    nameInput.value = targetName;
+
+    archive.elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      if (archive.elements.selectButton) {
+        archive.elements.selectButton.focus();
       }
-      
-      const archive = archives[0];
-      if (!archive || !archive.elements) {
-        alert('등록 폼을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
-        return;
-      }
-      
-      const cellInput = archive.elements.cellInput;
-      const nameInput = archive.elements.nameInput;
-      if (!cellInput || !nameInput) {
-        alert('등록자 입력 필드를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
-        return;
-      }
-      
-      cellInput.value = targetCell;
-      nameInput.value = targetName;
-      
-      // 폼으로 스크롤
-      archive.elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      // 파일 선택 버튼에 포커스를 맞춰 업로드를 이어가도록 안내
-      setTimeout(() => {
-        if (archive.elements.selectButton) {
-          archive.elements.selectButton.focus();
-        }
-      }, 300);
-    });
-    
-    leftGroup.appendChild(info);
-    item.appendChild(leftGroup);
-    item.appendChild(registerBtn);
-    nominatedListEl.appendChild(item);
+    }, 300);
+  };
+
+  nominated.forEach(({ cell, name, count }) => {
+    const story = document.createElement('div');
+    story.className = 'nominated-story';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'nominated-story-button';
+    button.dataset.cell = cell || '';
+    button.dataset.name = name || '';
+
+    const initialsSource = name || cell || '감사';
+    const avatar = document.createElement('span');
+    avatar.className = 'nominated-story-avatar';
+    avatar.textContent = initialsSource.slice(0, 2);
+    button.appendChild(avatar);
+
+    if (count > 1) {
+      const badge = document.createElement('span');
+      badge.className = 'nominated-story-count';
+      badge.textContent = String(count);
+      button.appendChild(badge);
+    }
+
+    button.addEventListener('click', () => moveToUpload(cell || '', name || ''));
+
+    const caption = document.createElement('span');
+    caption.className = 'nominated-story-caption';
+    caption.textContent = name || cell || '미지정';
+
+    story.append(button, caption);
+    nominatedListEl.appendChild(story);
   });
 };
 
@@ -1198,9 +1240,15 @@ const renderUploads = (archive) => {
 
     const info = document.createElement('div');
     info.className = 'upload-info';
-    
+
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'upload-title';
+    titleEl.textContent = item.title || '감사 이야기';
+    info.appendChild(titleEl);
+
     const metaList = document.createElement('div');
     metaList.className = 'upload-meta';
+    let hasMeta = false;
 
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
@@ -1215,56 +1263,44 @@ const renderUploads = (archive) => {
       const uploaderText = parts.length ? parts[0] : '';
       const timestampText = parts.length > 1 ? parts.slice(1).join(' · ') : '';
 
-      if (uploaderText) {
-        const row = document.createElement('div');
-        row.className = 'upload-meta-row';
-        const label = document.createElement('span');
-        label.className = 'upload-meta-label';
-        label.textContent = '등록자';
-        const value = document.createElement('span');
-        value.className = 'upload-meta-value';
-        value.textContent = uploaderText;
-        row.append(label, value);
-        metaList.appendChild(row);
-      }
-
-      if (timestampText) {
-        const row = document.createElement('div');
-        row.className = 'upload-meta-row';
-        const label = document.createElement('span');
-        label.className = 'upload-meta-label';
-        label.textContent = '업로드';
-        const value = document.createElement('span');
-        value.className = 'upload-meta-value upload-meta-timestamp';
-        value.textContent = timestampText;
-        row.append(label, value);
-        metaList.appendChild(row);
+      if (uploaderText || timestampText) {
+        const byline = document.createElement('div');
+        byline.className = 'upload-byline';
+        if (uploaderText) {
+          const authorSpan = document.createElement('span');
+          authorSpan.className = 'upload-author';
+          authorSpan.textContent = uploaderText;
+          byline.appendChild(authorSpan);
+        }
+        if (timestampText) {
+          if (uploaderText) {
+            const dot = document.createElement('span');
+            dot.className = 'upload-dot';
+            dot.textContent = '·';
+            byline.appendChild(dot);
+          }
+          const timeSpan = document.createElement('span');
+          timeSpan.className = 'upload-time';
+          timeSpan.textContent = timestampText;
+          byline.appendChild(timeSpan);
+        }
+        metaList.appendChild(byline);
+        hasMeta = true;
       }
 
       if (nominationInfo) {
-        const row = document.createElement('div');
-        row.className = 'upload-meta-row';
-        const label = document.createElement('span');
-        label.className = 'upload-meta-label';
-        label.textContent = '다음 지목';
-        const value = document.createElement('span');
-        value.className = 'upload-meta-value upload-meta-nomination';
-        value.textContent = nominationInfo;
-        row.append(label, value);
-        metaList.appendChild(row);
+        const nextBadge = document.createElement('span');
+        nextBadge.className = 'upload-nomination';
+        nextBadge.textContent = `다음 지목 ${nominationInfo}`;
+        metaList.appendChild(nextBadge);
+        hasMeta = true;
       }
     }
 
-    if (!metaList.children.length) {
-      const fallback = document.createElement('div');
-      fallback.className = 'upload-meta-row';
-      const label = document.createElement('span');
-      label.className = 'upload-meta-label';
-      label.textContent = '정보';
-      const value = document.createElement('span');
-      value.className = 'upload-meta-value';
-      value.textContent = '등록 정보가 없습니다.';
-      fallback.append(label, value);
+    if (!hasMeta) {
+      const fallback = document.createElement('span');
+      fallback.className = 'upload-placeholder';
+      fallback.textContent = '등록 정보가 없습니다.';
       metaList.appendChild(fallback);
     }
 

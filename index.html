@@ -104,34 +104,75 @@
         border-radius: var(--radius-large);
         border: 1px solid var(--border);
         box-shadow: var(--shadow-small);
-        padding: clamp(2rem, 5vw, 2.8rem);
+        padding: clamp(2.2rem, 5vw, 3.2rem);
       }
-      .intro-video-container { display: grid; gap: 1.6rem; text-align: center; justify-items: center; }
-      .intro-title { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); color: var(--text-strong); font-weight: 700; }
-      .intro-video-frame {
-        width: min(520px, 100%);
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: var(--shadow-soft);
-        background: #000;
-        aspect-ratio: 16 / 9;
+      .intro-layout {
+        display: grid;
+        gap: clamp(1.6rem, 4vw, 2.4rem);
+        align-items: center;
       }
-      .intro-video-frame video { width: 100%; height: 100%; object-fit: cover; }
-      .feature-cards {
+      .intro-copy {
         display: grid;
         gap: 1rem;
-        width: min(520px, 100%);
+        text-align: center;
       }
-      .feature-cards div {
-        background: var(--surface-solid);
-        border-radius: 16px;
-        padding: 1.15rem 1.3rem;
+      .intro-title { margin: 0; font-size: clamp(1.8rem, 4.5vw, 2.4rem); color: var(--text-strong); font-weight: 800; letter-spacing: -0.02em; }
+      .intro-sub { margin: 0; font-size: clamp(1rem, 2.5vw, 1.15rem); color: var(--text-soft); line-height: 1.65; }
+      .intro-gallery {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        gap: clamp(1rem, 3vw, 1.6rem);
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        scrollbar-width: none;
+      }
+      .intro-gallery::-webkit-scrollbar { display: none; }
+      .intro-card {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
         border: 1px solid var(--border);
         box-shadow: var(--shadow-small);
-        color: var(--text-muted);
-        line-height: 1.6;
+        min-width: 220px;
+        background: var(--surface-solid);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
       }
-      .feature-highlight-text { font-size: 1.05rem; color: var(--text-strong); font-weight: 600; }
+      .intro-card img {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+        display: block;
+      }
+      .intro-card:hover { transform: translateY(-6px); box-shadow: 0 26px 40px rgba(108, 99, 255, 0.25); }
+      .intro-caption {
+        position: absolute;
+        inset: auto 0 0 0;
+        padding: 0.9rem 1rem;
+        background: linear-gradient(180deg, rgba(16, 18, 43, 0) 0%, rgba(16, 18, 43, 0.72) 100%);
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+      .intro-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        justify-content: center;
+      }
+      .intro-badges span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        background: rgba(108, 99, 255, 0.12);
+        color: var(--primary-dark);
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
 
       #nominated-list-section {
         background: var(--surface);
@@ -499,20 +540,31 @@
 
       <!-- 인트로 영상 섹션 (위로 이동) -->
       <section class="intro-section">
-        <div class="intro-video-container">
-          <h3 class="intro-title">💝 감사, 하루의 발견</h3>
-          <div class="intro-video-frame">
-            <video controls>
-              <source src="감사, 하루의 발견.mp4" type="video/mp4">
-              감사, 하루의 발견 영상
-            </video>
-          </div>
-          <div class="feature-cards">
-            <div>
-              <div class="feature-highlight-text">
-                삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌
-              </div>
+        <div class="intro-layout">
+          <div class="intro-copy">
+            <h3 class="intro-title">💝 감사, 하루의 발견</h3>
+            <p class="intro-sub">
+              함께 나눈 감사의 순간을 카드처럼 수집해 보세요. 서로를 지목하며 이어지는 감동의 릴레이가 당신의 하루에 새로운 기쁨을 더합니다.
+            </p>
+            <div class="intro-badges">
+              <span>🙏 매일 감사 기록</span>
+              <span>🤝 셀 지목 릴레이</span>
+              <span>🌟 감동 공유 아카이브</span>
             </div>
+          </div>
+          <div class="intro-gallery">
+            <figure class="intro-card">
+              <img src="assets/thanks1.png" alt="감사 카드 1">
+              <figcaption class="intro-caption">감다살 셀 · 하은</figcaption>
+            </figure>
+            <figure class="intro-card">
+              <img src="assets/thanks2.png" alt="감사 카드 2">
+              <figcaption class="intro-caption">하늘 셀 · 민수</figcaption>
+            </figure>
+            <figure class="intro-card">
+              <img src="assets/thanks3.png" alt="감사 카드 3">
+              <figcaption class="intro-caption">기쁨 셀 · 지은</figcaption>
+            </figure>
           </div>
         </div>
       </section>

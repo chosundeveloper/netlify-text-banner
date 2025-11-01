@@ -102,8 +102,12 @@
       }
       .upload-item {
         display: grid;
-        grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto;
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "video"
+          "info"
+          "actions";
+        gap: 0.9rem;
         align-items: start;
         padding: 1rem 1.2rem;
         border-radius: 1.4rem;
@@ -116,9 +120,9 @@
         box-sizing: border-box;
       }
       .upload-video {
+        grid-area: video;
         width: 100%;
-        max-width: 320px;
-        justify-self: stretch;
+        max-width: 100%;
         aspect-ratio: 16 / 9;
         border-radius: 1.2rem;
         overflow: hidden;
@@ -132,6 +136,7 @@
         background: #dbe4ff;
       }
       .upload-info {
+        grid-area: info;
         text-align: left;
         min-width: 0;
         overflow-wrap: anywhere;
@@ -148,12 +153,13 @@
         color: #5f6da3;
       }
       .upload-actions {
+        grid-area: actions;
         display: flex;
         gap: 0.8rem;
         align-items: center;
         justify-content: flex-end;
         min-width: 0;
-        justify-self: end;
+        flex-wrap: wrap;
       }
       button {
         font-family: inherit;
@@ -170,7 +176,7 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         box-shadow: 0 12px 24px rgba(140, 168, 255, 0.26);
         flex: 0 0 auto;
-        white-space: nowrap;
+        white-space: normal;
       }
       .upload-actions button:hover {
         transform: translateY(-1px);
@@ -519,10 +525,6 @@
           justify-content: center;
           align-items: flex-start;
         }
-        .upload-actions {
-          min-width: 120px;
-          width: auto;
-        }
       }
       @media (max-width: 900px) {
         .two-col { grid-template-columns: 1fr !important; }
@@ -563,15 +565,10 @@
         .upload-item {
           padding: 0.9rem;
           gap: 0.9rem;
-          grid-template-columns: 1fr;
-        }
-        .upload-video {
-          max-width: 100%;
         }
         .upload-actions {
           width: 100%;
           justify-content: flex-end;
-          flex-wrap: wrap;
           gap: 0.6rem;
         }
         #nominated-list > div {
@@ -638,6 +635,29 @@
         .upload-name {
           width: 100%;
           box-sizing: border-box;
+        }
+      }
+      @media (min-width: 640px) {
+        .upload-item {
+          grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+          grid-template-areas:
+            "video info"
+            "video actions";
+        }
+        .upload-video {
+          max-width: 320px;
+        }
+        .upload-actions {
+          justify-content: flex-end;
+        }
+      }
+      @media (min-width: 960px) {
+        .upload-item {
+          grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto;
+          grid-template-areas: "video info actions";
+        }
+        .upload-actions {
+          align-self: center;
         }
       }
       @media (max-width: 360px) {

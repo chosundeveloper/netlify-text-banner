@@ -123,9 +123,9 @@
         background: #ffffff;
         border: 1px solid #e8eef2;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-        max-width: 100%;
+        width: auto; /* Let grid/flex context define width */
+        min-width: 0; /* Ensure it can shrink */
         overflow: hidden;
-        width: 100%;
         box-sizing: border-box;
       }
       .upload-video {
@@ -170,6 +170,7 @@
         justify-content: flex-end;
         min-width: 0;
         flex-wrap: wrap;
+        overflow: hidden; /* Ensure actions themselves don't overflow */
       }
       button {
         font-family: inherit;

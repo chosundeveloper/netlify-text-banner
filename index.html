@@ -70,11 +70,7 @@
         z-index: 0;
       }
       header > * { position: relative; z-index: 1; }
-      .hero-copy {
-        display: grid;
-        gap: 1.2rem;
-        justify-items: center;
-      }
+      .hero-copy { display: grid; gap: 1.2rem; justify-items: center; }
       header h1 {
         margin: 0;
         font-size: clamp(2.6rem, 6vw, 3.4rem);
@@ -95,16 +91,6 @@
         flex-direction: column;
         align-items: center;
         gap: 0.75rem;
-      }
-      .hero-visual {
-        margin: 0;
-        justify-self: center;
-      }
-      .hero-visual img {
-        width: min(260px, 100%);
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow-small);
       }
       #qr-code-container {
         padding: 0.75rem;
@@ -148,29 +134,27 @@
         list-style-position: outside;
       }
       .intro-steps li::marker { color: var(--accent); font-weight: 600; }
-      .intro-card {
-        position: relative;
-        border-radius: 18px;
-        overflow: hidden;
+      .thanks-gallery {
+        display: grid;
+        gap: clamp(1.4rem, 3vw, 2rem);
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+      .thanks-card {
+        margin: 0;
+        background: var(--surface);
+        border-radius: var(--radius-large);
         border: 1px solid var(--border);
         box-shadow: var(--shadow-small);
-        min-width: 220px;
-        background: var(--surface-solid);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        padding: clamp(1.6rem, 4vw, 2.4rem);
+        display: flex;
+        justify-content: center;
       }
-      .intro-card img {
-        width: 100%;
-        height: 100%;
-        aspect-ratio: 4 / 5;
-        object-fit: cover;
-        display: block;
+      .thanks-card img {
+        width: min(320px, 100%);
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-small);
       }
-      .intro-card:hover { transform: translateY(-6px); box-shadow: 0 26px 40px rgba(108, 99, 255, 0.25); }
-      .intro-visual {
-        margin: 0;
-        justify-self: center;
-      }
-      .intro-visual img { max-width: 320px; }
       .intro-badges {
         display: flex;
         flex-wrap: wrap;
@@ -189,38 +173,18 @@
         font-weight: 600;
       }
 
-      .thanks-highlight {
+      .thanks-final-card {
+        margin: clamp(1.6rem, 4vw, 2.4rem) 0 0;
         background: var(--surface);
         border-radius: var(--radius-large);
         border: 1px solid var(--border);
         box-shadow: var(--shadow-small);
-        padding: clamp(2.2rem, 5vw, 3rem);
+        padding: clamp(1.4rem, 4vw, 2.2rem);
+        display: flex;
+        justify-content: center;
       }
-      .thanks-highlight-inner {
-        display: grid;
-        gap: 1.1rem;
-        text-align: center;
-        justify-items: center;
-      }
-      .thanks-highlight h3 {
-        margin: 0;
-        font-size: clamp(1.6rem, 4vw, 2.1rem);
-        color: var(--text-strong);
-        font-weight: 700;
-      }
-      .thanks-highlight p {
-        margin: 0;
-        color: var(--text-soft);
-        line-height: 1.6;
-      }
-      .thanks-highlight-card {
-        margin: 0;
-        width: 100%;
-      }
-      .thanks-highlight-card img {
-        width: min(280px, 100%);
-        margin: 0 auto;
-        display: block;
+      .thanks-final-card img {
+        width: min(320px, 100%);
         border-radius: 18px;
         border: 1px solid var(--border);
         box-shadow: var(--shadow-small);
@@ -431,25 +395,22 @@
         box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15);
       }
       .dropzone {
-        border: 1.5px dashed rgba(108, 99, 255, 0.35);
-        border-radius: 20px;
-        padding: 1.8rem;
+        border: none;
+        padding: 0;
         display: grid;
-        gap: 0.8rem;
+        gap: 0.75rem;
         justify-items: center;
-        background: rgba(108, 99, 255, 0.05);
-        transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
         text-align: center;
       }
-      .dropzone strong { font-size: 1.05rem; color: var(--text-strong); }
-      .dropzone .dropzone-status { font-size: 0.95rem; color: var(--text-soft); }
-      .dropzone.hover,
-      .dropzone.has-file {
-        border-color: var(--primary);
-        background: rgba(108, 99, 255, 0.1);
-        box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15);
+      .dropzone.hover { transform: translateY(-1px); }
+      .dropzone .dropzone-status {
+        display: none;
+        font-size: 0.9rem;
+        color: var(--text-soft);
       }
-      .dropzone.uploading { opacity: 0.8; }
+      .dropzone.has-file .dropzone-status,
+      .dropzone.uploading .dropzone-status,
+      .dropzone.status-message .dropzone-status { display: block; }
       .select-button {
         background: rgba(255, 255, 255, 0.85);
         border-radius: 999px;
@@ -543,16 +504,6 @@
       #nominate-confirm:hover { transform: translateY(-2px); }
 
       @media (min-width: 880px) {
-        header {
-          grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
-          text-align: left;
-          align-items: center;
-        }
-        .hero-copy { justify-items: flex-start; }
-        header p { margin-left: 0; margin-right: 0; }
-        .qr-wrapper { align-items: flex-start; }
-        .hero-visual { justify-self: end; }
-
         .intro-layout {
           grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
           align-items: center;
@@ -563,13 +514,7 @@
           gap: 1.2rem;
         }
         .intro-badges { justify-content: flex-start; }
-        .intro-visual { justify-self: end; }
-
-        .thanks-highlight-inner {
-          text-align: left;
-          justify-items: flex-start;
-        }
-        .thanks-highlight-card img { margin: 0; }
+        .thanks-gallery { grid-template-columns: repeat(2, minmax(260px, 1fr)); }
 
         .intro-video-container {
           grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
@@ -601,7 +546,8 @@
         main { gap: 2rem; padding: 2rem 1.4rem 2.6rem; }
         header,
         .intro-section,
-        .thanks-highlight,
+        .thanks-card,
+        .thanks-final-card,
         #nominated-list-section,
         .archive { border-radius: 20px; padding: 1.8rem; }
         .two-inputs,
@@ -627,9 +573,6 @@
             <p class="qr-hint">📱 QR 코드로 모바일에서 접속</p>
           </div>
         </div>
-        <figure class="hero-visual">
-          <img src="assets/thanks1.png" alt="감사 카드 1">
-        </figure>
       </header>
 
       <!-- 인트로 섹션 -->
@@ -651,20 +594,16 @@
               <span>🤝 다음 셀 지목</span>
             </div>
           </div>
-          <figure class="intro-card intro-visual">
-            <img src="assets/thanks2.png" alt="감사 카드 2">
-          </figure>
         </div>
       </section>
 
-      <section class="thanks-highlight">
-        <div class="thanks-highlight-inner">
-          <h3>함께 이어지는 감사 이야기</h3>
-          <p>감사 릴레이의 다음 장면을 기다리며, 서로의 이야기에 귀 기울여 주세요.</p>
-          <figure class="thanks-highlight-card">
-            <img src="assets/thanks3.png" alt="감사 카드 3">
-          </figure>
-        </div>
+      <section class="thanks-gallery">
+        <figure class="thanks-card">
+          <img src="assets/thanks1.png" alt="감사 카드 1">
+        </figure>
+        <figure class="thanks-card">
+          <img src="assets/thanks2.png" alt="감사 카드 2">
+        </figure>
       </section>
 
       <!-- 지목된 사람들 리스트 -->
@@ -697,12 +636,14 @@
               <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
             </div>
             <div class="dropzone">
-              <strong>영상 또는 이미지 파일을 끌어다 놓거나 아래 버튼을 눌러 선택하세요.</strong>
-              <span class="dropzone-status">선택된 파일이 없습니다.</span>
               <button type="button" class="select-button">파일 선택</button>
               <input class="upload-file" type="file" accept="video/*,image/*">
+              <span class="dropzone-status" aria-live="polite"></span>
             </div>
             <button type="submit" class="submit-button">업로드</button>
+            <figure class="thanks-final-card">
+              <img src="assets/thanks3.png" alt="감사 카드 3">
+            </figure>
           </form>
         </section>
       </template>
@@ -1368,8 +1309,8 @@ const renderUploads = (archive) => {
 
 const resetSelectedFile = (archive) => {
   archive.selectedFile = null;
-  archive.elements.dropzone.classList.remove('has-file', 'uploading');
-  archive.elements.dropzoneStatus.textContent = '선택된 파일이 없습니다.';
+  archive.elements.dropzone.classList.remove('has-file', 'uploading', 'status-message');
+  archive.elements.dropzoneStatus.textContent = '';
 };
 
 const setSelectedFile = (archive, file) => {
@@ -1379,11 +1320,13 @@ const setSelectedFile = (archive, file) => {
     return;
   }
   archive.selectedFile = file;
+  archive.elements.dropzone.classList.remove('status-message');
   archive.elements.dropzone.classList.add('has-file');
   archive.elements.dropzoneStatus.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
 };
 
 const uploadToCloud = async (archive, file) => {
+  archive.elements.dropzone.classList.remove('status-message');
   archive.elements.dropzone.classList.add('uploading');
   archive.elements.dropzoneStatus.textContent = '업로드 중입니다…';
   archive.elements.submitButton.disabled = true;
@@ -1469,6 +1412,7 @@ const handleSubmit = async (event, archive) => {
     renderUploads(archive);
     archive.elements.form.reset();
     resetSelectedFile(archive);
+    archive.elements.dropzone.classList.add('status-message');
     archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
     addLog(archive.section.id, '업로드 완료', saved.title, saved.id ? `id=${saved.id}` : undefined);
 
@@ -1485,6 +1429,7 @@ const handleSubmit = async (event, archive) => {
     }
   } catch (error) {
     console.error(error);
+    archive.elements.dropzone.classList.add('status-message');
     archive.elements.dropzoneStatus.textContent = '업로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
     addLog(archive.section.id, '업로드 실패', error.message || String(error));
     alert('업로드에 실패했습니다. 잠시 후 다시 시도해주세요.');

@@ -358,6 +358,21 @@
       .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; }
       .upload-dot { color: rgba(63, 78, 100, 0.45); }
       .upload-time { color: rgba(63, 78, 100, 0.55); }
+      .upload-share {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(91, 109, 138, 0.12);
+        color: var(--primary-dark);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+      .upload-share:hover { background: rgba(91, 109, 138, 0.18); transform: translateY(-1px); }
       .upload-nomination {
         align-self: flex-start;
         color: var(--accent);
@@ -1086,6 +1101,27 @@ const removeNomination = async (cell, name) => {
   }
 };
 
+const shareUpload = async (upload) => {
+  if (!upload?.src) return;
+  const shareData = {
+    title: upload.title || '감사 이야기',
+    url: upload.src
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(upload.src);
+      alert('링크가 클립보드에 복사되었습니다.');
+    } else {
+      prompt('아래 링크를 복사해주세요.', upload.src);
+    }
+  } catch (error) {
+    console.warn('공유 실패:', error);
+  }
+};
+
 // 지목된 사람들 추출 및 렌더링
 const extractNominatedPeople = (archives) => {
   const nominated = new Map(); // 중복 제거를 위해 Map 사용
@@ -1291,6 +1327,18 @@ const renderUploads = (archive) => {
         authorSpan.className = 'upload-author';
         authorSpan.textContent = uploaderText;
         byline.appendChild(authorSpan);
+
+        const shareBtn = document.createElement('button');
+        shareBtn.type = 'button';
+        shareBtn.className = 'upload-share';
+        shareBtn.title = '공유하기';
+        shareBtn.textContent = '↗';
+        shareBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          shareUpload(item);
+        });
+        byline.appendChild(shareBtn);
+
         metaList.appendChild(byline);
         hasMeta = true;
       }

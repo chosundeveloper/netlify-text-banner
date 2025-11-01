@@ -104,42 +104,17 @@
       #qr-code-img { width: 120px; height: 120px; }
       .qr-hint { margin: 0; font-size: 0.9rem; color: var(--text-soft); }
 
-      .intro-section {
-        background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(253, 251, 246, 0.9));
-        border-radius: var(--radius-large);
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow-small);
-        padding: clamp(2.2rem, 5vw, 3.2rem);
-      }
-      .intro-layout {
-        display: grid;
-        gap: clamp(1.6rem, 4vw, 2.4rem);
-        align-items: center;
-      }
-      .intro-copy {
-        display: grid;
-        gap: 1rem;
-        text-align: center;
-        justify-items: center;
-      }
-      .intro-title { margin: 0; font-size: clamp(1.8rem, 4.5vw, 2.4rem); color: var(--text-strong); font-weight: 800; letter-spacing: -0.015em; }
-      .intro-sub { margin: 0; font-size: clamp(1rem, 2.5vw, 1.15rem); color: rgba(56, 72, 94, 0.85); line-height: 1.7; }
-      .intro-steps {
-        margin: 0;
-        padding-left: 1.2rem;
-        display: grid;
-        gap: 0.6rem;
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        text-align: left;
-        list-style-position: outside;
-      }
-      .intro-steps li::marker { color: var(--accent); font-weight: 600; }
+      .intro-section,
+      .intro-layout,
+      .intro-copy,
+      .intro-title,
+      .intro-sub,
+      .intro-steps,
+      .intro-badges { display: none; }
       .thanks-gallery {
         display: grid;
         gap: clamp(1.4rem, 3vw, 2rem);
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         align-items: stretch;
       }
       .thanks-card {
@@ -148,15 +123,9 @@
         justify-content: center;
       }
       .thanks-card img {
-        width: min(320px, 100%);
+        width: 100%;
         border-radius: 18px;
         box-shadow: 0 18px 38px rgba(93, 116, 150, 0.18);
-      }
-      .intro-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-        justify-content: center;
       }
       .intro-badges span {
         display: inline-flex;
@@ -296,8 +265,7 @@
 
       .upload-list {
         display: grid;
-        gap: 2rem;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: clamp(1.8rem, 5vw, 2.4rem);
       }
       .upload-empty {
         margin: 0;
@@ -314,15 +282,15 @@
         grid-template-areas:
           'video'
           'info';
-        gap: 1.2rem;
+        gap: 0.85rem;
         justify-items: stretch;
         align-items: start;
         text-align: left;
-        padding: clamp(1.2rem, 3vw, 1.8rem);
-        border-radius: 22px;
-        background: rgba(255, 255, 255, 0.92);
-        border: 1px solid rgba(91, 109, 138, 0.1);
-        box-shadow: 0 22px 48px rgba(63, 86, 120, 0.12);
+        padding: 0;
+        border-radius: 0;
+        background: none;
+        border: none;
+        box-shadow: none;
       }
       .upload-item.has-actions {
         grid-template-areas:
@@ -333,12 +301,11 @@
       .upload-video {
         grid-area: video;
         width: 100%;
-        max-width: clamp(360px, 86vw, 640px);
         border-radius: 18px;
         overflow: hidden;
         background: rgba(63, 86, 120, 0.08);
-        box-shadow: 0 24px 48px rgba(63, 86, 120, 0.18);
-        justify-self: center;
+        box-shadow: 0 18px 36px rgba(63, 86, 120, 0.16);
+        justify-self: stretch;
         aspect-ratio: 4 / 5;
       }
       .upload-video video,
@@ -350,10 +317,10 @@
       }
       .upload-info {
         grid-area: info;
-        width: min(520px, 100%);
+        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 0.85rem;
+        gap: 0.6rem;
         text-align: left;
       }
       .upload-meta {
@@ -612,28 +579,6 @@
           </div>
         </div>
       </header>
-
-      <!-- 인트로 섹션 -->
-      <section class="intro-section">
-        <div class="intro-layout">
-          <div class="intro-copy">
-            <h3 class="intro-title">감다살 챌린지 참여 방법</h3>
-            <p class="intro-sub">
-              감사한 순간을 기록하고 영상을 나누어 다음 셀을 지목하면, 공동체 모두가 은혜를 나누는 감사 릴레이가 완성됩니다.
-            </p>
-            <ol class="intro-steps">
-              <li>하루 동안 발견한 감사 제목을 떠올리고 준비해요.</li>
-              <li>영상 또는 이미지를 업로드하며 다음 셀을 지목해요.</li>
-              <li>감사 이야기가 이어지도록 함께 응원해요.</li>
-            </ol>
-            <div class="intro-badges">
-              <span>🙏 하루 감사 기록</span>
-              <span>📹 영상 업로드</span>
-              <span>🤝 다음 셀 지목</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section class="thanks-gallery">
         <figure class="thanks-card">
@@ -1170,7 +1115,7 @@ const renderNominatedList = (archives) => {
     const initialsSource = name || cell || '감사';
     const avatar = document.createElement('span');
     avatar.className = 'nominated-story-avatar';
-    avatar.textContent = initialsSource.slice(0, 2);
+    avatar.textContent = initialsSource.slice(0, 3);
     button.appendChild(avatar);
 
     if (count > 1) {
@@ -1251,27 +1196,13 @@ const renderUploads = (archive) => {
       const uploaderText = parts.length ? parts[0] : '';
       const timestampText = parts.length > 1 ? parts.slice(1).join(' · ') : '';
 
-      if (uploaderText || timestampText) {
+      if (uploaderText) {
         const byline = document.createElement('div');
         byline.className = 'upload-byline';
-        if (uploaderText) {
-          const authorSpan = document.createElement('span');
-          authorSpan.className = 'upload-author';
-          authorSpan.textContent = uploaderText;
-          byline.appendChild(authorSpan);
-        }
-        if (timestampText) {
-          if (uploaderText) {
-            const dot = document.createElement('span');
-            dot.className = 'upload-dot';
-            dot.textContent = '·';
-            byline.appendChild(dot);
-          }
-          const timeSpan = document.createElement('span');
-          timeSpan.className = 'upload-time';
-          timeSpan.textContent = timestampText;
-          byline.appendChild(timeSpan);
-        }
+        const authorSpan = document.createElement('span');
+        authorSpan.className = 'upload-author';
+        authorSpan.textContent = uploaderText;
+        byline.appendChild(authorSpan);
         metaList.appendChild(byline);
         hasMeta = true;
       }

@@ -883,9 +883,12 @@ const addLog = (sectionId, event, message, details) => {
   renderLogs();
 };
 
-const fallbackPoster = (section, title) => {
-  const safe = encodeURIComponent((title || section.title).slice(0, 18));
-  return `https://dummyimage.com/320x180/${section.posterColor}/ffffff&text=${safe}`;
+const posterPool = ['assets/thanks1.png', 'assets/thanks2.png', 'assets/thanks3.png'];
+let posterCursor = 0;
+const fallbackPoster = () => {
+  const poster = posterPool[posterCursor % posterPool.length];
+  posterCursor += 1;
+  return poster;
 };
 
 const deriveUploadTitle = (file, uploaderName) => {
@@ -1481,7 +1484,7 @@ const handleSubmit = async (event, archive) => {
       title,
       subtitle: `${author} · ${formatNow()}`,
       src: uploadMetadata.publicUrl,
-      poster: fallbackPoster(archive.section, title)
+      poster: fallbackPoster()
     };
     const saved = await insertUploadRecord(archive, newItem);
     archive.uploads.unshift(saved);

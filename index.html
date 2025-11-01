@@ -197,6 +197,9 @@
         box-sizing: border-box;
         width: 100%;
       }
+      .upload-form > * {
+        max-width: 100%;
+      }
       .upload-form label {
         font-weight: 600;
         color: #2d3a78;
@@ -230,8 +233,15 @@
       }
       .two-inputs {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 0.8rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .upload-cell,
+      .upload-name,
+      .upload-title {
+        min-width: 0;
       }
       .dropzone {
         padding: 1.2rem 1.4rem;
@@ -243,13 +253,18 @@
         justify-items: start;
         color: #33407a;
         transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
       }
       .dropzone strong {
         font-size: 0.95rem;
+        word-break: break-word;
+        max-width: 100%;
       }
       .dropzone-status {
         font-size: 0.88rem;
         color: #6a77a8;
+        word-break: break-word;
       }
       .dropzone.hover {
         border-color: rgba(120, 148, 222, 0.9);
@@ -282,6 +297,7 @@
         cursor: pointer;
         box-shadow: 0 10px 24px rgba(255, 162, 165, 0.28);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        align-self: start;
       }
       .select-button:hover {
         transform: translateY(-1px);
@@ -291,8 +307,11 @@
         transform: translateY(0);
       }
       .upload-hint {
+        display: block;
         color: #707ead;
         font-size: 0.85rem;
+        max-width: 100%;
+        word-break: break-word;
       }
       .submit-button {
         padding: 1.2rem 2rem;

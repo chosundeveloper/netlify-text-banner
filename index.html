@@ -589,7 +589,26 @@ const sections = [
     storageKey: 'gamdasal-challenge-uploads',
     storageVersion: '2025-10-24-challenge-v2',
     posterColor: '211d44',
-    defaults: []
+    defaults: [
+      {
+        title: '감사 카드 1',
+        subtitle: '감다살 셀 / 운영팀 · 2025-02-05 10:00 · 다음 지목: 하늘 셀 / 민수',
+        src: 'assets/thanks1.png',
+        poster: 'assets/thanks1.png'
+      },
+      {
+        title: '감사 카드 2',
+        subtitle: '하늘 셀 / 민수 · 2025-02-05 11:00 · 다음 지목: 기쁨 셀 / 지은',
+        src: 'assets/thanks2.png',
+        poster: 'assets/thanks2.png'
+      },
+      {
+        title: '감사 카드 3',
+        subtitle: '기쁨 셀 / 지은 · 2025-02-05 12:00 · 다음 지목: 사랑 셀 / 하람',
+        src: 'assets/thanks3.png',
+        poster: 'assets/thanks3.png'
+      }
+    ]
   }
 ];
 
@@ -863,6 +882,9 @@ const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
       archive.uploads = [];
     } else {
       archive.uploads = (data || []).map(mapRowToUpload);
+      if (!archive.uploads.length && Array.isArray(archive.section.defaults) && archive.section.defaults.length) {
+        archive.uploads = archive.section.defaults.map((item) => ({ ...item }));
+      }
       if (addLogEntry) {
         addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
       }

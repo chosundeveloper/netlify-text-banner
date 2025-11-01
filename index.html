@@ -383,8 +383,6 @@
               <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
               <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
             </div>
-            <label style="margin-top: 0.8rem;">영상 제목</label>
-            <input class="upload-title" type="text" maxlength="80" placeholder="예: 미션 브이로그" required>
             <div class="dropzone">
               <strong>영상 또는 이미지 파일을 끌어다 놓거나 아래 버튼을 눌러 선택하세요.</strong>
               <span class="dropzone-status">선택된 파일이 없습니다.</span>
@@ -600,6 +598,19 @@ const fallbackPoster = (section, title) => {
   return `https://dummyimage.com/320x180/${section.posterColor}/ffffff&text=${safe}`;
 };
 
+const deriveUploadTitle = (file, uploaderName) => {
+  if (file?.name) {
+    const base = file.name.replace(/\.[^.]+$/, '').trim();
+    if (base) {
+      return base.slice(0, 80);
+    }
+  }
+  if (uploaderName) {
+    return `${uploaderName}님의 영상`;
+  }
+  return '무제 영상';
+};
+
 const sanitizeFileName = (name) => {
   return name
     .toLowerCase()
@@ -625,7 +636,7 @@ const createStoragePath = (archive, file) => {
 
 const mapRowToUpload = (row) => ({
   id: row.id,
-  title: row.title,
+  title: row.title || '무제 영상',
   subtitle: row.subtitle,
   src: row.src,
   poster: row.poster,
@@ -869,10 +880,10 @@ const renderNominatedList = (archives) => {
       // 폼으로 스크롤
       archive.elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
-      // 제목 입력 필드로 포커스
+      // 파일 선택 버튼에 포커스를 맞춰 업로드를 이어가도록 안내
       setTimeout(() => {
-        if (archive.elements.titleInput) {
-          archive.elements.titleInput.focus();
+        if (archive.elements.selectButton) {
+          archive.elements.selectButton.focus();
         }
       }, 300);
     });
@@ -928,7 +939,7 @@ const renderUploads = (archive) => {
     
     const title = document.createElement('strong');
     title.className = 'upload-info-title';
-    title.textContent = item.title;
+    title.textContent = item.title || '무제 영상';
     info.appendChild(title);
 
     // Subtitle parsing
@@ -1054,16 +1065,11 @@ const handleSubmit = async (event, archive) => {
     return;
   }
   const author = `${cell} / ${name}`;
-  const title = archive.elements.titleInput.value.trim();
-  if (!title) {
-    alert('영상 제목을 입력해주세요.');
-    archive.elements.titleInput.focus();
-    return;
-  }
   if (!archive.selectedFile) {
     alert('업로드할 영상 파일을 선택해주세요.');
     return;
   }
+  const title = deriveUploadTitle(archive.selectedFile, name);
   let uploadMetadata = null;
   try {
     uploadMetadata = await uploadToCloud(archive, archive.selectedFile);
@@ -1123,7 +1129,6 @@ const createArchive = (section) => {
   const form = archiveEl.querySelector('.upload-form');
   const cellInput = archiveEl.querySelector('.upload-cell');
   const nameInput = archiveEl.querySelector('.upload-name');
-  const titleInput = archiveEl.querySelector('.upload-title');
   const dropzone = archiveEl.querySelector('.dropzone');
   const dropzoneStatus = archiveEl.querySelector('.dropzone-status');
   const selectButton = archiveEl.querySelector('.select-button');
@@ -1132,7 +1137,7 @@ const createArchive = (section) => {
 
   const archive = {
     section,
-    elements: { list, form, cellInput, nameInput, titleInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton },
+    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton },
     uploads: [],
     selectedFile: null,
   };

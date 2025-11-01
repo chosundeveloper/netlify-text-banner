@@ -373,6 +373,7 @@
         transition: background 0.2s ease, transform 0.2s ease;
       }
       .upload-share:hover { background: rgba(91, 109, 138, 0.18); transform: translateY(-1px); }
+      .upload-share svg { width: 14px; height: 14px; fill: currentColor; }
       .upload-nomination {
         align-self: flex-start;
         color: var(--accent);
@@ -891,6 +892,55 @@ const fallbackPoster = () => {
   return poster;
 };
 
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (event) => reject(event?.target?.error || new Error('파일을 읽을 수 없습니다.'));
+    reader.readAsDataURL(file);
+  });
+
+const captureVideoPoster = (file) =>
+  new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.src = url;
+
+    const cleanUp = () => {
+      URL.revokeObjectURL(url);
+      video.src = '';
+    };
+
+    video.addEventListener('error', () => {
+      cleanUp();
+      reject(new Error('동영상 포스터를 생성할 수 없습니다.'));
+    });
+
+    video.addEventListener('loadeddata', () => {
+      const width = video.videoWidth || 640;
+      const height = video.videoHeight || 360;
+      if (!width || !height) {
+        cleanUp();
+        resolve(null);
+        return;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, width, height);
+      cleanUp();
+      try {
+        resolve(canvas.toDataURL('image/jpeg', 0.84));
+      } catch (error) {
+        resolve(null);
+      }
+    }, { once: true });
+  });
+
 const deriveUploadTitle = (file, uploaderName) => {
   if (file?.name) {
     const base = file.name.replace(/\.[^.]+$/, '').trim();
@@ -1335,7 +1385,7 @@ const renderUploads = (archive) => {
         shareBtn.type = 'button';
         shareBtn.className = 'upload-share';
         shareBtn.title = '공유하기';
-        shareBtn.textContent = '↗';
+        shareBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3a1.5 1.5 0 0 1 3 0v5.25a1.5 1.5 0 0 1-3 0V6.81l-6.97 6.97a1.5 1.5 0 0 1-2.12-2.12L11.38 4.7H9.75a1.5 1.5 0 0 1 0-3H13.5ZM5.25 10.5a1.5 1.5 0 0 1 0 3H4.5A1.5 1.5 0 0 0 3 15v4.5A1.5 1.5 0 0 0 4.5 21h12a1.5 1.5 0 0 0 1.5-1.5v-3.75a1.5 1.5 0 0 1 3 0V19.5A4.5 4.5 0 0 1 16.5 24h-12A4.5 4.5 0 0 1 0 19.5V15a4.5 4.5 0 0 1 4.5-4.5h.75Z"/></svg>';
         shareBtn.addEventListener('click', (event) => {
           event.stopPropagation();
           shareUpload(item);
@@ -1391,6 +1441,8 @@ const resetSelectedFile = (archive) => {
   archive.selectedFile = null;
   archive.elements.dropzone.classList.remove('has-file', 'uploading', 'status-message');
   archive.elements.dropzoneStatus.textContent = '';
+  archive.selectedPoster = null;
+  archive.selectedPosterPromise = null;
 };
 
 const setSelectedFile = (archive, file) => {
@@ -1403,6 +1455,31 @@ const setSelectedFile = (archive, file) => {
   archive.elements.dropzone.classList.remove('status-message');
   archive.elements.dropzone.classList.add('has-file');
   archive.elements.dropzoneStatus.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
+
+  archive.selectedPoster = null;
+  archive.selectedPosterPromise = null;
+
+  if (file.type.startsWith('image/')) {
+    archive.selectedPosterPromise = readFileAsDataUrl(file)
+      .then((dataUrl) => {
+        archive.selectedPoster = dataUrl;
+        return dataUrl;
+      })
+      .catch((error) => {
+        console.warn('이미지 포스터 생성 실패:', error);
+        archive.selectedPoster = null;
+      });
+  } else if (file.type.startsWith('video/')) {
+    archive.selectedPosterPromise = captureVideoPoster(file)
+      .then((poster) => {
+        archive.selectedPoster = poster;
+        return poster;
+      })
+      .catch((error) => {
+        console.warn('동영상 포스터 생성 실패:', error);
+        archive.selectedPoster = null;
+      });
+  }
 };
 
 const uploadToCloud = async (archive, file) => {
@@ -1477,6 +1554,13 @@ const handleSubmit = async (event, archive) => {
     return;
   }
   const title = deriveUploadTitle(archive.selectedFile, name);
+  if (archive.selectedPosterPromise) {
+    try {
+      await archive.selectedPosterPromise;
+    } catch (error) {
+      console.warn('포스터 준비 중 오류:', error);
+    }
+  }
   let uploadMetadata = null;
   try {
     uploadMetadata = await uploadToCloud(archive, archive.selectedFile);
@@ -1484,7 +1568,7 @@ const handleSubmit = async (event, archive) => {
       title,
       subtitle: `${author} · ${formatNow()}`,
       src: uploadMetadata.publicUrl,
-      poster: fallbackPoster()
+      poster: archive.selectedPoster || fallbackPoster()
     };
     const saved = await insertUploadRecord(archive, newItem);
     archive.uploads.unshift(saved);
@@ -1549,6 +1633,8 @@ const createArchive = (section) => {
     elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton },
     uploads: [],
     selectedFile: null,
+    selectedPoster: null,
+    selectedPosterPromise: null,
   };
 
   selectButton.addEventListener('click', () => fileInput.click());

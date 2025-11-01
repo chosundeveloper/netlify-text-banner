@@ -692,7 +692,8 @@ const SUPABASE_TABLE = 'video_uploads';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const pathSegments = window.location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
-const isDeletePage = pathSegments[pathSegments.length - 1] === 'delete';
+const query = new URLSearchParams(window.location.search);
+const isDeleteMode = query.get('mode') === 'delete';
 
 const template = document.getElementById('archive-template');
 const container = document.getElementById('archives');
@@ -1146,7 +1147,7 @@ const renderUploads = (archive) => {
   archive.uploads.forEach((item, index) => {
     const article = document.createElement('article');
     article.className = 'upload-item';
-    if (isDeletePage) {
+    if (isDeleteMode) {
       article.classList.add('has-actions');
     }
 
@@ -1223,7 +1224,7 @@ const renderUploads = (archive) => {
     info.appendChild(metaList);
 
     const nodes = [mediaWrap, info];
-    if (isDeletePage) {
+    if (isDeleteMode) {
       const actions = document.createElement('div');
       actions.className = 'upload-actions';
       const removeBtn = document.createElement('button');
@@ -1430,7 +1431,7 @@ const createArchive = (section) => {
     setSelectedFile(archive, event.dataTransfer.files?.[0]);
   });
   form.addEventListener('submit', (event) => handleSubmit(event, archive));
-  if (isDeletePage) {
+  if (isDeleteMode) {
     list.addEventListener('click', (event) => handleRemove(event, archive));
   }
   resetSelectedFile(archive);

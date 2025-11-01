@@ -205,7 +205,6 @@
         object-fit: cover; /* Ensure video/image fills the container */
       }
       .upload-info { grid-area: info; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 0.5rem; }
-      .upload-info-title { font-size: 1.2rem; color: var(--text-primary); font-weight: 600; }
       .upload-info-meta { font-size: 0.95rem; color: #8899a8; }
       .upload-info-nomination { font-size: 0.95rem; color: var(--primary-dark); font-weight: 500; }
       .upload-actions { grid-area: actions; display: flex; gap: 0.8rem; align-items: center; justify-content: flex-end; min-width: 0; flex-wrap: wrap; }
@@ -308,6 +307,10 @@
         header.card { padding: 2rem 1.5rem; }
         .two-inputs { grid-template-columns: 1fr; }
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
+        .upload-item { text-align: center; justify-items: center; }
+        .upload-info { text-align: center; justify-items: center; }
+        .upload-actions { justify-content: center; }
+        .upload-video { width: 100%; max-width: 420px; margin: 0 auto; }
       }
     </style>
 <!-- Old styles removed -->
@@ -924,11 +927,6 @@ const renderUploads = (archive) => {
     const info = document.createElement('div');
     info.className = 'upload-info';
     
-    const title = document.createElement('strong');
-    title.className = 'upload-info-title';
-    title.textContent = item.title || '무제 영상';
-    info.appendChild(title);
-
     // Subtitle parsing
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);

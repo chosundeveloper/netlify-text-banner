@@ -199,11 +199,23 @@
         border: 1px solid var(--border-color);
         overflow: hidden;
       }
-      .upload-video { grid-area: video; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(14, 21, 47, 0.06); }
-      .upload-video video { object-fit: cover; background: var(--light-gray); }
-      .upload-info { grid-area: info; min-width: 0; overflow-wrap: anywhere; }
-      .upload-info strong { display: block; font-size: 1.2rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.5rem; }
-      .upload-info span { display: block; font-size: 0.95rem; color: #8899a8; }
+      .upload-video { 
+        grid-area: video; 
+        border-radius: 10px; 
+        overflow: hidden; 
+        box-shadow: 0 8px 20px rgba(14, 21, 47, 0.06);
+        aspect-ratio: 16 / 9; /* Force aspect ratio */
+        background: var(--light-gray);
+      }
+      .upload-video video, .upload-video img { 
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensure video/image fills the container */
+      }
+      .upload-info { grid-area: info; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 0.5rem; }
+      .upload-info-title { font-size: 1.2rem; color: var(--text-primary); font-weight: 600; }
+      .upload-info-meta { font-size: 0.95rem; color: #8899a8; }
+      .upload-info-nomination { font-size: 0.95rem; color: var(--primary-dark); font-weight: 500; }
       .upload-actions { grid-area: actions; display: flex; gap: 0.8rem; align-items: center; justify-content: flex-end; min-width: 0; flex-wrap: wrap; }
       .upload-actions button { /* Delete button */
         padding: 0.6rem 1.2rem;
@@ -891,97 +903,53 @@ const renderUploads = (archive) => {
     const mediaWrap = document.createElement('div');
     mediaWrap.className = 'upload-video';
     const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(item.src || '');
+    
     if (isImage) {
       const img = document.createElement('img');
       img.loading = 'lazy';
       img.decoding = 'async';
       img.src = item.src;
       img.alt = item.title || '이미지';
-      img.style.display = 'block';
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.objectFit = 'cover';
-      img.style.background = '#e5ecff';
       mediaWrap.append(img);
     } else {
       const video = document.createElement('video');
       video.controls = true;
       video.preload = 'metadata';
       video.src = item.src;
-      video.poster = item.poster;
+      // Use a poster if available, otherwise the browser will show the first frame.
+      if (item.poster) {
+        video.poster = item.poster;
+      }
       mediaWrap.append(video);
     }
 
     const info = document.createElement('div');
     info.className = 'upload-info';
+    
     const title = document.createElement('strong');
+    title.className = 'upload-info-title';
     title.textContent = item.title;
-    
-    // subtitle 파싱: "등록자 · 시간 · 다음 지목: 셀 / 이름" 형식
-    let authorInfo = '';
-    let timeInfo = '';
-    let nominationInfo = '';
-    
+    info.appendChild(title);
+
+    // Subtitle parsing
     if (item.subtitle) {
-      // 지목 정보 분리
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
-      if (nomMatch) {
-        nominationInfo = nomMatch[1].trim();
+      const nominationInfo = nomMatch ? nomMatch[1].trim() : '';
+      const remainingSubtitle = nomMatch ? item.subtitle.replace(/·\s*다음 지목:.*$/, '').trim() : item.subtitle;
+
+      if (remainingSubtitle) {
+        const meta = document.createElement('span');
+        meta.className = 'upload-info-meta';
+        meta.textContent = remainingSubtitle;
+        info.appendChild(meta);
       }
       
-      // 지목 정보를 제외한 부분에서 등록자와 시간 추출
-      let remainingSubtitle = item.subtitle;
-      if (nomMatch) {
-        remainingSubtitle = item.subtitle.replace(/·\s*다음 지목:.*$/, '').trim();
+      if (nominationInfo) {
+        const nomination = document.createElement('span');
+        nomination.className = 'upload-info-nomination';
+        nomination.textContent = `👉 다음 지목: ${nominationInfo}`;
+        info.appendChild(nomination);
       }
-      
-      // "등록자 · 시간" 형식 파싱
-      const parts = remainingSubtitle.split('·').map(s => s.trim()).filter(s => s);
-      if (parts.length >= 2) {
-        authorInfo = parts[0];
-        timeInfo = parts[1];
-      } else if (parts.length === 1) {
-        // 시간 형식 확인 (YYYY-MM-DD · HH:MM 형식)
-        if (/\d{4}-\d{2}-\d{2}/.test(parts[0])) {
-          timeInfo = parts[0];
-        } else {
-          authorInfo = parts[0];
-        }
-      }
-    }
-    
-    const subtitleContainer = document.createElement('div');
-    subtitleContainer.style.display = 'flex';
-    subtitleContainer.style.flexDirection = 'column';
-    subtitleContainer.style.gap = '0.3rem';
-    subtitleContainer.style.marginTop = '0.4rem';
-    
-    if (authorInfo || timeInfo) {
-      const authorTime = document.createElement('span');
-      authorTime.style.fontSize = '0.9rem';
-      authorTime.style.color = '#6b78aa';
-      if (authorInfo && timeInfo) {
-        authorTime.textContent = `${authorInfo} · ${timeInfo}`;
-      } else if (authorInfo) {
-        authorTime.textContent = authorInfo;
-      } else if (timeInfo) {
-        authorTime.textContent = timeInfo;
-      }
-      subtitleContainer.appendChild(authorTime);
-    }
-    
-    if (nominationInfo) {
-      const nomination = document.createElement('span');
-      nomination.style.fontSize = '0.85rem';
-      nomination.style.color = '#ff6f81';
-      nomination.style.fontWeight = '500';
-      nomination.textContent = `👉 다음 지목: ${nominationInfo}`;
-      subtitleContainer.appendChild(nomination);
-    }
-    
-    info.append(title);
-    if (subtitleContainer.children.length > 0) {
-      info.appendChild(subtitleContainer);
     }
 
     const actions = document.createElement('div');
@@ -999,7 +967,7 @@ const renderUploads = (archive) => {
     list.append(article);
   });
   
-  // 지목된 사람들 리스트 업데이트
+  // Update nominated people list
   renderNominatedList(archives);
 };
 

@@ -106,26 +106,26 @@
         box-shadow: var(--shadow-small);
         padding: clamp(2rem, 5vw, 2.8rem);
       }
-      .intro-video-container { display: grid; gap: 1.8rem; text-align: center; }
-      .intro-title { margin: 0; font-size: clamp(1.6rem, 4vw, 2.1rem); color: var(--text-strong); font-weight: 700; }
+      .intro-video-container { display: grid; gap: 1.6rem; text-align: center; justify-items: center; }
+      .intro-title { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); color: var(--text-strong); font-weight: 700; }
       .intro-video-frame {
-        width: min(640px, 100%);
-        margin: 0 auto;
-        border-radius: 20px;
+        width: min(520px, 100%);
+        border-radius: 18px;
         overflow: hidden;
         box-shadow: var(--shadow-soft);
         background: #000;
+        aspect-ratio: 16 / 9;
       }
       .intro-video-frame video { width: 100%; height: 100%; object-fit: cover; }
       .feature-cards {
         display: grid;
         gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        width: min(520px, 100%);
       }
       .feature-cards div {
         background: var(--surface-solid);
         border-radius: 16px;
-        padding: 1.2rem 1.4rem;
+        padding: 1.15rem 1.3rem;
         border: 1px solid var(--border);
         box-shadow: var(--shadow-small);
         color: var(--text-muted);
@@ -217,9 +217,13 @@
       .upload-item {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
-        gap: 1.5rem;
-        justify-items: stretch;
-        text-align: left;
+        grid-template-areas:
+          'video'
+          'info'
+          'actions';
+        gap: 1.4rem;
+        justify-items: center;
+        text-align: center;
         padding: 1.5rem;
         border-radius: 20px;
         background: var(--surface-solid);
@@ -229,12 +233,12 @@
       .upload-video {
         grid-area: video;
         width: 100%;
-        max-width: clamp(320px, 75vw, 560px);
+        max-width: clamp(300px, 80vw, 520px);
         border-radius: 20px;
         overflow: hidden;
         background: rgba(108, 99, 255, 0.08);
         box-shadow: var(--shadow-soft);
-        margin: 0 auto;
+        justify-self: center;
         aspect-ratio: 16 / 9;
       }
       .upload-video video,
@@ -245,6 +249,7 @@
       }
       .upload-info {
         grid-area: info;
+        width: min(520px, 100%);
         display: grid;
         gap: 1rem;
         justify-items: stretch;
@@ -284,7 +289,7 @@
         display: flex;
         gap: 0.75rem;
         flex-wrap: wrap;
-        justify-content: flex-start;
+        justify-content: center;
       }
       .upload-actions button {
         background: rgba(108, 99, 255, 0.12);
@@ -440,8 +445,17 @@
       #nominate-confirm:hover { transform: translateY(-2px); }
 
       @media (min-width: 880px) {
+        .intro-video-container {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+          align-items: center;
+          text-align: left;
+          justify-items: stretch;
+        }
+        .intro-video-frame { justify-self: center; }
+        .feature-cards { width: 100%; }
+
         .upload-item {
-          grid-template-columns: 320px 1fr;
+          grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
           grid-template-areas:
             'video info'
             'video actions';
@@ -449,7 +463,8 @@
           justify-items: stretch;
           align-items: center;
         }
-        .upload-info { text-align: left; justify-items: start; }
+        .upload-info { width: 100%; }
+        .upload-meta { gap: 0.75rem; }
         .upload-actions { justify-content: flex-start; }
       }
 
@@ -464,9 +479,8 @@
         .nominated-item { justify-content: center; text-align: center; }
         .nominated-item-left { justify-content: center; }
         .upload-form { padding: 1.3rem; }
-        .upload-item { padding: 1.25rem; }
+        .upload-item { padding: 1.3rem; }
         .upload-video { max-width: 100%; }
-        .upload-actions { justify-content: center; }
       }
     </style>
   </head>

@@ -476,8 +476,8 @@
   <body>
     <main>
       <header>
-        <h1>감다살 첼린지</h1>
-        <p>감다살 셀의 미션/첼린지 영상을 등록하고 시청하세요.</p>
+        <h1>감다살 챌린지</h1>
+        <p>예배와 삶의 회복을 위한 감다살 챌린지, 함께해요!</p>
         <div style="margin: 2rem 0; text-align: center;">
           <div class="intro-video-container" style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); 
                       padding: 2rem; border-radius: 1.5rem; backdrop-filter: blur(10px); 
@@ -495,21 +495,12 @@
               감사, 하루의 발견 영상
             </video>
           </div>
-          <div class="feature-cards" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-            <div class="feature-card" style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); 
-                        border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.1); min-width: 120px;">
-              <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📝</div>
-              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">매일 기록</div>
-            </div>
-            <div class="feature-card" style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); 
-                        border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.1); min-width: 120px;">
-              <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🤝</div>
-              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">함께 공유</div>
-            </div>
-            <div class="feature-card" style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); 
-                        border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.1); min-width: 120px;">
-              <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🌟</div>
-              <div style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">행복 발견</div>
+          <div class="feature-cards" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; flex-direction: column; align-items: center;">
+            <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.08); 
+                        border-radius: 1rem; border: 1px solid rgba(255,255,255,0.15); max-width: 100%;">
+              <div style="font-size: 1.1rem; color: rgba(255,255,255,0.95); line-height: 1.6; font-weight: 500;">
+                삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌
+              </div>
             </div>
           </div>
         </div>
@@ -600,8 +591,8 @@ const MAX_UPLOADS = 12;
 const sections = [
   {
     id: 'challenge',
-    title: '감다살 첼린지',
-    description: '감다살 셀의 미션/첼린지 영상을 공유하는 공간입니다.',
+    title: '감다살 챌린지',
+    description: '예배와 삶의 회복을 위한 감다살 챌린지, 함께해요!',
     storageKey: 'gamdasal-challenge-uploads',
     storageVersion: '2025-10-24-challenge-v2',
     posterColor: '211d44',

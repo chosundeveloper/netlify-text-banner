@@ -50,6 +50,8 @@
 
       header {
         position: relative;
+        display: grid;
+        gap: clamp(1.8rem, 4vw, 2.6rem);
         text-align: center;
         padding: clamp(2.8rem, 6vw, 3.6rem) clamp(1.6rem, 4vw, 2.8rem);
         border-radius: var(--radius-large);
@@ -68,6 +70,11 @@
         z-index: 0;
       }
       header > * { position: relative; z-index: 1; }
+      .hero-copy {
+        display: grid;
+        gap: 1.2rem;
+        justify-items: center;
+      }
       header h1 {
         margin: 0;
         font-size: clamp(2.6rem, 6vw, 3.4rem);
@@ -88,6 +95,16 @@
         flex-direction: column;
         align-items: center;
         gap: 0.75rem;
+      }
+      .hero-visual {
+        margin: 0;
+        justify-self: center;
+      }
+      .hero-visual img {
+        width: min(260px, 100%);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-small);
       }
       #qr-code-container {
         padding: 0.75rem;
@@ -115,19 +132,22 @@
         display: grid;
         gap: 1rem;
         text-align: center;
+        justify-items: center;
       }
       .intro-title { margin: 0; font-size: clamp(1.8rem, 4.5vw, 2.4rem); color: var(--text-strong); font-weight: 800; letter-spacing: -0.02em; }
       .intro-sub { margin: 0; font-size: clamp(1rem, 2.5vw, 1.15rem); color: var(--text-soft); line-height: 1.65; }
-      .intro-gallery {
+      .intro-steps {
+        margin: 0;
+        padding-left: 1.2rem;
         display: grid;
-        grid-auto-flow: column;
-        grid-auto-columns: minmax(0, 1fr);
-        gap: clamp(1rem, 3vw, 1.6rem);
-        overflow-x: auto;
-        padding-bottom: 0.5rem;
-        scrollbar-width: none;
+        gap: 0.6rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        text-align: left;
+        list-style-position: outside;
       }
-      .intro-gallery::-webkit-scrollbar { display: none; }
+      .intro-steps li::marker { color: var(--accent); font-weight: 600; }
       .intro-card {
         position: relative;
         border-radius: 18px;
@@ -146,16 +166,11 @@
         display: block;
       }
       .intro-card:hover { transform: translateY(-6px); box-shadow: 0 26px 40px rgba(108, 99, 255, 0.25); }
-      .intro-caption {
-        position: absolute;
-        inset: auto 0 0 0;
-        padding: 0.9rem 1rem;
-        background: linear-gradient(180deg, rgba(16, 18, 43, 0) 0%, rgba(16, 18, 43, 0.72) 100%);
-        color: #fff;
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
+      .intro-visual {
+        margin: 0;
+        justify-self: center;
       }
+      .intro-visual img { max-width: 320px; }
       .intro-badges {
         display: flex;
         flex-wrap: wrap;
@@ -172,6 +187,43 @@
         color: var(--primary-dark);
         font-size: 0.85rem;
         font-weight: 600;
+      }
+
+      .thanks-highlight {
+        background: var(--surface);
+        border-radius: var(--radius-large);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-small);
+        padding: clamp(2.2rem, 5vw, 3rem);
+      }
+      .thanks-highlight-inner {
+        display: grid;
+        gap: 1.1rem;
+        text-align: center;
+        justify-items: center;
+      }
+      .thanks-highlight h3 {
+        margin: 0;
+        font-size: clamp(1.6rem, 4vw, 2.1rem);
+        color: var(--text-strong);
+        font-weight: 700;
+      }
+      .thanks-highlight p {
+        margin: 0;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+      .thanks-highlight-card {
+        margin: 0;
+        width: 100%;
+      }
+      .thanks-highlight-card img {
+        width: min(280px, 100%);
+        margin: 0 auto;
+        display: block;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-small);
       }
 
       #nominated-list-section {
@@ -260,8 +312,7 @@
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas:
           'video'
-          'info'
-          'actions';
+          'info';
         gap: 1.4rem;
         justify-items: center;
         text-align: center;
@@ -270,6 +321,12 @@
         background: var(--surface-solid);
         border: 1px solid var(--border);
         box-shadow: var(--shadow-small);
+      }
+      .upload-item.has-actions {
+        grid-template-areas:
+          'video'
+          'info'
+          'actions';
       }
       .upload-video {
         grid-area: video;
@@ -486,6 +543,34 @@
       #nominate-confirm:hover { transform: translateY(-2px); }
 
       @media (min-width: 880px) {
+        header {
+          grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
+          text-align: left;
+          align-items: center;
+        }
+        .hero-copy { justify-items: flex-start; }
+        header p { margin-left: 0; margin-right: 0; }
+        .qr-wrapper { align-items: flex-start; }
+        .hero-visual { justify-self: end; }
+
+        .intro-layout {
+          grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+          align-items: center;
+        }
+        .intro-copy {
+          text-align: left;
+          justify-items: flex-start;
+          gap: 1.2rem;
+        }
+        .intro-badges { justify-content: flex-start; }
+        .intro-visual { justify-self: end; }
+
+        .thanks-highlight-inner {
+          text-align: left;
+          justify-items: flex-start;
+        }
+        .thanks-highlight-card img { margin: 0; }
+
         .intro-video-container {
           grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
           align-items: center;
@@ -497,12 +582,15 @@
 
         .upload-item {
           grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
-          grid-template-areas:
-            'video info'
-            'video actions';
+          grid-template-areas: 'video info';
           text-align: left;
           justify-items: stretch;
           align-items: center;
+        }
+        .upload-item.has-actions {
+          grid-template-areas:
+            'video info'
+            'video actions';
         }
         .upload-info { width: 100%; }
         .upload-meta { gap: 0.75rem; }
@@ -513,6 +601,7 @@
         main { gap: 2rem; padding: 2rem 1.4rem 2.6rem; }
         header,
         .intro-section,
+        .thanks-highlight,
         #nominated-list-section,
         .archive { border-radius: 20px; padding: 1.8rem; }
         .two-inputs,
@@ -527,45 +616,54 @@
   </head>
   <body>
     <main>
-      <header>
-        <h1>감다살 챌린지</h1>
-        <p>예배와 삶의 회복을 위한 감다살 챌린지, 함께해요!</p>
-        <div class="qr-wrapper">
-          <div id="qr-code-container">
-            <img id="qr-code-img" alt="QR Code">
+      <header class="hero">
+        <div class="hero-copy">
+          <h1>감다살 챌린지</h1>
+          <p>예배와 삶의 회복을 위한 감다살 챌린지, 함께해요!</p>
+          <div class="qr-wrapper">
+            <div id="qr-code-container">
+              <img id="qr-code-img" alt="QR Code">
+            </div>
+            <p class="qr-hint">📱 QR 코드로 모바일에서 접속</p>
           </div>
-          <p class="qr-hint">📱 QR 코드로 모바일에서 접속</p>
         </div>
+        <figure class="hero-visual">
+          <img src="assets/thanks1.png" alt="감사 카드 1">
+        </figure>
       </header>
 
-      <!-- 인트로 영상 섹션 (위로 이동) -->
+      <!-- 인트로 섹션 -->
       <section class="intro-section">
         <div class="intro-layout">
           <div class="intro-copy">
-            <h3 class="intro-title">💝 감사, 하루의 발견</h3>
+            <h3 class="intro-title">감다살 챌린지 참여 방법</h3>
             <p class="intro-sub">
-              함께 나눈 감사의 순간을 카드처럼 수집해 보세요. 서로를 지목하며 이어지는 감동의 릴레이가 당신의 하루에 새로운 기쁨을 더합니다.
+              감사한 순간을 기록하고 영상을 나누어 다음 셀을 지목하면, 공동체 모두가 은혜를 나누는 감사 릴레이가 완성됩니다.
             </p>
+            <ol class="intro-steps">
+              <li>하루 동안 발견한 감사 제목을 떠올리고 준비해요.</li>
+              <li>영상 또는 이미지를 업로드하며 다음 셀을 지목해요.</li>
+              <li>감사 이야기가 이어지도록 함께 응원해요.</li>
+            </ol>
             <div class="intro-badges">
-              <span>🙏 매일 감사 기록</span>
-              <span>🤝 셀 지목 릴레이</span>
-              <span>🌟 감동 공유 아카이브</span>
+              <span>🙏 하루 감사 기록</span>
+              <span>📹 영상 업로드</span>
+              <span>🤝 다음 셀 지목</span>
             </div>
           </div>
-          <div class="intro-gallery">
-            <figure class="intro-card">
-              <img src="assets/thanks1.png" alt="감사 카드 1">
-              <figcaption class="intro-caption">감다살 셀 · 하은</figcaption>
-            </figure>
-            <figure class="intro-card">
-              <img src="assets/thanks2.png" alt="감사 카드 2">
-              <figcaption class="intro-caption">하늘 셀 · 민수</figcaption>
-            </figure>
-            <figure class="intro-card">
-              <img src="assets/thanks3.png" alt="감사 카드 3">
-              <figcaption class="intro-caption">기쁨 셀 · 지은</figcaption>
-            </figure>
-          </div>
+          <figure class="intro-card intro-visual">
+            <img src="assets/thanks2.png" alt="감사 카드 2">
+          </figure>
+        </div>
+      </section>
+
+      <section class="thanks-highlight">
+        <div class="thanks-highlight-inner">
+          <h3>함께 이어지는 감사 이야기</h3>
+          <p>감사 릴레이의 다음 장면을 기다리며, 서로의 이야기에 귀 기울여 주세요.</p>
+          <figure class="thanks-highlight-card">
+            <img src="assets/thanks3.png" alt="감사 카드 3">
+          </figure>
         </div>
       </section>
 
@@ -604,7 +702,6 @@
               <button type="button" class="select-button">파일 선택</button>
               <input class="upload-file" type="file" accept="video/*,image/*">
             </div>
-            <small class="upload-hint">Supabase 클라우드에 저장되어 모든 기기에서 즉시 확인할 수 있습니다.</small>
             <button type="submit" class="submit-button">업로드</button>
           </form>
         </section>
@@ -672,6 +769,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const SUPABASE_BUCKET = 'videos';
 const SUPABASE_TABLE = 'video_uploads';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const pathSegments = window.location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+const isDeletePage = pathSegments[pathSegments.length - 1] === 'delete';
 
 const template = document.getElementById('archive-template');
 const container = document.getElementById('archives');
@@ -1142,6 +1242,9 @@ const renderUploads = (archive) => {
   archive.uploads.forEach((item, index) => {
     const article = document.createElement('article');
     article.className = 'upload-item';
+    if (isDeletePage) {
+      article.classList.add('has-actions');
+    }
 
     const mediaWrap = document.createElement('div');
     mediaWrap.className = 'upload-video';
@@ -1240,18 +1343,22 @@ const renderUploads = (archive) => {
 
     info.appendChild(metaList);
 
-    const actions = document.createElement('div');
-    actions.className = 'upload-actions';
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.textContent = '삭제';
-    removeBtn.dataset.remove = index;
-    if (item.id) {
-      removeBtn.dataset.id = item.id;
+    const nodes = [mediaWrap, info];
+    if (isDeletePage) {
+      const actions = document.createElement('div');
+      actions.className = 'upload-actions';
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = '삭제';
+      removeBtn.dataset.remove = index;
+      if (item.id) {
+        removeBtn.dataset.id = item.id;
+      }
+      actions.append(removeBtn);
+      nodes.push(actions);
     }
-    actions.append(removeBtn);
 
-    article.append(mediaWrap, info, actions);
+    article.append(...nodes);
     list.append(article);
   });
   
@@ -1440,7 +1547,9 @@ const createArchive = (section) => {
     setSelectedFile(archive, event.dataTransfer.files?.[0]);
   });
   form.addEventListener('submit', (event) => handleSubmit(event, archive));
-  list.addEventListener('click', (event) => handleRemove(event, archive));
+  if (isDeletePage) {
+    list.addEventListener('click', (event) => handleRemove(event, archive));
+  }
   resetSelectedFile(archive);
 
   container.appendChild(fragment);

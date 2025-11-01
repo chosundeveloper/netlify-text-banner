@@ -211,31 +211,30 @@
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
-        padding: 1.1rem 1.4rem;
+        padding: 1.2rem 1.6rem;
         border-radius: 18px;
-        background: var(--surface-solid);
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow-small);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(253, 251, 246, 0.88));
+        border: 1px solid rgba(91, 109, 138, 0.14);
+        box-shadow: 0 22px 40px rgba(63, 86, 120, 0.12);
         flex-wrap: wrap;
       }
       .nominated-item-left { display: flex; align-items: center; gap: 1rem; flex: 1 1 auto; min-width: 200px; }
-      .nominated-item-info { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; color: var(--text-strong); font-weight: 600; }
+      .nominated-item-info { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; color: var(--text-strong); font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
       .nominated-item-cell { color: var(--text-strong); }
       .nominated-item-name { color: var(--text-soft); font-weight: 500; }
       .nominated-item-separator { color: rgba(92, 95, 127, 0.4); }
       .nominated-item-button {
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        color: #fff;
-        padding: 0.65rem 1.4rem;
+        background: rgba(91, 109, 138, 0.12);
+        color: var(--primary-dark);
+        padding: 0.6rem 1.4rem;
         border-radius: 999px;
         border: none;
         font-weight: 600;
-        box-shadow: 0 12px 24px rgba(93, 116, 150, 0.28);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, background 0.2s ease;
       }
       .nominated-item-button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 16px 28px rgba(93, 116, 150, 0.32);
+        background: rgba(91, 109, 138, 0.18);
       }
 
       .archive {
@@ -258,8 +257,8 @@
         padding: 2rem;
         border-radius: 18px;
         background: var(--surface-solid);
-        border: 1px solid var(--border);
-        color: var(--text-soft);
+        border: 1px dashed rgba(91, 109, 138, 0.24);
+        color: rgba(63, 78, 100, 0.7);
       }
       .upload-item {
         display: grid;
@@ -267,14 +266,14 @@
         grid-template-areas:
           'video'
           'info';
-        gap: 1.4rem;
+        gap: 1.6rem;
         justify-items: center;
         text-align: center;
-        padding: 1.5rem;
-        border-radius: 20px;
-        background: var(--surface-solid);
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow-small);
+        padding: clamp(1.6rem, 3.5vw, 2.2rem);
+        border-radius: 26px;
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88));
+        border: 1px solid rgba(91, 109, 138, 0.14);
+        box-shadow: 0 32px 60px rgba(63, 86, 120, 0.14);
       }
       .upload-item.has-actions {
         grid-template-areas:
@@ -285,11 +284,11 @@
       .upload-video {
         grid-area: video;
         width: 100%;
-        max-width: clamp(300px, 80vw, 520px);
-        border-radius: 20px;
+        max-width: clamp(340px, 82vw, 620px);
+        border-radius: 26px;
         overflow: hidden;
-        background: rgba(91, 109, 138, 0.08);
-        box-shadow: var(--shadow-soft);
+        background: rgba(91, 109, 138, 0.06);
+        box-shadow: 0 40px 80px rgba(63, 86, 120, 0.16);
         justify-self: center;
         aspect-ratio: 16 / 9;
       }
@@ -301,41 +300,40 @@
       }
       .upload-info {
         grid-area: info;
-        width: min(520px, 100%);
-        display: grid;
-        gap: 1rem;
-        justify-items: stretch;
+        width: min(620px, 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        text-align: left;
       }
-      .upload-info-meta { font-size: 0.95rem; color: var(--text-soft); }
       .upload-meta {
         display: grid;
-        gap: 0.65rem;
+        gap: 0.9rem;
       }
       .upload-meta-row {
         display: grid;
         grid-template-columns: auto 1fr;
-        gap: 0.6rem;
-        align-items: baseline;
+        gap: 0.75rem;
+        align-items: center;
       }
       .upload-meta-label {
-        padding: 0.25rem 0.75rem;
+        padding: 0.35rem 0.95rem;
         border-radius: 999px;
-        background: rgba(91, 109, 138, 0.12);
+        background: rgba(91, 109, 138, 0.08);
         color: var(--primary-dark);
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         font-weight: 700;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
       .upload-meta-value {
-        font-size: 1.05rem;
+        font-size: clamp(1.06rem, 1.8vw, 1.2rem);
         color: var(--text-strong);
         font-weight: 600;
+        letter-spacing: -0.01em;
       }
-      .upload-meta-timestamp { color: var(--text-soft); font-weight: 500; font-size: 0.95rem; }
-      .upload-meta-nomination {
-        color: var(--accent);
-        font-weight: 600;
-      }
+      .upload-meta-timestamp { color: rgba(63, 78, 100, 0.72); font-weight: 500; font-size: clamp(0.96rem, 1.6vw, 1.05rem); }
+      .upload-meta-nomination { color: var(--accent); font-weight: 600; }
       .upload-actions {
         grid-area: actions;
         display: flex;
@@ -344,16 +342,16 @@
         justify-content: center;
       }
       .upload-actions button {
-        background: rgba(91, 109, 138, 0.12);
+        background: rgba(91, 109, 138, 0.1);
         color: var(--primary-dark);
         border: none;
         border-radius: 999px;
-        padding: 0.55rem 1.4rem;
+        padding: 0.6rem 1.6rem;
         font-weight: 600;
         transition: background 0.2s ease, transform 0.2s ease;
       }
       .upload-actions button:hover {
-        background: rgba(91, 109, 138, 0.2);
+        background: rgba(91, 109, 138, 0.18);
         transform: translateY(-2px);
       }
 
@@ -516,7 +514,7 @@
         .feature-cards { width: 100%; }
 
         .upload-item {
-          grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+          grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
           grid-template-areas: 'video info';
           text-align: left;
           justify-items: stretch;
@@ -542,8 +540,8 @@
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
         .nominated-item { justify-content: center; text-align: center; }
         .nominated-item-left { justify-content: center; }
-        .upload-form { padding: 1.3rem; }
-        .upload-item { padding: 1.3rem; }
+        .upload-form { padding: 1.6rem; }
+        .upload-item { padding: 1.6rem; }
         .upload-video { max-width: 100%; }
       }
     </style>

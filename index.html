@@ -777,6 +777,7 @@ const CONTACT_CONFIG = {
 };
 
 const OWN_UPLOAD_STORAGE_KEY = 'gamdasal-own-upload-ids';
+const remotePosterCache = new Map();
 
 const loadOwnUploads = () => {
   try {
@@ -1097,6 +1098,35 @@ const capturePosterFromVideoElement = (video) =>
     }
   });
 
+const capturePosterFromRemoteSource = async (item) => {
+  if (!item?.src) return null;
+  if (remotePosterCache.has(item.src)) {
+    return remotePosterCache.get(item.src);
+  }
+
+  const posterPromise = (async () => {
+    try {
+      const response = await fetch(item.src, {
+        headers: { Range: 'bytes=0-1048575' },
+      });
+      if (!response.ok) {
+        throw new Error(`원격 영상 다운로드 실패: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const poster = await captureVideoPoster(blob);
+      return poster;
+    } catch (error) {
+      console.warn('원격 포스터 추출 실패:', error);
+      return null;
+    } finally {
+      remotePosterCache.delete(item.src);
+    }
+  })();
+
+  remotePosterCache.set(item.src, posterPromise);
+  return posterPromise;
+};
+
 const updatePosterRecord = async (id, poster) => {
   if (!id || !poster) return;
   try {
@@ -1140,7 +1170,15 @@ const ensurePosterForPlayback = (video, item) => {
 
   const handleCapture = async () => {
     const posterData = await capturePosterFromVideoElement(video);
-    if (!posterData) return;
+    if (!posterData) {
+      const remotePoster = await capturePosterFromRemoteSource(item);
+      if (remotePoster) {
+        video.poster = remotePoster;
+        item.poster = remotePoster;
+        if (item.id) updatePosterRecord(item.id, remotePoster);
+      }
+      return;
+    }
     video.poster = posterData;
     item.poster = posterData;
     if (item.id) updatePosterRecord(item.id, posterData);
@@ -1158,17 +1196,15 @@ const ensurePosterForPlayback = (video, item) => {
     }, { once: true });
   }
 
-  if (!video.autoplay) {
-    try {
-      const playPromise = video.play();
-      if (playPromise?.then) {
-        playPromise.then(() => {
-          try { video.pause(); } catch (error) {}
-        }).catch(() => primeVideoFrame(video));
-      }
-    } catch (error) {
-      primeVideoFrame(video);
+  try {
+    const playPromise = video.play();
+    if (playPromise?.then) {
+      playPromise.then(() => {
+        try { video.pause(); } catch (error) {}
+      }).catch(() => primeVideoFrame(video));
     }
+  } catch (error) {
+    primeVideoFrame(video);
   }
 };
 
@@ -1581,6 +1617,7 @@ const renderUploads = (archive) => {
       if (item.poster) {
         video.poster = item.poster;
       } else {
+        video.poster = fallbackPoster();
         ensurePosterForPlayback(video, item);
       }
       mediaWrap.append(video);

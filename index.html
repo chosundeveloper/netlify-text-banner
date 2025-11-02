@@ -2313,7 +2313,21 @@ if (searchClearButton && searchInput) {
 
 loadLogs();
 renderLogs();
-archives.forEach(async (archive) => await seedUploads(archive));
+
+Promise.all(archives.map((archive) => seedUploads(archive)))
+  .then(() => {
+    unlockPreviewAutoplay();
+    document.querySelectorAll('video[data-preview-bound="1"]').forEach((video) => {
+      if (video instanceof HTMLVideoElement) {
+        if (video.dataset.previewActive === '1' || !previewObserver) {
+          tryPlayPreview(video);
+        }
+      }
+    });
+  })
+  .catch((error) => {
+    console.warn('초기 영상 로드 중 오류:', error);
+  });
 
 if (ENABLE_LOGS && logCopyBtn) {
   logCopyBtn.addEventListener('click', async () => {

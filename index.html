@@ -377,6 +377,7 @@
         height: 100%;
         object-fit: cover;
         display: block;
+        background: #11141f;
       }
       .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(0.98rem, 2vw, 1.12rem); }
       .upload-share {
@@ -1696,10 +1697,13 @@ const renderUploads = (archive) => {
       mediaWrap.append(img);
     } else {
       const video = document.createElement('video');
-      video.controls = true;
+      video.controls = false;
       video.preload = 'auto';
       video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
       video.muted = true;
+      video.loop = true;
       video.crossOrigin = 'anonymous';
       video.src = item.src;
       if (item.poster) {
@@ -1708,6 +1712,30 @@ const renderUploads = (archive) => {
         video.poster = fallbackPoster();
         ensurePosterForPlayback(video, item);
       }
+
+      const tryStartPreview = () => {
+        const attemptPlay = () => {
+          const playPromise = video.play();
+          if (playPromise?.catch) {
+            playPromise.catch(() => {
+              // ignored – autoplay might still fail but poster remains
+            });
+          }
+        };
+
+        if (video.readyState >= 2) {
+          video.currentTime = 0.05;
+          attemptPlay();
+        } else {
+          video.addEventListener('loadeddata', () => {
+            try { video.currentTime = 0.05; } catch (error) {}
+            attemptPlay();
+          }, { once: true });
+        }
+      };
+
+      tryStartPreview();
+
       mediaWrap.append(video);
     }
 

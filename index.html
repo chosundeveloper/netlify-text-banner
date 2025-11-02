@@ -908,6 +908,8 @@ const forgetOwnUpload = (id) => {
   if (ownUploads.delete(id)) persistOwnUploads();
 };
 
+const warmPosterPromises = new Map();
+
 const normalizeSearchText = (value) => (value || '').toLowerCase();
 
 const itemMatchesSearch = (item, query) => {
@@ -916,6 +918,42 @@ const itemMatchesSearch = (item, query) => {
   const title = normalizeSearchText(item.title);
   const subtitle = normalizeSearchText(item.subtitle);
   return title.includes(query) || subtitle.includes(query);
+};
+
+const warmupArchivePosters = async (archive) => {
+  if (!archive || archive.posterWarmupInFlight || archive.posterWarmupDone) return;
+  const candidates = (archive.uploads || []).filter((item) => item?.src && !item.poster);
+  if (!candidates.length) {
+    archive.posterWarmupDone = true;
+    return;
+  }
+  archive.posterWarmupInFlight = true;
+  try {
+    const results = await Promise.all(
+      candidates.slice(0, 6).map(async (item) => {
+        if (warmPosterPromises.has(item.src)) {
+          return warmPosterPromises.get(item.src);
+        }
+        try {
+          const poster = await capturePosterFromRemoteSource(item);
+          if (poster) {
+            item.poster = poster;
+            if (item.id) updatePosterRecord(item.id, poster);
+            return true;
+          }
+        } catch (error) {
+          console.warn('포스터 워밍업 실패:', error);
+        }
+        return false;
+      })
+    );
+    if (results.some(Boolean)) {
+      renderUploads(archive);
+    }
+    archive.posterWarmupDone = true;
+  } finally {
+    archive.posterWarmupInFlight = false;
+  }
 };
 
 const LOG_STORAGE_KEY = 'gamdasal-upload-logs';
@@ -1210,6 +1248,10 @@ const capturePosterFromRemoteSource = async (item) => {
     return remotePosterCache.get(item.src);
   }
 
+  if (warmPosterPromises.has(item.src)) {
+    return warmPosterPromises.get(item.src);
+  }
+
   const posterPromise = (async () => {
     try {
       const response = await fetch(item.src, {
@@ -1226,10 +1268,12 @@ const capturePosterFromRemoteSource = async (item) => {
       return null;
     } finally {
       remotePosterCache.delete(item.src);
+      warmPosterPromises.delete(item.src);
     }
   })();
 
   remotePosterCache.set(item.src, posterPromise);
+  warmPosterPromises.set(item.src, posterPromise);
   return posterPromise;
 };
 
@@ -2077,6 +2121,7 @@ const seedUploads = async (archive) => {
   renderUploads(archive);
   // 지목된 사람들 리스트 업데이트
   renderNominatedList(archives);
+  warmupArchivePosters(archive);
 };
 
 const handleRemove = async (event, archive) => {
@@ -2163,6 +2208,7 @@ const handleSubmit = async (event, archive) => {
     resetSelectedFile(archive);
     clearSelectedNomination(archive);
     renderNominatedList(archives);
+    warmupArchivePosters(archive);
 
     archive.elements.dropzone.classList.add('status-message');
     archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';

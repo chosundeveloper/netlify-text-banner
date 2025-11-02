@@ -1114,43 +1114,42 @@ const updatePosterRecord = async (id, poster) => {
 const ensurePosterForPlayback = (video, item) => {
   if (!video || !item || item.poster) return;
 
-  const handleSeeked = async () => {
+  const handleCapture = async () => {
     const posterData = await capturePosterFromVideoElement(video);
     if (!posterData) return;
     video.poster = posterData;
     item.poster = posterData;
-    if (item.id) {
-      updatePosterRecord(item.id, posterData);
-    }
+    if (item.id) updatePosterRecord(item.id, posterData);
   };
 
-  const requestCapture = () => {
+  const trySeek = () => {
     const seekHandler = async () => {
       video.removeEventListener('seeked', seekHandler);
-      await handleSeeked();
+      await handleCapture();
       try { video.pause(); } catch (error) {}
     };
-
     video.addEventListener('seeked', seekHandler, { once: true });
     try {
-      const targetTime = Math.min(0.15, video.duration || 0);
-      video.currentTime = targetTime;
+      const offset = Math.min(0.12, Math.max(0, video.duration ? video.duration * 0.02 : 0.12));
+      video.currentTime = offset;
     } catch (error) {
       video.removeEventListener('seeked', seekHandler);
-      handleSeeked();
+      handleCapture();
     }
   };
 
-  if (video.readyState >= 2) {
-    requestCapture();
+  if (video.readyState >= 1) {
+    trySeek();
   } else {
-    video.addEventListener('loadeddata', requestCapture, { once: true });
+    video.addEventListener('loadedmetadata', trySeek, { once: true });
   }
 
-  try {
-    video.load();
-  } catch (error) {
-    console.warn('영상 로드 중 오류:', error);
+  if (video.readyState === 0) {
+    try {
+      video.load();
+    } catch (error) {
+      console.warn('영상 로드 중 오류:', error);
+    }
   }
 };
 

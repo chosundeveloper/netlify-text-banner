@@ -759,7 +759,7 @@
           <div class="upload-list"></div>
           <form class="upload-form" autocomplete="off">
             <label>등록자</label>
-            <p class="selected-nomination" data-selected-nomination>다음 챌린지 참여자를 선택하거나 직접 입력하세요.</p>
+            <p class="selected-nomination" data-selected-nomination>다음 챌린지 참여자 리스트를 눌러주세요.</p>
             <div class="two-inputs">
               <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
               <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
@@ -816,86 +816,6 @@ const CONTACT_CONFIG = {
 
 const OWN_UPLOAD_STORAGE_KEY = 'gamdasal-own-upload-ids';
 const remotePosterCache = new Map();
-const previewVideos = new Set();
-let previewObserver = null;
-
-const attemptPreviewPlay = (video) => {
-  try {
-    if (video.dataset.previewPlaying === 'true') return;
-    if (video.readyState >= 2 && video.dataset.previewPrimed !== 'true') {
-      const offset = Math.min(0.1, Math.max(0, video.duration ? video.duration * 0.02 : 0.05));
-      try { video.currentTime = offset; } catch (error) {}
-      video.dataset.previewPrimed = 'true';
-    }
-    const playPromise = video.play();
-    video.dataset.previewPlaying = 'true';
-    if (playPromise?.catch) {
-      playPromise.catch(() => {
-        video.dataset.previewPlaying = 'false';
-      });
-    }
-  } catch (error) {
-    video.dataset.previewPlaying = 'false';
-  }
-};
-
-const pausePreview = (video) => {
-  try { video.pause(); } catch (error) {}
-  video.dataset.previewPlaying = 'false';
-};
-
-const cleanupPreviewVideos = () => {
-  previewVideos.forEach((video) => {
-    if (!video.isConnected) {
-      if (previewObserver) previewObserver.unobserve(video);
-      previewVideos.delete(video);
-    }
-  });
-};
-
-const ensurePreviewObserver = () => {
-  if (previewObserver || typeof IntersectionObserver === 'undefined') return;
-  previewObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const video = entry.target;
-      if (!video || video.dataset.previewAttached !== 'true') return;
-      if (entry.isIntersecting) {
-        video.dataset.previewVisible = 'true';
-        if (video.readyState >= 2) {
-          attemptPreviewPlay(video);
-        } else {
-          video.addEventListener('loadeddata', () => attemptPreviewPlay(video), { once: true });
-        }
-      } else {
-        video.dataset.previewVisible = 'false';
-        pausePreview(video);
-        if (video.readyState >= 2) {
-          try { video.currentTime = 0; } catch (error) {}
-          video.dataset.previewPrimed = '';
-        }
-      }
-    });
-  }, {
-    threshold: 0.35,
-    rootMargin: '0px 0px -20% 0px',
-  });
-};
-
-const registerPreviewVideo = (video) => {
-  previewVideos.add(video);
-  video.dataset.previewAttached = 'true';
-  if ('IntersectionObserver' in window) {
-    ensurePreviewObserver();
-    previewObserver.observe(video);
-  } else {
-    if (video.readyState >= 2) {
-      attemptPreviewPlay(video);
-    } else {
-      video.addEventListener('loadeddata', () => attemptPreviewPlay(video), { once: true });
-    }
-  }
-};
-
 const loadOwnUploads = () => {
   try {
     const raw = localStorage.getItem(OWN_UPLOAD_STORAGE_KEY);
@@ -1325,6 +1245,80 @@ const ensurePosterForPlayback = (video, item) => {
   }
 };
 
+let previewObserver = null;
+
+const ensurePreviewObserver = () => {
+  if (previewObserver !== null) return previewObserver;
+  if (typeof IntersectionObserver === 'undefined') return null;
+
+  previewObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target;
+      if (!(video instanceof HTMLVideoElement)) return;
+
+      if (entry.isIntersecting || entry.intersectionRatio >= 0.55) {
+        video.dataset.previewActive = '1';
+        try {
+          const playPromise = video.play();
+          if (playPromise?.catch) playPromise.catch(() => {});
+        } catch (error) {
+          console.warn('미리보기 재생 실패:', error);
+        }
+      } else {
+        video.dataset.previewActive = '0';
+        try { video.pause(); } catch (error) {}
+      }
+    });
+  }, { threshold: 0.55, rootMargin: '0px 0px -15% 0px' });
+
+  return previewObserver;
+};
+
+const registerVideoPreview = (video) => {
+  if (!video) return;
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', '');
+  video.muted = true;
+  video.playsInline = true;
+  video.loop = true;
+  video.dataset.previewBound = '1';
+
+  const observer = ensurePreviewObserver();
+  if (observer) {
+    observer.observe(video);
+  } else {
+    try {
+      const playPromise = video.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch (error) {}
+  }
+};
+
+const unregisterVideoPreview = (video) => {
+  if (!video) return;
+  if (previewObserver) previewObserver.unobserve(video);
+  video.dataset.previewBound = '';
+  try { video.pause(); } catch (error) {}
+};
+
+const cleanupVideoPreviews = (root) => {
+  if (!root) return;
+  root.querySelectorAll('video[data-preview-bound="1"]').forEach((video) => {
+    unregisterVideoPreview(video);
+  });
+};
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      document.querySelectorAll('video[data-preview-bound="1"]').forEach((video) => {
+        try { video.pause(); } catch (error) {}
+      });
+    }
+  });
+}
+
 const deriveUploadTitle = (file, uploaderName) => {
   if (file?.name) {
     const base = file.name.replace(/\.[^.]+$/, '').trim();
@@ -1493,7 +1487,7 @@ const normalizeNomination = (text) =>
     .join(' / ')
     .toLowerCase();
 
-const NOMINATION_HINT_MESSAGE = '다음 챌린지 참여자를 선택하거나 직접 입력하세요.';
+const NOMINATION_HINT_MESSAGE = '다음 챌린지 참여자 리스트를 눌러주세요.';
 
 const applySelectedNominationToForm = (archive, options = {}) => {
   const { setInputs = false } = options;
@@ -1533,7 +1527,7 @@ const setSelectedNomination = (archive, cell, name) => {
 const clearSelectedNomination = (archive) => {
   archive.selectedNomination = null;
   archive.selectedNominationKey = null;
-  applySelectedNominationToForm(archive);
+  applySelectedNominationToForm(archive, { setInputs: true });
 };
 
 const removeNomination = async (cell, name) => {
@@ -1747,8 +1741,8 @@ const renderNominatedList = (archives) => {
 
 const renderUploads = (archive) => {
   const list = archive.elements.list;
+  cleanupVideoPreviews(list);
   list.innerHTML = '';
-  cleanupPreviewVideos();
   if (!archive.uploads.length) {
     const empty = document.createElement('p');
     empty.className = 'upload-empty';
@@ -1794,9 +1788,8 @@ const renderUploads = (archive) => {
         ensurePosterForPlayback(video, item);
       }
 
-      registerPreviewVideo(video);
-
       mediaWrap.append(video);
+      registerVideoPreview(video);
     }
 
     const headerEl = document.createElement('div');
@@ -1981,12 +1974,7 @@ const handleSubmit = async (event, archive) => {
   const cell = (cellInput?.value || '').trim();
   const name = (nameInput?.value || '').trim();
   if (!cell || !name) {
-    alert('등록자의 셀명과 이름을 모두 입력해주세요.');
-    if (!cell && cellInput) {
-      cellInput.focus();
-    } else if (!name && nameInput) {
-      nameInput?.focus();
-    }
+    alert('다음 챌린지 참여자 리스트에서 사람을 선택해주세요.');
     return;
   }
 

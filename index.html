@@ -123,48 +123,27 @@
       .intro-steps,
       .intro-badges { display: none; }
       .hero-visual {
-        display: grid;
-        justify-items: center;
-        margin-top: clamp(1.6rem, 4vw, 2.4rem);
+        width: min(720px, 100%);
+        margin: clamp(1.6rem, 4vw, 2.4rem) auto 0;
       }
       .hero-visual img {
-        width: min(680px, calc(100% - 48px));
-        border-radius: 18px 18px 0 0;
+        width: 100%;
+        border-radius: 22px;
         box-shadow: 0 24px 48px rgba(63, 86, 120, 0.18);
       }
-      .hero-caption {
-        margin: 0;
-        width: min(680px, calc(100% - 48px));
-        background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(253, 251, 246, 0.9));
-        border: 1px solid rgba(91, 109, 138, 0.14);
-        border-top: none;
-        border-radius: 0 0 18px 18px;
-        box-shadow: 0 18px 38px rgba(63, 86, 120, 0.12);
-        padding: clamp(1.6rem, 4vw, 2.2rem);
+      .hero-notes {
+        width: min(720px, 100%);
+        margin: clamp(1.2rem, 4vw, 2rem) auto 0;
         display: grid;
-        gap: 1rem;
+        gap: 0.8rem;
+        color: rgba(63, 78, 100, 0.78);
+        font-size: clamp(1rem, 1.8vw, 1.1rem);
+        line-height: 1.6;
         text-align: left;
       }
-      .hero-caption h2 {
-        margin: 0;
-        font-size: clamp(1.4rem, 3vw, 1.8rem);
-        color: var(--text-strong);
-        text-align: center;
-      }
-      .hero-caption ol {
-        margin: 0;
-        padding-left: 1.2rem;
-        display: grid;
-        gap: 0.6rem;
-        color: rgba(63, 78, 100, 0.78);
-        font-size: clamp(0.98rem, 1.8vw, 1.08rem);
-        line-height: 1.6;
-      }
-      .hero-caption p {
-        margin: 0;
-        color: rgba(63, 78, 100, 0.72);
-        line-height: 1.65;
-      }
+      .hero-notes h2 { margin: 0; font-size: clamp(1.32rem, 3vw, 1.72rem); color: var(--text-strong); }
+      .hero-notes ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.55rem; }
+      .hero-notes p { margin: 0; color: rgba(63, 78, 100, 0.7); }
 
       #nominated-list-section {
         background: linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(253, 251, 246, 0.88));
@@ -592,11 +571,11 @@
       }
 
       @media (max-width: 720px) {
-        main { gap: 2rem; padding: 2rem 1.4rem 2.6rem; }
+        main { gap: 2rem; padding: clamp(1.6rem, 5vw, 2.4rem) 0 clamp(2.4rem, 6vw, 3rem); }
         header,
         .intro-section,
         #nominated-list-section,
-        .archive { border-radius: 0; --archive-pad: 0; padding: 0 0 clamp(2rem, 5vw, 2.6rem); }
+        .archive { border-radius: 0; --archive-pad: 0; padding: 0 clamp(1.2rem, 5vw, 1.8rem) clamp(2rem, 5vw, 2.6rem); }
         .two-inputs,
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
         #nominated-list { gap: 0.75rem; }
@@ -604,12 +583,17 @@
         .nominated-story-button { width: 72px; height: 72px; }
         .nominated-story-avatar { width: 62px; height: 62px; font-size: 1rem; }
         .nominated-story-caption { font-size: 0.75rem; max-width: 76px; }
-        .upload-header { padding: 0 1.4rem; }
+        .upload-header { padding: 0 clamp(1.2rem, 5vw, 1.8rem); }
         .upload-header-main { gap: 0.6rem; }
         .upload-avatar { width: 36px; height: 36px; font-size: 0.86rem; }
-        .upload-video { margin-inline: 0; border-radius: 0; }
-        .upload-actions { padding: 0 1.4rem 1.6rem; }
-        .upload-form { padding: 1.6rem; }
+        .upload-video { width: 100vw; margin-left: calc(-1 * (50vw - 50%)); border-radius: 0; }
+        .hero-visual,
+        .hero-visual img,
+        .hero-notes { width: 100vw; margin-left: calc(-1 * (50vw - 50%)); }
+        .hero-visual img { border-radius: 0; }
+        .hero-notes { padding: 0 clamp(1.4rem, 6vw, 2.2rem); }
+        .upload-actions { padding: 0 clamp(1.2rem, 5vw, 1.8rem) clamp(1.6rem, 5vw, 2rem); }
+        .upload-form { padding: clamp(1.6rem, 5vw, 2rem); }
       }
     </style>
   </head>
@@ -621,17 +605,17 @@
           <p>예배와 삶의 회복을 위한<br>감다살 챌린지, 함께해요!</p>
           <figure class="hero-visual">
             <img src="assets/thanks1.png" alt="감다살 챌린지 소개 이미지">
-            <figcaption class="hero-caption">
-              <h2>📌 감다살 챌린지 진행 방법</h2>
-              <ol>
-                <li>1️⃣ 감사한 마음을 표현하고 싶은 대상을 선택합니다.</li>
-                <li>2️⃣ 영상, 사진 등 자유롭게 감사한 마음을 표현하고 다음 감다살 챌린지를 이어갈 주자를 지목해주세요.</li>
-                <li>3️⃣ 감다살 챌린지 내용을 업로드해주세요!</li>
-              </ol>
-              <p>💌 하루의 작은 감사가 내 마음을 살리고, 공동체를 살리며 예배를 다시 세웁니다.</p>
-              <p>삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌</p>
-            </figcaption>
           </figure>
+          <div class="hero-notes">
+            <h2>📌 감다살 챌린지 진행 방법</h2>
+            <ol>
+              <li>1️⃣ 감사한 마음을 표현하고 싶은 대상을 선택합니다.</li>
+              <li>2️⃣ 영상, 사진 등 자유롭게 감사한 마음을 표현하고 다음 감다살 챌린지를 이어갈 주자를 지목해주세요.</li>
+              <li>3️⃣ 감다살 챌린지 내용을 업로드해주세요!</li>
+            </ol>
+            <p>💌 하루의 작은 감사가 내 마음을 살리고, 공동체를 살리며 예배를 다시 세웁니다.</p>
+            <p>삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌</p>
+          </div>
           <div class="qr-wrapper">
             <div id="qr-code-container">
               <img id="qr-code-img" alt="QR Code">

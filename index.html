@@ -990,30 +990,38 @@ const readFileAsDataUrl = (file) =>
   });
 
 const captureVideoPoster = (file) =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const video = document.createElement('video');
     video.muted = true;
     video.playsInline = true;
     video.preload = 'metadata';
-    video.src = url;
 
+    let settled = false;
     const cleanUp = () => {
       URL.revokeObjectURL(url);
       video.src = '';
     };
+    const finalize = (poster) => {
+      if (settled) return;
+      settled = true;
+      cleanUp();
+      resolve(poster || null);
+    };
+
+    const timeoutId = setTimeout(() => finalize(null), 4000);
 
     video.addEventListener('error', () => {
-      cleanUp();
-      reject(new Error('동영상 포스터를 생성할 수 없습니다.'));
-    });
+      clearTimeout(timeoutId);
+      finalize(null);
+    }, { once: true });
 
     video.addEventListener('loadeddata', () => {
+      clearTimeout(timeoutId);
       const width = video.videoWidth || 640;
-      const height = video.videoHeight || 360;
+      const height = video.videoHeight || Math.round(width * (5 / 4));
       if (!width || !height) {
-        cleanUp();
-        resolve(null);
+        finalize(null);
         return;
       }
       const canvas = document.createElement('canvas');
@@ -1021,13 +1029,21 @@ const captureVideoPoster = (file) =>
       canvas.height = height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, width, height);
-      cleanUp();
       try {
-        resolve(canvas.toDataURL('image/jpeg', 0.84));
+        finalize(canvas.toDataURL('image/jpeg', 0.84));
       } catch (error) {
-        resolve(null);
+        console.warn('포스터 인코딩 실패:', error);
+        finalize(null);
       }
     }, { once: true });
+
+    video.src = url;
+    try {
+      video.load();
+    } catch (error) {
+      console.warn('비디오 로드 실패:', error);
+      finalize(null);
+    }
   });
 
 const deriveUploadTitle = (file, uploaderName) => {

@@ -784,6 +784,41 @@ const CONTACT_CONFIG = {
   kakao: '' // 카카오톡 오픈채팅 링크를 입력하면 버튼이 표시됩니다.
 };
 
+const OWN_UPLOAD_STORAGE_KEY = 'gamdasal-own-upload-ids';
+
+const loadOwnUploads = () => {
+  try {
+    const raw = localStorage.getItem(OWN_UPLOAD_STORAGE_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch (error) {
+    console.warn('내 업로드 목록을 불러오지 못했습니다:', error);
+    return new Set();
+  }
+};
+
+const ownUploads = loadOwnUploads();
+
+const persistOwnUploads = () => {
+  try {
+    localStorage.setItem(OWN_UPLOAD_STORAGE_KEY, JSON.stringify([...ownUploads]));
+  } catch (error) {
+    console.warn('내 업로드 목록을 저장하지 못했습니다:', error);
+  }
+};
+
+const rememberOwnUpload = (id) => {
+  if (!id) return;
+  ownUploads.add(id);
+  persistOwnUploads();
+};
+
+const forgetOwnUpload = (id) => {
+  if (!id) return;
+  if (ownUploads.delete(id)) persistOwnUploads();
+};
+
 const LOG_STORAGE_KEY = 'gamdasal-upload-logs';
 const LOG_LIMIT = 40;
 
@@ -1428,7 +1463,8 @@ const renderUploads = (archive) => {
   archive.uploads.forEach((item, index) => {
     const article = document.createElement('article');
     article.className = 'upload-item';
-    if (isDeleteMode) {
+    const isOwnUpload = item.id && ownUploads.has(item.id);
+    if (isDeleteMode || isOwnUpload) {
       article.classList.add('has-actions');
     }
 
@@ -1519,7 +1555,7 @@ const renderUploads = (archive) => {
     }
 
     const nodes = [headerEl, mediaWrap];
-    if (isDeleteMode) {
+    if (isDeleteMode || isOwnUpload) {
       const actions = document.createElement('div');
       actions.className = 'upload-actions';
       const removeBtn = document.createElement('button');
@@ -1631,6 +1667,7 @@ const handleRemove = async (event, archive) => {
     await removeUploadRecord(archive, upload);
     archive.uploads.splice(index, 1);
     renderUploads(archive);
+    forgetOwnUpload(upload.id);
     addLog(archive.section.id, '영상 삭제', upload.title, upload.id ? `id=${upload.id}` : undefined);
   } catch (error) {
     console.error('삭제 실패:', error);
@@ -1675,6 +1712,7 @@ const handleSubmit = async (event, archive) => {
       poster: archive.selectedPoster || fallbackPoster()
     };
     const saved = await insertUploadRecord(archive, newItem);
+    rememberOwnUpload(saved.id);
     archive.uploads.unshift(saved);
     archive.uploads = archive.uploads.slice(0, MAX_UPLOADS);
     renderUploads(archive);
@@ -1762,9 +1800,7 @@ const createArchive = (section) => {
     setSelectedFile(archive, event.dataTransfer.files?.[0]);
   });
   form.addEventListener('submit', (event) => handleSubmit(event, archive));
-  if (isDeleteMode) {
-    list.addEventListener('click', (event) => handleRemove(event, archive));
-  }
+  list.addEventListener('click', (event) => handleRemove(event, archive));
   resetSelectedFile(archive);
 
   container.appendChild(fragment);

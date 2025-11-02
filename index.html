@@ -312,8 +312,7 @@
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas:
           'header'
-          'video'
-          'info';
+          'video';
         gap: 0.85rem;
         justify-items: stretch;
         align-items: start;
@@ -328,7 +327,6 @@
         grid-template-areas:
           'header'
           'video'
-          'info'
           'actions';
       }
       .upload-header {
@@ -339,8 +337,9 @@
         gap: 1rem;
         padding: 0 var(--archive-pad);
       }
-      .upload-header-text { display: flex; flex-direction: column; gap: 0.2rem; }
+      .upload-header-text { display: flex; flex-direction: column; gap: 0.3rem; }
       .upload-header-text .upload-time { font-size: 0.8rem; color: rgba(63, 78, 100, 0.55); }
+      .upload-header-text .upload-nomination { color: var(--accent); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.01em; }
       .upload-video {
         grid-area: video;
         width: calc(100% + var(--archive-pad) * 2);
@@ -358,15 +357,6 @@
         height: 100%;
         object-fit: cover;
         display: block;
-      }
-      .upload-info {
-        grid-area: info;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        text-align: left;
-        padding: 0 var(--archive-pad);
       }
       .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(0.98rem, 2vw, 1.12rem); }
       .upload-share {
@@ -391,7 +381,6 @@
         font-weight: 600;
         letter-spacing: 0.01em;
       }
-      .upload-placeholder { color: rgba(63, 78, 100, 0.55); font-size: 0.88rem; }
       .upload-actions {
         grid-area: actions;
         display: flex;
@@ -1326,11 +1315,30 @@ const renderUploads = (archive) => {
       mediaWrap.append(video);
     }
 
-    const info = document.createElement('div');
-    info.className = 'upload-info';
+    const headerEl = document.createElement('div');
+    headerEl.className = 'upload-header';
 
-    let headerEl = null;
-    let nominationText = '';
+    const headerText = document.createElement('div');
+    headerText.className = 'upload-header-text';
+    const authorSpan = document.createElement('span');
+    authorSpan.className = 'upload-author';
+    headerText.appendChild(authorSpan);
+
+    const nominationRow = document.createElement('span');
+    nominationRow.className = 'upload-nomination';
+    headerText.appendChild(nominationRow);
+
+    const shareBtn = document.createElement('button');
+    shareBtn.type = 'button';
+    shareBtn.className = 'upload-share';
+    shareBtn.title = '공유하기';
+    shareBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3a1.5 1.5 0 0 1 3 0v5.25a1.5 1.5 0 0 1-3 0V6.81l-6.97 6.97a1.5 1.5 0 0 1-2.12-2.12L11.38 4.7H9.75a1.5 1.5 0 0 1 0-3H13.5ZM5.25 10.5a1.5 1.5 0 0 1 0 3H4.5A1.5 1.5 0 0 0 3 15v4.5A1.5 1.5 0 0 0 4.5 21h12a1.5 1.5 0 0 0 1.5-1.5v-3.75a1.5 1.5 0 0 1 3 0V19.5A4.5 4.5 0 0 1 16.5 24h-12A4.5 4.5 0 0 1 0 19.5V15a4.5 4.5 0 0 1 4.5-4.5h.75Z"/></svg>';
+    shareBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      shareUpload(item);
+    });
+
+    headerEl.append(headerText, shareBtn);
 
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
@@ -1342,82 +1350,14 @@ const renderUploads = (archive) => {
         .map((part) => part.trim())
         .filter(Boolean);
 
-      const uploaderText = parts.length ? parts[0] : '';
-      const timestampText = parts.length > 1 ? parts.slice(1).join(' · ') : '';
-
-      if (uploaderText) {
-        headerEl = document.createElement('div');
-        headerEl.className = 'upload-header';
-
-        const headerText = document.createElement('div');
-        headerText.className = 'upload-header-text';
-        const authorSpan = document.createElement('span');
-        authorSpan.className = 'upload-author';
-        authorSpan.textContent = uploaderText;
-        headerText.appendChild(authorSpan);
-
-        if (timestampText) {
-          const timeSpan = document.createElement('span');
-          timeSpan.className = 'upload-time';
-          timeSpan.textContent = timestampText;
-          headerText.appendChild(timeSpan);
-        }
-
-        const shareBtn = document.createElement('button');
-        shareBtn.type = 'button';
-        shareBtn.className = 'upload-share';
-        shareBtn.title = '공유하기';
-        shareBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3a1.5 1.5 0 0 1 3 0v5.25a1.5 1.5 0 0 1-3 0V6.81l-6.97 6.97a1.5 1.5 0 0 1-2.12-2.12L11.38 4.7H9.75a1.5 1.5 0 0 1 0-3H13.5ZM5.25 10.5a1.5 1.5 0 0 1 0 3H4.5A1.5 1.5 0 0 0 3 15v4.5A1.5 1.5 0 0 0 4.5 21h12a1.5 1.5 0 0 0 1.5-1.5v-3.75a1.5 1.5 0 0 1 3 0V19.5A4.5 4.5 0 0 1 16.5 24h-12A4.5 4.5 0 0 1 0 19.5V15a4.5 4.5 0 0 1 4.5-4.5h.75Z"/></svg>';
-        shareBtn.addEventListener('click', (event) => {
-          event.stopPropagation();
-          shareUpload(item);
-        });
-
-        headerEl.append(headerText, shareBtn);
-      }
-
-      if (nominationInfo) {
-        nominationText = nominationInfo;
-      }
-    }
-
-    if (!headerEl) {
-      headerEl = document.createElement('div');
-      headerEl.className = 'upload-header';
-
-      const headerText = document.createElement('div');
-      headerText.className = 'upload-header-text';
-      const authorSpan = document.createElement('span');
-      authorSpan.className = 'upload-author';
-      authorSpan.textContent = '익명 사용자';
-      headerText.appendChild(authorSpan);
-
-      const shareBtn = document.createElement('button');
-      shareBtn.type = 'button';
-      shareBtn.className = 'upload-share';
-      shareBtn.title = '공유하기';
-      shareBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3a1.5 1.5 0 0 1 3 0v5.25a1.5 1.5 0 0 1-3 0V6.81l-6.97 6.97a1.5 1.5 0 0 1-2.12-2.12L11.38 4.7H9.75a1.5 1.5 0 0 1 0-3H13.5ZM5.25 10.5a1.5 1.5 0 0 1 0 3H4.5A1.5 1.5 0 0 0 3 15v4.5A1.5 1.5 0 0 0 4.5 21h12a1.5 1.5 0 0 0 1.5-1.5v-3.75a1.5 1.5 0 0 1 3 0V19.5A4.5 4.5 0 0 1 16.5 24h-12A4.5 4.5 0 0 1 0 19.5V15a4.5 4.5 0 0 1 4.5-4.5h.75Z"/></svg>';
-      shareBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        shareUpload(item);
-      });
-
-      headerEl.append(headerText, shareBtn);
-    }
-
-    if (nominationText) {
-      const nextBadge = document.createElement('span');
-      nextBadge.className = 'upload-nomination';
-      nextBadge.textContent = `다음 지목 ${nominationText}`;
-      info.appendChild(nextBadge);
+      authorSpan.textContent = parts.length ? parts[0] : '익명 사용자';
+      nominationRow.textContent = nominationInfo ? `다음 지목 ${nominationInfo}` : '다음 지목 정보가 없습니다.';
     } else {
-      const fallback = document.createElement('span');
-      fallback.className = 'upload-placeholder';
-      fallback.textContent = '다음 지목 정보가 아직 없습니다.';
-      info.appendChild(fallback);
+      authorSpan.textContent = '익명 사용자';
+      nominationRow.textContent = '다음 지목 정보가 없습니다.';
     }
 
-    const nodes = [headerEl, mediaWrap, info];
+    const nodes = [headerEl, mediaWrap];
     if (isDeleteMode) {
       const actions = document.createElement('div');
       actions.className = 'upload-actions';

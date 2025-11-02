@@ -246,6 +246,14 @@
         padding: 0 6px;
         line-height: 1.2;
       }
+      .nominated-story.is-active .nominated-story-avatar {
+        border: 3px solid var(--accent);
+        background: rgba(255, 245, 219, 0.95);
+      }
+      .nominated-story.is-active .nominated-story-caption {
+        color: var(--text-strong);
+        font-weight: 600;
+      }
       .nominated-story-count { display: none; }
       .nominated-story-caption {
         font-size: 0.82rem;
@@ -436,6 +444,16 @@
         font-size: 1rem;
         transition: border 0.2s ease, box-shadow 0.2s ease;
       }
+      .upload-form input[readonly] {
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(31, 42, 68, 0.6);
+        cursor: not-allowed;
+      }
+      .upload-form input[readonly]:focus {
+        outline: none;
+        border-color: rgba(91, 109, 138, 0.2);
+        box-shadow: none;
+      }
       .upload-form input::placeholder { color: rgba(92, 95, 127, 0.5); }
       .upload-form input:focus {
         outline: none;
@@ -473,6 +491,16 @@
         box-shadow: 0 12px 20px rgba(91, 109, 138, 0.18);
       }
       .upload-hint { color: var(--text-soft); font-size: 0.9rem; text-align: center; display: block; }
+      .selected-nomination {
+        margin: 0;
+        font-size: 0.92rem;
+        color: rgba(63, 78, 100, 0.65);
+        font-weight: 500;
+      }
+      .selected-nomination.has-selection {
+        color: var(--text-strong);
+        font-weight: 700;
+      }
       .submit-button {
         background: linear-gradient(135deg, var(--primary), var(--accent));
         border: none;
@@ -730,6 +758,7 @@
           <div class="upload-list"></div>
           <form class="upload-form" autocomplete="off">
             <label>등록자</label>
+            <p class="selected-nomination" data-selected-nomination>다음 챌린지 참여자를 선택하세요.</p>
             <div class="two-inputs">
               <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
               <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
@@ -1384,13 +1413,51 @@ const normalizeNomination = (text) =>
     .join(' / ')
     .toLowerCase();
 
+const applySelectedNominationToForm = (archive) => {
+  const { cellInput, nameInput, selectedNominationLabel } = archive.elements;
+  const selected = archive.selectedNomination;
+
+  if (cellInput) cellInput.value = selected?.cell || '';
+  if (nameInput) nameInput.value = selected?.name || '';
+
+  if (selectedNominationLabel) {
+    if (selected) {
+      const labelParts = [];
+      if (selected.cell) labelParts.push(selected.cell);
+      if (selected.name) labelParts.push(selected.name);
+      selectedNominationLabel.textContent = labelParts.join(' / ') || '선택된 참여자가 없습니다.';
+      selectedNominationLabel.classList.add('has-selection');
+    } else {
+      selectedNominationLabel.textContent = '다음 챌린지 참여자를 선택하세요.';
+      selectedNominationLabel.classList.remove('has-selection');
+    }
+  }
+};
+
+const setSelectedNomination = (archive, cell, name) => {
+  const trimmedCell = (cell || '').trim();
+  const trimmedName = (name || '').trim();
+  archive.selectedNomination = {
+    cell: trimmedCell,
+    name: trimmedName,
+  };
+  archive.selectedNominationKey = normalizeNomination([trimmedCell, trimmedName].filter(Boolean).join(' / '));
+  applySelectedNominationToForm(archive);
+};
+
+const clearSelectedNomination = (archive) => {
+  archive.selectedNomination = null;
+  archive.selectedNominationKey = null;
+  applySelectedNominationToForm(archive);
+};
+
 const removeNomination = async (cell, name) => {
-  if (!archives.length) return;
+  if (!archives.length) return false;
   const archive = archives[0];
-  if (!archive) return;
+  if (!archive) return false;
 
   const targetKey = normalizeNomination([cell, name].filter(Boolean).join(' / '));
-  if (!targetKey) return;
+  if (!targetKey) return false;
 
   const matchIndex = archive.uploads.findIndex((upload) => {
     if (!upload?.subtitle || !upload.subtitle.includes('다음 지목:')) return false;
@@ -1399,7 +1466,7 @@ const removeNomination = async (cell, name) => {
     return normalizeNomination(match[1]) === targetKey;
   });
 
-  if (matchIndex === -1) return;
+  if (matchIndex === -1) return false;
 
   const upload = archive.uploads[matchIndex];
   const updatedSubtitle = upload.subtitle
@@ -1419,6 +1486,7 @@ const removeNomination = async (cell, name) => {
     addLog(archive.section.id, '지목 제거', `${cell || ''} ${name || ''}`.trim());
     renderUploads(archive);
     renderNominatedList(archives);
+    return true;
   } catch (error) {
     console.error('지목 제거 실패:', error);
     addLog(archive.section.id, '지목 제거 실패', error.message || '알 수 없는 오류');
@@ -1489,6 +1557,8 @@ const renderNominatedList = (archives) => {
   if (!nominatedListEl) return;
   
   const nominated = extractNominatedPeople(archives);
+  const archive = archives[0] || null;
+  const activeKey = archive?.selectedNominationKey || '';
   
   nominatedListEl.innerHTML = '';
   
@@ -1506,28 +1576,28 @@ const renderNominatedList = (archives) => {
       return;
     }
 
-    const archive = archives[0];
-    if (!archive || !archive.elements) {
+    const activeArchive = archives[0];
+    if (!activeArchive || !activeArchive.elements) {
       alert('등록 폼을 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       return;
     }
 
-    const cellInput = archive.elements.cellInput;
-    const nameInput = archive.elements.nameInput;
+    const cellInput = activeArchive.elements.cellInput;
+    const nameInput = activeArchive.elements.nameInput;
     if (!cellInput || !nameInput) {
       alert('등록자 입력 필드를 찾을 수 없습니다. 페이지를 새로고침해주세요.');
       return;
     }
 
-    cellInput.value = targetCell;
-    nameInput.value = targetName;
+    setSelectedNomination(activeArchive, targetCell, targetName);
 
-    archive.elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    activeArchive.elements.form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setTimeout(() => {
-      if (archive.elements.selectButton) {
-        archive.elements.selectButton.focus();
+      if (activeArchive.elements.selectButton) {
+        activeArchive.elements.selectButton.focus();
       }
     }, 300);
+    renderNominatedList(archives);
   };
 
   nominated.forEach(({ cell, name, count }) => {
@@ -1551,6 +1621,11 @@ const renderNominatedList = (archives) => {
       badge.className = 'nominated-story-count';
       badge.textContent = String(count);
       button.appendChild(badge);
+    }
+
+    const normalizedKey = normalizeNomination([cell, name].filter(Boolean).join(' / '));
+    if (activeKey && normalizedKey === activeKey) {
+      story.classList.add('is-active');
     }
 
     button.addEventListener('click', () => moveToUpload(cell || '', name || ''));
@@ -1808,18 +1883,15 @@ const handleRemove = async (event, archive) => {
 
 const handleSubmit = async (event, archive) => {
   event.preventDefault();
-  const cell = archive.elements.cellInput.value.trim();
-  const name = archive.elements.nameInput.value.trim();
-  if (!cell || !name) {
-    alert('등록자의 셀명과 이름을 모두 입력해주세요.');
-    if (!cell) {
-      archive.elements.cellInput.focus();
-    } else {
-      archive.elements.nameInput.focus();
-    }
+  const selectedNomination = archive.selectedNomination;
+  if (!selectedNomination) {
+    alert('다음 챌린지 참여자를 선택해주세요.');
     return;
   }
+  const cell = selectedNomination.cell || '';
+  const name = selectedNomination.name || '';
   const author = `${cell} / ${name}`;
+  applySelectedNominationToForm(archive);
   if (!archive.selectedFile) {
     alert('업로드할 영상 파일을 선택해주세요.');
     return;
@@ -1847,9 +1919,23 @@ const handleSubmit = async (event, archive) => {
     rememberOwnUpload(saved.id);
     archive.uploads.unshift(saved);
     archive.uploads = archive.uploads.slice(0, MAX_UPLOADS);
-    renderUploads(archive);
+
+    let nominationRemoved = false;
+    try {
+      nominationRemoved = await removeNomination(cell, name);
+    } catch (removeError) {
+      console.warn('지목 제거 중 오류:', removeError);
+    }
+
+    if (!nominationRemoved) {
+      renderUploads(archive);
+    }
+
     archive.elements.form.reset();
     resetSelectedFile(archive);
+    clearSelectedNomination(archive);
+    renderNominatedList(archives);
+
     archive.elements.dropzone.classList.add('status-message');
     archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
     addLog(archive.section.id, '업로드 완료', saved.title, saved.id ? `id=${saved.id}` : undefined);
@@ -1901,15 +1987,29 @@ const createArchive = (section) => {
   const selectButton = archiveEl.querySelector('.select-button');
   const fileInput = archiveEl.querySelector('.upload-file');
   const submitButton = archiveEl.querySelector('.submit-button');
+  const selectedNominationLabel = archiveEl.querySelector('[data-selected-nomination]');
 
   const archive = {
     section,
-    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton },
+    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton, selectedNominationLabel },
     uploads: [],
     selectedFile: null,
     selectedPoster: null,
     selectedPosterPromise: null,
+    selectedNomination: null,
+    selectedNominationKey: null,
   };
+
+  if (cellInput) {
+    cellInput.readOnly = true;
+    cellInput.placeholder = '리스트에서 선택하세요';
+  }
+  if (nameInput) {
+    nameInput.readOnly = true;
+    nameInput.placeholder = '리스트에서 선택하세요';
+  }
+
+  clearSelectedNomination(archive);
 
   selectButton.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (event) => {

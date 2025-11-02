@@ -100,14 +100,15 @@
         width: min(720px, 100%);
         margin: clamp(1.2rem, 4vw, 2rem) auto 0;
         display: grid;
+        justify-items: center;
         gap: 0.8rem;
         color: rgba(63, 78, 100, 0.78);
         font-size: clamp(1rem, 1.8vw, 1.1rem);
         line-height: 1.6;
-        text-align: left;
+        text-align: center;
       }
       .hero-notes h2 { margin: 0; font-size: clamp(1.32rem, 3vw, 1.72rem); color: var(--text-strong); }
-      .hero-notes ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.55rem; }
+      .hero-notes ol { margin: 0; padding-left: 0; display: grid; gap: 0.55rem; list-style-position: inside; justify-items: center; }
       .hero-notes p { margin: 0; color: rgba(63, 78, 100, 0.7); }
       .qr-wrapper {
         margin-top: clamp(1.4rem, 3vw, 2rem);
@@ -582,7 +583,8 @@
           width: 100%;
           margin: clamp(1rem, 4vw, 2rem) 0 0;
           padding: 0 clamp(1.2rem, 5vw, 1.8rem);
-          text-align: left;
+          justify-items: center;
+          text-align: center;
           gap: 0.9rem;
         }
         .hero-notes p { margin: 0; line-height: 1.55; }
@@ -618,8 +620,8 @@
               <li>2️⃣ 영상, 사진 등 자유롭게 감사한 마음을 표현하고 다음 감다살 챌린지를 이어갈 주자를 지목해주세요.</li>
               <li>3️⃣ 감다살 챌린지 내용을 업로드해주세요!</li>
             </ol>
-            <p>💌 하루의 작은 감사가 내 마음을 살리고, 공동체를 살리며 예배를 다시 세웁니다.</p>
-            <p>삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌</p>
+            <p>💌 하루의 작은 감사가 내 마음을 살리고,<br>공동체를 살리며 예배를 다시 세웁니다.</p>
+            <p>삶의 예배 회복이 필요한 당신을 위한<br>감다살 챌린지!<br>주인공은 바로 당신입니다!🙌</p>
           </div>
           <div class="qr-wrapper">
             <div id="qr-code-container">

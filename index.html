@@ -484,6 +484,63 @@
       }
       .submit-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
+      .contact {
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(253, 251, 246, 0.88));
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-small);
+        border-radius: 28px;
+        padding: clamp(2rem, 5vw, 2.8rem);
+        display: grid;
+        gap: 1.2rem;
+        text-align: center;
+        align-items: center;
+      }
+      .contact h3 {
+        margin: 0;
+        font-size: clamp(1.4rem, 4vw, 1.8rem);
+        color: var(--text-strong);
+      }
+      .contact p {
+        margin: 0 auto;
+        color: rgba(63, 78, 100, 0.72);
+        max-width: 46ch;
+        line-height: 1.6;
+      }
+      .contact-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+      .contact-actions a {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.75rem 1.6rem;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+      .contact-email-address {
+        font-size: 0.82rem;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+      .contact-email {
+        background: linear-gradient(120deg, #5f8cff, #477dff);
+        color: #fff;
+        box-shadow: 0 18px 32px rgba(83, 118, 255, 0.25);
+      }
+      .contact-email:hover { transform: translateY(-1px); box-shadow: 0 22px 40px rgba(83, 118, 255, 0.32); }
+      .contact-kakao {
+        background: rgba(255, 235, 59, 0.9);
+        color: #3b1d1d;
+        box-shadow: 0 18px 32px rgba(255, 196, 0, 0.28);
+      }
+      .contact-kakao:hover { transform: translateY(-1px); box-shadow: 0 22px 44px rgba(255, 196, 0, 0.36); }
+
       #nominate-modal {
         position: fixed;
         inset: 0;
@@ -602,6 +659,12 @@
         .upload-video { width: 100%; margin: 0; border-radius: clamp(1rem, 5vw, 1.6rem); overflow: hidden; }
         .upload-actions { padding: 0 var(--archive-pad) clamp(1.6rem, 5vw, 2rem); }
         .upload-form { padding: clamp(1.6rem, 5vw, 2rem); }
+        .contact {
+          border-radius: clamp(1.4rem, 6vw, 2rem);
+          padding: clamp(2rem, 6vw, 2.6rem) clamp(1.2rem, 5vw, 1.8rem);
+        }
+        .contact-actions { flex-direction: column; }
+        .contact-actions a { width: 100%; justify-content: center; }
       }
     </style>
   </head>
@@ -645,6 +708,15 @@
       <section>
         <div id="archives"></div>
       </section>
+
+      <footer class="contact" id="contact">
+        <h3>📬 이슈 · 건의 사항</h3>
+        <p>서비스 이용 중 궁금한 점이나 개선 아이디어가 있다면 언제든지 연락 주세요.</p>
+        <div class="contact-actions">
+          <a class="contact-email" data-contact-email href="mailto:iddaumid@naver.com">메일 보내기<span class="contact-email-address">iddaumid@naver.com</span></a>
+          <a class="contact-kakao" data-contact-kakao href="#" hidden>카카오톡 문의</a>
+        </div>
+      </footer>
 
 
       <!-- 업로드 로그 섹션 제거됨 -->
@@ -707,6 +779,11 @@ const sections = [
   }
 ];
 
+const CONTACT_CONFIG = {
+  email: 'iddaumid@naver.com',
+  kakao: '' // 카카오톡 오픈채팅 링크를 입력하면 버튼이 표시됩니다.
+};
+
 const LOG_STORAGE_KEY = 'gamdasal-upload-logs';
 const LOG_LIMIT = 40;
 
@@ -719,6 +796,28 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const pathSegments = window.location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
 const query = new URLSearchParams(window.location.search);
 const isDeleteMode = query.get('mode') === 'delete';
+
+const contactEmailLink = document.querySelector('[data-contact-email]');
+if (contactEmailLink && CONTACT_CONFIG.email) {
+  contactEmailLink.href = `mailto:${CONTACT_CONFIG.email}`;
+  contactEmailLink.setAttribute('title', CONTACT_CONFIG.email);
+  const emailLabel = contactEmailLink.querySelector('span');
+  if (emailLabel) {
+    emailLabel.textContent = CONTACT_CONFIG.email;
+  }
+}
+
+const contactKakaoLink = document.querySelector('[data-contact-kakao]');
+if (contactKakaoLink) {
+  if (CONTACT_CONFIG.kakao) {
+    contactKakaoLink.href = CONTACT_CONFIG.kakao;
+    contactKakaoLink.hidden = false;
+    contactKakaoLink.target = '_blank';
+    contactKakaoLink.rel = 'noopener noreferrer';
+  } else {
+    contactKakaoLink.hidden = true;
+  }
+}
 
 const template = document.getElementById('archive-template');
 const container = document.getElementById('archives');

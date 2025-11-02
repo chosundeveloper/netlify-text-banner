@@ -816,6 +816,85 @@ const CONTACT_CONFIG = {
 
 const OWN_UPLOAD_STORAGE_KEY = 'gamdasal-own-upload-ids';
 const remotePosterCache = new Map();
+const previewVideos = new Set();
+let previewObserver = null;
+
+const attemptPreviewPlay = (video) => {
+  try {
+    if (video.dataset.previewPlaying === 'true') return;
+    if (video.readyState >= 2 && video.dataset.previewPrimed !== 'true') {
+      const offset = Math.min(0.1, Math.max(0, video.duration ? video.duration * 0.02 : 0.05));
+      try { video.currentTime = offset; } catch (error) {}
+      video.dataset.previewPrimed = 'true';
+    }
+    const playPromise = video.play();
+    video.dataset.previewPlaying = 'true';
+    if (playPromise?.catch) {
+      playPromise.catch(() => {
+        video.dataset.previewPlaying = 'false';
+      });
+    }
+  } catch (error) {
+    video.dataset.previewPlaying = 'false';
+  }
+};
+
+const pausePreview = (video) => {
+  try { video.pause(); } catch (error) {}
+  video.dataset.previewPlaying = 'false';
+};
+
+const cleanupPreviewVideos = () => {
+  previewVideos.forEach((video) => {
+    if (!video.isConnected) {
+      if (previewObserver) previewObserver.unobserve(video);
+      previewVideos.delete(video);
+    }
+  });
+};
+
+const ensurePreviewObserver = () => {
+  if (previewObserver || typeof IntersectionObserver === 'undefined') return;
+  previewObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target;
+      if (!video || video.dataset.previewAttached !== 'true') return;
+      if (entry.isIntersecting) {
+        video.dataset.previewVisible = 'true';
+        if (video.readyState >= 2) {
+          attemptPreviewPlay(video);
+        } else {
+          video.addEventListener('loadeddata', () => attemptPreviewPlay(video), { once: true });
+        }
+      } else {
+        video.dataset.previewVisible = 'false';
+        pausePreview(video);
+        if (video.readyState >= 2) {
+          try { video.currentTime = 0; } catch (error) {}
+          video.dataset.previewPrimed = '';
+        }
+      }
+    });
+  }, {
+    threshold: 0.35,
+    rootMargin: '0px 0px -20% 0px',
+  });
+};
+
+const registerPreviewVideo = (video) => {
+  previewVideos.add(video);
+  video.dataset.previewAttached = 'true';
+  if ('IntersectionObserver' in window) {
+    ensurePreviewObserver();
+    previewObserver.observe(video);
+  } else {
+    if (video.readyState >= 2) {
+      attemptPreviewPlay(video);
+    } else {
+      video.addEventListener('loadeddata', () => attemptPreviewPlay(video), { once: true });
+    }
+  }
+};
 
 const loadOwnUploads = () => {
   try {
@@ -1669,6 +1748,7 @@ const renderNominatedList = (archives) => {
 const renderUploads = (archive) => {
   const list = archive.elements.list;
   list.innerHTML = '';
+  cleanupPreviewVideos();
   if (!archive.uploads.length) {
     const empty = document.createElement('p');
     empty.className = 'upload-empty';
@@ -1697,12 +1777,13 @@ const renderUploads = (archive) => {
       mediaWrap.append(img);
     } else {
       const video = document.createElement('video');
-      video.controls = false;
+      video.controls = true;
       video.preload = 'auto';
       video.playsInline = true;
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
       video.muted = true;
+      video.setAttribute('muted', '');
       video.loop = true;
       video.crossOrigin = 'anonymous';
       video.src = item.src;
@@ -1713,28 +1794,7 @@ const renderUploads = (archive) => {
         ensurePosterForPlayback(video, item);
       }
 
-      const tryStartPreview = () => {
-        const attemptPlay = () => {
-          const playPromise = video.play();
-          if (playPromise?.catch) {
-            playPromise.catch(() => {
-              // ignored – autoplay might still fail but poster remains
-            });
-          }
-        };
-
-        if (video.readyState >= 2) {
-          video.currentTime = 0.05;
-          attemptPlay();
-        } else {
-          video.addEventListener('loadeddata', () => {
-            try { video.currentTime = 0.05; } catch (error) {}
-            attemptPlay();
-          }, { once: true });
-        }
-      };
-
-      tryStartPreview();
+      registerPreviewVideo(video);
 
       mediaWrap.append(video);
     }

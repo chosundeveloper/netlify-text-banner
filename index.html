@@ -94,7 +94,7 @@
         margin-top: clamp(1.6rem, 4vw, 2.4rem);
       }
       .hero-visual img {
-        width: min(360px, 100%);
+        width: min(680px, calc(100% - 48px));
         border-radius: 18px;
         box-shadow: 0 24px 48px rgba(63, 86, 120, 0.18);
       }
@@ -138,20 +138,37 @@
         border-radius: 18px;
         box-shadow: 0 18px 38px rgba(93, 116, 150, 0.18);
       }
-      .intro-badges span {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.45rem 0.85rem;
-        border-radius: 999px;
-        background: rgba(242, 193, 93, 0.24);
-        color: var(--primary-dark);
-        font-size: 0.85rem;
-        font-weight: 600;
+      .hero-instructions {
+        margin: clamp(1.6rem, 4vw, 2.4rem) auto 0;
+        padding: clamp(1.6rem, 4vw, 2.2rem);
+        max-width: min(640px, calc(100% - 48px));
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(253, 251, 246, 0.9));
+        border-radius: 20px;
+        border: 1px solid rgba(91, 109, 138, 0.14);
+        box-shadow: 0 18px 38px rgba(63, 86, 120, 0.12);
+        display: grid;
+        gap: 1rem;
+        text-align: left;
       }
-
-      .thanks-final-card {
-        display: none;
+      .hero-instructions h2 {
+        margin: 0;
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+        color: var(--text-strong);
+        text-align: center;
+      }
+      .hero-instructions ol {
+        margin: 0;
+        padding-left: 1.2rem;
+        display: grid;
+        gap: 0.6rem;
+        color: rgba(63, 78, 100, 0.78);
+        font-size: clamp(0.98rem, 1.8vw, 1.08rem);
+        line-height: 1.6;
+      }
+      .hero-instructions p {
+        margin: 0;
+        color: rgba(63, 78, 100, 0.72);
+        line-height: 1.65;
       }
 
       #nominated-list-section {
@@ -280,11 +297,12 @@
       }
 
       .archive {
+        --archive-pad: clamp(2rem, 5vw, 3rem);
         background: linear-gradient(165deg, rgba(255, 255, 255, 0.94), rgba(253, 251, 246, 0.9));
         border-radius: var(--radius-large);
         border: 1px solid var(--border);
         box-shadow: var(--shadow-soft);
-        padding: clamp(2rem, 5vw, 3rem);
+        padding: var(--archive-pad);
         display: grid;
         gap: 2.5rem;
       }
@@ -309,6 +327,7 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas:
+          'header'
           'video'
           'info';
         gap: 0.85rem;
@@ -323,13 +342,25 @@
       }
       .upload-item.has-actions {
         grid-template-areas:
+          'header'
           'video'
           'info'
           'actions';
       }
+      .upload-header {
+        grid-area: header;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0 var(--archive-pad);
+      }
+      .upload-header-text { display: flex; flex-direction: column; gap: 0.2rem; }
+      .upload-header-text .upload-time { font-size: 0.8rem; color: rgba(63, 78, 100, 0.55); }
       .upload-video {
         grid-area: video;
-        width: 100%;
+        width: calc(100% + var(--archive-pad) * 2);
+        margin-inline: calc(var(--archive-pad) * -1);
         border-radius: 18px;
         overflow: hidden;
         background: none;
@@ -351,6 +382,7 @@
         flex-direction: column;
         gap: 0.4rem;
         text-align: left;
+        padding: 0 var(--archive-pad);
       }
       .upload-meta {
         display: grid;
@@ -397,7 +429,8 @@
         display: flex;
         gap: 0.75rem;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start;
+        padding: 0 var(--archive-pad);
       }
       .upload-actions button {
         background: rgba(91, 109, 138, 0.1);
@@ -570,22 +603,6 @@
         }
         .intro-video-frame { justify-self: center; }
         .feature-cards { width: 100%; }
-
-        .upload-item {
-          grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
-          grid-template-areas: 'video info';
-          text-align: left;
-          justify-items: stretch;
-          align-items: center;
-        }
-        .upload-item.has-actions {
-          grid-template-areas:
-            'video info'
-            'video actions';
-        }
-        .upload-info { width: 100%; }
-        .upload-meta { gap: 0.75rem; }
-        .upload-actions { justify-content: flex-start; }
       }
 
       @media (max-width: 720px) {
@@ -593,7 +610,7 @@
         header,
         .intro-section,
         #nominated-list-section,
-        .archive { border-radius: 20px; padding: 1.8rem; }
+        .archive { border-radius: 20px; --archive-pad: 1.8rem; padding: var(--archive-pad); }
         .two-inputs,
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
         #nominated-list { gap: 0.75rem; }
@@ -616,6 +633,16 @@
           <figure class="hero-visual">
             <img src="assets/thanks1.png" alt="감다살 챌린지 소개 이미지">
           </figure>
+          <div class="hero-instructions">
+            <h2>📌 감다살 챌린지 진행 방법</h2>
+            <ol>
+              <li>1️⃣ 감사한 마음을 표현하고 싶은 대상을 선택합니다.</li>
+              <li>2️⃣ 영상, 사진 등 자유롭게 감사한 마음을 표현하고 다음 감다살 챌린지를 이어갈 주자를 지목해주세요.</li>
+              <li>3️⃣ 감다살 챌린지 내용을 업로드해주세요!</li>
+            </ol>
+            <p>💌 하루의 작은 감사가 내 마음을 살리고, 공동체를 살리며 예배를 다시 세웁니다.</p>
+            <p>삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌</p>
+          </div>
           <div class="qr-wrapper">
             <div id="qr-code-container">
               <img id="qr-code-img" alt="QR Code">
@@ -624,23 +651,6 @@
           </div>
         </div>
       </header>
-
-      <section class="thanks-gallery">
-        <figure class="thanks-card">
-          <img src="assets/thanks1.png" alt="감사 카드 1">
-        </figure>
-      </section>
-
-      <section class="intro-instructions">
-        <h2>📌 감다살 챌린지 진행 방법</h2>
-        <ol>
-          <li>1️⃣ 감사한 마음을 표현하고 싶은 대상을 선택합니다.</li>
-          <li>2️⃣ 영상, 사진 등 자유롭게 감사한 마음을 표현하고 다음 감다살 챌린지를 이어갈 주자를 지목해주세요.</li>
-          <li>3️⃣ 감다살 챌린지 내용을 업로드해주세요!</li>
-        </ol>
-        <p>💌 하루의 작은 감사가 내 마음을 살리고, 공동체를 살리며 예배를 다시 세웁니다.</p>
-        <p>삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌</p>
-      </section>
 
       <!-- 지목된 사람들 리스트 -->
       <section id="nominated-list-section">
@@ -712,26 +722,7 @@ const sections = [
     storageKey: 'gamdasal-challenge-uploads',
     storageVersion: '2025-10-24-challenge-v2',
     posterColor: '211d44',
-    defaults: [
-      {
-        title: '감사 카드 1',
-        subtitle: '감다살 셀 / 운영팀 · 2025-02-05 10:00 · 다음 지목: 하늘 셀 / 민수',
-        src: 'assets/thanks1.png',
-        poster: 'assets/thanks1.png'
-      },
-      {
-        title: '감사 카드 2',
-        subtitle: '하늘 셀 / 민수 · 2025-02-05 11:00 · 다음 지목: 기쁨 셀 / 지은',
-        src: 'assets/thanks2.png',
-        poster: 'assets/thanks2.png'
-      },
-      {
-        title: '감사 카드 3',
-        subtitle: '기쁨 셀 / 지은 · 2025-02-05 12:00 · 다음 지목: 사랑 셀 / 하람',
-        src: 'assets/thanks3.png',
-        poster: 'assets/thanks3.png'
-      }
-    ]
+    defaults: []
   }
 ];
 
@@ -1061,9 +1052,6 @@ const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
       archive.uploads = [];
     } else {
       archive.uploads = (data || []).map(mapRowToUpload);
-      if (!archive.uploads.length && Array.isArray(archive.section.defaults) && archive.section.defaults.length) {
-        archive.uploads = archive.section.defaults.map((item) => ({ ...item }));
-      }
       if (addLogEntry) {
         addLog(archive.section.id, '클라우드 로드', `${archive.uploads.length}개 영상 로드`);
       }
@@ -1377,6 +1365,7 @@ const renderUploads = (archive) => {
     const metaList = document.createElement('div');
     metaList.className = 'upload-meta';
     let hasMeta = false;
+    let headerEl = null;
 
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
@@ -1392,12 +1381,22 @@ const renderUploads = (archive) => {
       const timestampText = parts.length > 1 ? parts.slice(1).join(' · ') : '';
 
       if (uploaderText) {
-        const byline = document.createElement('div');
-        byline.className = 'upload-byline';
+        headerEl = document.createElement('div');
+        headerEl.className = 'upload-header';
+
+        const headerText = document.createElement('div');
+        headerText.className = 'upload-header-text';
         const authorSpan = document.createElement('span');
         authorSpan.className = 'upload-author';
         authorSpan.textContent = uploaderText;
-        byline.appendChild(authorSpan);
+        headerText.appendChild(authorSpan);
+
+        if (timestampText) {
+          const timeSpan = document.createElement('span');
+          timeSpan.className = 'upload-time';
+          timeSpan.textContent = timestampText;
+          headerText.appendChild(timeSpan);
+        }
 
         const shareBtn = document.createElement('button');
         shareBtn.type = 'button';
@@ -1408,9 +1407,8 @@ const renderUploads = (archive) => {
           event.stopPropagation();
           shareUpload(item);
         });
-        byline.appendChild(shareBtn);
 
-        metaList.appendChild(byline);
+        headerEl.append(headerText, shareBtn);
         hasMeta = true;
       }
 
@@ -1432,7 +1430,9 @@ const renderUploads = (archive) => {
 
     info.appendChild(metaList);
 
-    const nodes = [mediaWrap, info];
+    const nodes = [];
+    if (headerEl) nodes.push(headerEl);
+    nodes.push(mediaWrap, info);
     if (isDeleteMode) {
       const actions = document.createElement('div');
       actions.className = 'upload-actions';
@@ -1525,7 +1525,7 @@ const seedUploads = async (archive) => {
   } catch (error) {
     console.error('클라우드 로드 실패:', error);
     addLog(archive.section.id, '클라우드 로드 실패', error.message || '알 수 없는 오류');
-    archive.uploads = [...archive.section.defaults];
+    archive.uploads = [];
   }
   renderUploads(archive);
   // 지목된 사람들 리스트 업데이트

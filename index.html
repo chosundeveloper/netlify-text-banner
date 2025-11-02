@@ -89,15 +89,26 @@
         line-height: 1.65;
       }
       .hero-visual {
-        display: flex;
-        justify-content: center;
-        margin-top: clamp(1.6rem, 4vw, 2.4rem);
-      }
-      .hero-visual img {
-        width: min(680px, calc(100% - 48px));
-        border-radius: 18px;
+        width: min(720px, 100%);
+        margin: clamp(1.6rem, 4vw, 2.4rem) auto 0;
+        border-radius: 24px;
+        overflow: hidden;
         box-shadow: 0 24px 48px rgba(63, 86, 120, 0.18);
       }
+      .hero-visual img { width: 100%; display: block; }
+      .hero-notes {
+        width: min(720px, 100%);
+        margin: clamp(1.2rem, 4vw, 2rem) auto 0;
+        display: grid;
+        gap: 0.8rem;
+        color: rgba(63, 78, 100, 0.78);
+        font-size: clamp(1rem, 1.8vw, 1.1rem);
+        line-height: 1.6;
+        text-align: left;
+      }
+      .hero-notes h2 { margin: 0; font-size: clamp(1.32rem, 3vw, 1.72rem); color: var(--text-strong); }
+      .hero-notes ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.55rem; }
+      .hero-notes p { margin: 0; color: rgba(63, 78, 100, 0.7); }
       .qr-wrapper {
         margin-top: clamp(1.4rem, 3vw, 2rem);
         display: flex;
@@ -571,11 +582,13 @@
       }
 
       @media (max-width: 720px) {
-        main { gap: 2rem; padding: clamp(1.6rem, 5vw, 2.4rem) 0 clamp(2.4rem, 6vw, 3rem); }
+        main { gap: 1.8rem; padding: clamp(1.6rem, 5vw, 2.4rem) 0 clamp(2.4rem, 6vw, 3rem); }
         header,
         .intro-section,
         #nominated-list-section,
-        .archive { border-radius: 0; --archive-pad: 0; padding: 0 clamp(1.2rem, 5vw, 1.8rem) clamp(2rem, 5vw, 2.6rem); }
+        .archive { border-radius: 0; --archive-pad: clamp(1.2rem, 5vw, 1.8rem); padding: 0 clamp(1.2rem, 5vw, 1.8rem) clamp(2rem, 5vw, 2.6rem); }
+        .hero-visual { width: calc(100vw - 32px); margin: clamp(1.6rem, 4vw, 2.4rem) auto 0; border-radius: 22px; overflow: hidden; }
+        .hero-notes { width: calc(100vw - 32px); margin: clamp(1rem, 4vw, 2rem) auto 0; padding: 0 clamp(1.4rem, 6vw, 2.2rem); }
         .two-inputs,
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
         #nominated-list { gap: 0.75rem; }
@@ -586,11 +599,7 @@
         .upload-header { padding: 0 clamp(1.2rem, 5vw, 1.8rem); }
         .upload-header-main { gap: 0.6rem; }
         .upload-avatar { width: 36px; height: 36px; font-size: 0.86rem; }
-        .upload-video { width: 100vw; margin-left: calc(-1 * (50vw - 50%)); border-radius: 0; }
-        .hero-visual,
-        .hero-visual img,
-        .hero-notes { width: 100vw; margin-left: calc(-1 * (50vw - 50%)); }
-        .hero-visual img { border-radius: 0; }
+        .upload-video { width: calc(100vw - 32px); margin: 0 auto; border-radius: 18px; overflow: hidden; }
         .upload-actions { padding: 0 clamp(1.2rem, 5vw, 1.8rem) clamp(1.6rem, 5vw, 2rem); }
         .upload-form { padding: clamp(1.6rem, 5vw, 2rem); }
       }

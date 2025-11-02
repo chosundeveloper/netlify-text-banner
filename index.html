@@ -88,8 +88,18 @@
         color: rgba(63, 78, 100, 0.85);
         line-height: 1.65;
       }
+      .hero-visual {
+        display: flex;
+        justify-content: center;
+        margin-top: clamp(1.6rem, 4vw, 2.4rem);
+      }
+      .hero-visual img {
+        width: min(360px, 100%);
+        border-radius: 18px;
+        box-shadow: 0 24px 48px rgba(63, 86, 120, 0.18);
+      }
       .qr-wrapper {
-        margin-top: 2rem;
+        margin-top: clamp(1.4rem, 3vw, 2rem);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -602,7 +612,10 @@
       <header class="hero">
         <div class="hero-copy">
           <h1>감다살 챌린지</h1>
-          <p>예배와 삶의 회복을 위한 감다살 챌린지, 함께해요!</p>
+          <p>예배와 삶의 회복을 위한<br>감다살 챌린지, 함께해요!</p>
+          <figure class="hero-visual">
+            <img src="assets/thanks1.png" alt="감다살 챌린지 소개 이미지">
+          </figure>
           <div class="qr-wrapper">
             <div id="qr-code-container">
               <img id="qr-code-img" alt="QR Code">
@@ -616,12 +629,17 @@
         <figure class="thanks-card">
           <img src="assets/thanks1.png" alt="감사 카드 1">
         </figure>
-        <figure class="thanks-card">
-          <img src="assets/thanks2.png" alt="감사 카드 2">
-        </figure>
-        <figure class="thanks-card">
-          <img src="assets/thanks3.png" alt="감사 카드 3">
-        </figure>
+      </section>
+
+      <section class="intro-instructions">
+        <h2>📌 감다살 챌린지 진행 방법</h2>
+        <ol>
+          <li>1️⃣ 감사한 마음을 표현하고 싶은 대상을 선택합니다.</li>
+          <li>2️⃣ 영상, 사진 등 자유롭게 감사한 마음을 표현하고 다음 감다살 챌린지를 이어갈 주자를 지목해주세요.</li>
+          <li>3️⃣ 감다살 챌린지 내용을 업로드해주세요!</li>
+        </ol>
+        <p>💌 하루의 작은 감사가 내 마음을 살리고, 공동체를 살리며 예배를 다시 세웁니다.</p>
+        <p>삶의 예배 회복이 필요한 당신을 위한 감다살 챌린지!<br>주인공은 바로 당신입니다!🙌</p>
       </section>
 
       <!-- 지목된 사람들 리스트 -->
@@ -1838,3 +1856,35 @@ if (testStorageBtn) {
     </script>
   </body>
 </html>
+      .intro-instructions {
+        margin: clamp(2rem, 5vw, 2.8rem) auto;
+        padding: clamp(1.8rem, 4vw, 2.6rem);
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(253, 251, 246, 0.9));
+        border-radius: var(--radius-large);
+        border: 1px solid rgba(91, 109, 138, 0.14);
+        box-shadow: 0 20px 46px rgba(63, 86, 120, 0.12);
+        display: grid;
+        gap: 1.1rem;
+        max-width: 720px;
+        text-align: center;
+      }
+      .intro-instructions h2 {
+        margin: 0;
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+        color: var(--text-strong);
+      }
+      .intro-instructions ol {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+        display: grid;
+        gap: 0.75rem;
+        color: rgba(63, 78, 100, 0.78);
+        font-size: clamp(0.98rem, 1.8vw, 1.08rem);
+        line-height: 1.6;
+      }
+      .intro-instructions p {
+        margin: 0;
+        color: rgba(63, 78, 100, 0.72);
+        line-height: 1.65;
+      }

@@ -506,51 +506,52 @@
         position: relative;
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        background: rgba(255, 255, 255, 0.92);
-        border: 1px solid rgba(91, 109, 138, 0.14);
-        border-radius: 999px;
-        padding: 0.3rem 0.6rem 0.3rem 0.8rem;
-        box-shadow: 0 8px 18px rgba(65, 84, 134, 0.12);
+        gap: 0.3rem;
+        background: none;
       }
       .search-form label {
-        font-size: 0.9rem;
-        color: rgba(63, 78, 100, 0.7);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-      }
-      .search-form input[type='search'] {
-        width: clamp(120px, 22vw, 180px);
-        border: none;
-        background: transparent;
-        font-size: 0.95rem;
-        padding: 0.25rem 0.4rem;
-        color: var(--text-strong);
-      }
-      .search-form input[type='search']:focus {
-        outline: none;
-      }
-      .search-form button {
-        border: none;
-        background: transparent;
-        color: rgba(63, 78, 100, 0.6);
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: background 0.2s ease, color 0.2s ease;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(91, 109, 138, 0.16);
+        box-shadow: 0 6px 14px rgba(65, 84, 134, 0.12);
+        cursor: text;
+        transition: background 0.2s ease, border 0.2s ease;
       }
-      .search-form button:hover {
-        background: rgba(91, 109, 138, 0.12);
-        color: var(--primary-dark);
+      .search-form label:hover {
+        background: rgba(255, 255, 255, 0.96);
+        border-color: rgba(91, 109, 138, 0.24);
       }
-      .search-form button svg {
-        width: 13px;
-        height: 13px;
+      .search-form input[type='search'] {
+        position: absolute;
+        inset: auto auto auto 42px;
+        width: clamp(140px, 24vw, 200px);
+        border: 1px solid rgba(91, 109, 138, 0.16);
+        border-radius: 999px;
+        padding: 0.45rem 0.65rem;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text-strong);
+        box-shadow: 0 10px 18px rgba(65, 84, 134, 0.1);
+        transform-origin: left center;
+        transform: scaleX(0);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.18s ease, opacity 0.18s ease;
+      }
+      .search-form input[type='search']:focus {
+        outline: none;
+        border-color: rgba(83, 118, 255, 0.4);
+        box-shadow: 0 0 0 4px rgba(83, 118, 255, 0.12);
+      }
+      .search-form.show-input input[type='search'] {
+        transform: scaleX(1);
+        opacity: 1;
+        visibility: visible;
       }
       .submit-button {
         background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -810,11 +811,8 @@
                 <span aria-hidden="true">🔍</span>
                 <span class="visually-hidden">검색</span>
               </label>
-              <input id="upload-search" type="search" placeholder="검색" autocomplete="off">
-              <button type="button" id="upload-search-clear" title="검색어 지우기" aria-label="검색어 지우기">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.3 5.3a1 1 0 0 1 1.4 0L12 10.59l5.3-5.3a1 1 0 1 1 1.4 1.42L13.41 12l5.29 5.29a1 1 0 0 1-1.41 1.42L12 13.41l-5.29 5.29a1 1 0 0 1-1.42-1.41L10.59 12 5.3 6.71a1 1 0 0 1 0-1.41Z"/></svg>
-              </button>
-            </form>
+          <input id="upload-search" type="search" placeholder="검색" autocomplete="off">
+        </form>
           </div>
           <div class="upload-list"></div>
           <form class="upload-form" autocomplete="off">
@@ -2280,7 +2278,7 @@ const createArchive = (section) => {
 
 const archives = sections.map(createArchive);
 const searchInput = document.getElementById('upload-search');
-const searchClearButton = document.getElementById('upload-search-clear');
+const searchForm = searchInput?.closest('form');
 
 const applySearch = (value) => {
   currentSearchQuery = normalizeSearchText(value);
@@ -2291,15 +2289,22 @@ if (searchInput) {
   searchInput.addEventListener('input', (event) => {
     applySearch(event.target.value || '');
   });
+
+  searchInput.addEventListener('focus', () => {
+    searchForm?.classList.add('show-input');
+  });
+
+  searchInput.addEventListener('blur', () => {
+    if (!searchInput.value) {
+      searchForm?.classList.remove('show-input');
+    }
+  });
 }
 
-if (searchClearButton && searchInput) {
-  searchClearButton.addEventListener('click', () => {
-    if (searchInput.value) {
-      searchInput.value = '';
-      applySearch('');
-      searchInput.focus();
-    }
+if (searchForm) {
+  searchForm.addEventListener('click', () => {
+    searchForm.classList.add('show-input');
+    searchInput?.focus();
   });
 }
 

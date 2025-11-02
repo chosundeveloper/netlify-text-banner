@@ -1284,9 +1284,9 @@ const ensurePreviewObserver = () => {
     entries.forEach((entry) => {
       const video = entry.target;
       if (!(video instanceof HTMLVideoElement)) return;
-      handlePreviewVisibility(video, entry.isIntersecting || entry.intersectionRatio >= 0.6);
+      handlePreviewVisibility(video, entry.isIntersecting || entry.intersectionRatio >= 0.15);
     });
-  }, { threshold: 0.6, rootMargin: '0px 0px -10% 0px' });
+  }, { threshold: 0.15, rootMargin: '0px' });
 
   return previewObserver;
 };
@@ -1332,6 +1332,17 @@ const registerVideoPreview = (video) => {
 
   if (previewAutoplayUnlocked && video.dataset.previewActive === '1') {
     tryPlayPreview(video);
+  }
+
+  if (typeof window !== 'undefined') {
+    const rect = video.getBoundingClientRect();
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const isVisible = rect.width > 0 && rect.height > 0 && rect.bottom >= 0 && rect.right >= 0 && rect.top <= vh && rect.left <= vw;
+    if (isVisible) {
+      handlePreviewVisibility(video, true);
+      if (previewAutoplayUnlocked) tryPlayPreview(video);
+    }
   }
 };
 

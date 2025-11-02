@@ -122,22 +122,6 @@
       .intro-sub,
       .intro-steps,
       .intro-badges { display: none; }
-      .thanks-gallery {
-        display: grid;
-        gap: clamp(1.4rem, 3vw, 2rem);
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        align-items: stretch;
-      }
-      .thanks-card {
-        margin: 0;
-        display: flex;
-        justify-content: center;
-      }
-      .thanks-card img {
-        width: 100%;
-        border-radius: 18px;
-        box-shadow: 0 18px 38px rgba(93, 116, 150, 0.18);
-      }
       .hero-instructions {
         margin: clamp(1.6rem, 4vw, 2.4rem) auto 0;
         padding: clamp(1.6rem, 4vw, 2.2rem);
@@ -384,22 +368,7 @@
         text-align: left;
         padding: 0 var(--archive-pad);
       }
-      .upload-meta {
-        display: grid;
-        gap: 0.6rem;
-        margin: 0;
-      }
-      .upload-byline {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: clamp(0.92rem, 1.6vw, 1.02rem);
-        color: rgba(63, 78, 100, 0.7);
-      }
-      .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; }
-      .upload-dot { color: rgba(63, 78, 100, 0.45); }
-      .upload-time { color: rgba(63, 78, 100, 0.55); }
+      .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(0.98rem, 2vw, 1.12rem); }
       .upload-share {
         display: inline-flex;
         align-items: center;
@@ -417,9 +386,8 @@
       .upload-share:hover { background: rgba(91, 109, 138, 0.18); transform: translateY(-1px); }
       .upload-share svg { width: 14px; height: 14px; fill: currentColor; }
       .upload-nomination {
-        align-self: flex-start;
         color: var(--accent);
-        font-size: 0.88rem;
+        font-size: 0.9rem;
         font-weight: 600;
         letter-spacing: 0.01em;
       }
@@ -593,7 +561,6 @@
           gap: 1.2rem;
         }
         .intro-badges { justify-content: flex-start; }
-        .thanks-gallery { grid-template-columns: repeat(2, minmax(260px, 1fr)); }
 
         .intro-video-container {
           grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
@@ -1362,10 +1329,8 @@ const renderUploads = (archive) => {
     const info = document.createElement('div');
     info.className = 'upload-info';
 
-    const metaList = document.createElement('div');
-    metaList.className = 'upload-meta';
-    let hasMeta = false;
     let headerEl = null;
+    let nominationText = '';
 
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
@@ -1409,30 +1374,50 @@ const renderUploads = (archive) => {
         });
 
         headerEl.append(headerText, shareBtn);
-        hasMeta = true;
       }
 
       if (nominationInfo) {
-        const nextBadge = document.createElement('span');
-        nextBadge.className = 'upload-nomination';
-        nextBadge.textContent = `다음 지목 ${nominationInfo}`;
-        metaList.appendChild(nextBadge);
-        hasMeta = true;
+        nominationText = nominationInfo;
       }
     }
 
-    if (!hasMeta) {
-      const fallback = document.createElement('span');
-      fallback.className = 'upload-placeholder';
-      fallback.textContent = '등록 정보가 없습니다.';
-      metaList.appendChild(fallback);
+    if (!headerEl) {
+      headerEl = document.createElement('div');
+      headerEl.className = 'upload-header';
+
+      const headerText = document.createElement('div');
+      headerText.className = 'upload-header-text';
+      const authorSpan = document.createElement('span');
+      authorSpan.className = 'upload-author';
+      authorSpan.textContent = '익명 사용자';
+      headerText.appendChild(authorSpan);
+
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'upload-share';
+      shareBtn.title = '공유하기';
+      shareBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3a1.5 1.5 0 0 1 3 0v5.25a1.5 1.5 0 0 1-3 0V6.81l-6.97 6.97a1.5 1.5 0 0 1-2.12-2.12L11.38 4.7H9.75a1.5 1.5 0 0 1 0-3H13.5ZM5.25 10.5a1.5 1.5 0 0 1 0 3H4.5A1.5 1.5 0 0 0 3 15v4.5A1.5 1.5 0 0 0 4.5 21h12a1.5 1.5 0 0 0 1.5-1.5v-3.75a1.5 1.5 0 0 1 3 0V19.5A4.5 4.5 0 0 1 16.5 24h-12A4.5 4.5 0 0 1 0 19.5V15a4.5 4.5 0 0 1 4.5-4.5h.75Z"/></svg>';
+      shareBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        shareUpload(item);
+      });
+
+      headerEl.append(headerText, shareBtn);
     }
 
-    info.appendChild(metaList);
+    if (nominationText) {
+      const nextBadge = document.createElement('span');
+      nextBadge.className = 'upload-nomination';
+      nextBadge.textContent = `다음 지목 ${nominationText}`;
+      info.appendChild(nextBadge);
+    } else {
+      const fallback = document.createElement('span');
+      fallback.className = 'upload-placeholder';
+      fallback.textContent = '다음 지목 정보가 아직 없습니다.';
+      info.appendChild(fallback);
+    }
 
-    const nodes = [];
-    if (headerEl) nodes.push(headerEl);
-    nodes.push(mediaWrap, info);
+    const nodes = [headerEl, mediaWrap, info];
     if (isDeleteMode) {
       const actions = document.createElement('div');
       actions.className = 'upload-actions';

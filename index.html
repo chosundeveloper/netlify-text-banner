@@ -206,23 +206,20 @@
         height: 86px;
         border-radius: 50%;
         border: 0;
-        padding: 3px;
-        background: linear-gradient(150deg, rgba(91, 109, 138, 0.25), rgba(242, 193, 93, 0.38));
-        box-shadow: 0 20px 36px rgba(63, 86, 120, 0.18);
+        padding: 0;
+        background: none;
+        box-shadow: none;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease;
       }
       .nominated-story-button:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 3px;
       }
-      .nominated-story-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 26px 48px rgba(63, 86, 120, 0.22);
-      }
+      .nominated-story-button:hover { transform: translateY(-3px); }
       .nominated-story-avatar {
         display: flex;
         align-items: center;
@@ -230,7 +227,8 @@
         width: 74px;
         height: 74px;
         border-radius: 50%;
-        background: linear-gradient(145deg, #fdfbf6, rgba(255, 255, 255, 0.94));
+        background: #ffffff;
+        border: 2px solid rgba(91, 109, 138, 0.18);
         color: var(--primary-dark);
         font-weight: 700;
         font-size: 1.05rem;
@@ -239,22 +237,7 @@
         padding: 0 6px;
         line-height: 1.2;
       }
-      .nominated-story-count {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        min-width: 24px;
-        height: 24px;
-        border-radius: 999px;
-        background: var(--accent);
-        color: var(--primary-dark);
-        font-size: 0.75rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 6px;
-      }
+      .nominated-story-count { display: none; }
       .nominated-story-caption {
         font-size: 0.82rem;
         color: rgba(63, 78, 100, 0.6);
@@ -582,25 +565,39 @@
       }
 
       @media (max-width: 720px) {
-        main { gap: 1.8rem; padding: clamp(1.6rem, 5vw, 2.4rem) 0 clamp(2.4rem, 6vw, 3rem); }
+        main { gap: 1.8rem; padding: clamp(1.5rem, 5vw, 2rem) 0 clamp(2.4rem, 6vw, 3rem); }
         header,
         .intro-section,
-        #nominated-list-section,
-        .archive { border-radius: 0; --archive-pad: clamp(1.2rem, 5vw, 1.8rem); padding: 0 clamp(1.2rem, 5vw, 1.8rem) clamp(2rem, 5vw, 2.6rem); }
-        .hero-visual { width: calc(100vw - 32px); margin: clamp(1.6rem, 4vw, 2.4rem) auto 0; border-radius: 22px; overflow: hidden; }
-        .hero-notes { width: calc(100vw - 32px); margin: clamp(1rem, 4vw, 2rem) auto 0; padding: 0 clamp(1.4rem, 6vw, 2.2rem); }
+        #nominated-list-section {
+          border-radius: clamp(1.4rem, 6vw, 2rem);
+          padding: clamp(2.2rem, 6vw, 3rem) clamp(1.2rem, 5vw, 1.8rem);
+        }
+        .archive {
+          border-radius: clamp(1.4rem, 6vw, 2rem);
+          --archive-pad: clamp(1.2rem, 5vw, 1.6rem);
+          padding: clamp(1.8rem, 5vw, 2.4rem) 0 clamp(2.2rem, 6vw, 2.8rem);
+        }
+        .hero-visual { width: 100%; margin: clamp(1.6rem, 4vw, 2.4rem) 0 0; border-radius: clamp(1.2rem, 5vw, 1.8rem); overflow: hidden; }
+        .hero-notes {
+          width: 100%;
+          margin: clamp(1rem, 4vw, 2rem) 0 0;
+          padding: 0 clamp(1.2rem, 5vw, 1.8rem);
+          text-align: left;
+          gap: 0.9rem;
+        }
+        .hero-notes p { margin: 0; line-height: 1.55; }
         .two-inputs,
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
-        #nominated-list { gap: 0.75rem; }
+        #nominated-list { gap: 0.75rem; padding: 0 clamp(1.2rem, 5vw, 1.8rem); }
         .nominated-story { min-width: 78px; }
         .nominated-story-button { width: 72px; height: 72px; }
         .nominated-story-avatar { width: 62px; height: 62px; font-size: 1rem; }
         .nominated-story-caption { font-size: 0.75rem; max-width: 76px; }
-        .upload-header { padding: 0 clamp(1.2rem, 5vw, 1.8rem); }
+        .upload-header { padding: 0 var(--archive-pad); }
         .upload-header-main { gap: 0.6rem; }
         .upload-avatar { width: 36px; height: 36px; font-size: 0.86rem; }
-        .upload-video { width: calc(100vw - 32px); margin: 0 auto; border-radius: 18px; overflow: hidden; }
-        .upload-actions { padding: 0 clamp(1.2rem, 5vw, 1.8rem) clamp(1.6rem, 5vw, 2rem); }
+        .upload-video { width: 100%; margin: 0; border-radius: clamp(1rem, 5vw, 1.6rem); overflow: hidden; }
+        .upload-actions { padding: 0 var(--archive-pad) clamp(1.6rem, 5vw, 2rem); }
         .upload-form { padding: clamp(1.6rem, 5vw, 2rem); }
       }
     </style>

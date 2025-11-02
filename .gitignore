@@ -33,6 +33,7 @@ dist/
 node_modules/
 .npmrc
 .pnpm-debug.log
+tsconfig.tsbuildinfo
 
 # Cache
 .cache/
@@ -46,3 +47,5 @@ htmlcov/
 *.tmp
 # Local Netlify folder
 .netlify
+.config/
+Library/

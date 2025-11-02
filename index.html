@@ -1071,6 +1071,89 @@ const captureVideoPoster = (file) =>
     }
   });
 
+const capturePosterFromVideoElement = (video) =>
+  new Promise((resolve) => {
+    try {
+      const width = video.videoWidth || 640;
+      const height = video.videoHeight || width;
+      if (!width || !height) {
+        resolve(null);
+        return;
+      }
+      const maxWidth = 720;
+      const scale = Math.min(1, maxWidth / width);
+      const canvasWidth = Math.max(1, Math.round(width * scale));
+      const canvasHeight = Math.max(1, Math.round(height * scale));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
+    } catch (error) {
+      console.warn('영상에서 포스터 추출 실패:', error);
+      resolve(null);
+    }
+  });
+
+const updatePosterRecord = async (id, poster) => {
+  if (!id || !poster) return;
+  try {
+    const { error } = await supabase
+      .from(SUPABASE_TABLE)
+      .update({ poster })
+      .eq('id', id);
+    if (error) throw error;
+    addLog('poster', '포스터 저장', `id=${id}`);
+  } catch (error) {
+    console.warn('포스터 저장 실패:', error);
+  }
+};
+
+const ensurePosterForPlayback = (video, item) => {
+  if (!video || !item || item.poster) return;
+
+  const handleSeeked = async () => {
+    const posterData = await capturePosterFromVideoElement(video);
+    if (!posterData) return;
+    video.poster = posterData;
+    item.poster = posterData;
+    if (item.id) {
+      updatePosterRecord(item.id, posterData);
+    }
+  };
+
+  const requestCapture = () => {
+    const seekHandler = async () => {
+      video.removeEventListener('seeked', seekHandler);
+      await handleSeeked();
+      try { video.pause(); } catch (error) {}
+    };
+
+    video.addEventListener('seeked', seekHandler, { once: true });
+    try {
+      const targetTime = Math.min(0.15, video.duration || 0);
+      video.currentTime = targetTime;
+    } catch (error) {
+      video.removeEventListener('seeked', seekHandler);
+      handleSeeked();
+    }
+  };
+
+  if (video.readyState >= 2) {
+    requestCapture();
+  } else {
+    video.addEventListener('loadeddata', requestCapture, { once: true });
+  }
+
+  try {
+    video.load();
+  } catch (error) {
+    console.warn('영상 로드 중 오류:', error);
+  }
+};
+
 const deriveUploadTitle = (file, uploaderName) => {
   if (file?.name) {
     const base = file.name.replace(/\.[^.]+$/, '').trim();
@@ -1475,19 +1558,15 @@ const renderUploads = (archive) => {
       video.preload = 'auto';
       video.playsInline = true;
       video.muted = true;
+      video.crossOrigin = 'anonymous';
       video.src = item.src;
-      // Use stored poster or a fallback image so the thumbnail isn't black.
-      video.poster = item.poster || 'assets/thanks1.png';
-      video.addEventListener('loadeddata', () => {
-        if (!item.poster) {
-          try {
-            video.currentTime = 0;
-            video.pause();
-          } catch (error) {
-            console.warn('초기 프레임 표시 실패:', error);
-          }
-        }
-      }, { once: true });
+      // 임시 포스터 지정 후 첫 프레임 캡처를 시도합니다.
+      if (item.poster) {
+        video.poster = item.poster;
+      } else {
+        video.poster = fallbackPoster();
+        ensurePosterForPlayback(video, item);
+      }
       mediaWrap.append(video);
     }
 

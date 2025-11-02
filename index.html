@@ -758,7 +758,7 @@
           <div class="upload-list"></div>
           <form class="upload-form" autocomplete="off">
             <label>등록자</label>
-            <p class="selected-nomination" data-selected-nomination>다음 챌린지 참여자를 선택하세요.</p>
+            <p class="selected-nomination" data-selected-nomination>다음 챌린지 참여자를 선택하거나 직접 입력하세요.</p>
             <div class="two-inputs">
               <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
               <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
@@ -1413,22 +1413,27 @@ const normalizeNomination = (text) =>
     .join(' / ')
     .toLowerCase();
 
-const applySelectedNominationToForm = (archive) => {
+const NOMINATION_HINT_MESSAGE = '다음 챌린지 참여자를 선택하거나 직접 입력하세요.';
+
+const applySelectedNominationToForm = (archive, options = {}) => {
+  const { setInputs = false } = options;
   const { cellInput, nameInput, selectedNominationLabel } = archive.elements;
   const selected = archive.selectedNomination;
 
-  if (cellInput) cellInput.value = selected?.cell || '';
-  if (nameInput) nameInput.value = selected?.name || '';
+  if (setInputs) {
+    if (cellInput) cellInput.value = selected?.cell || '';
+    if (nameInput) nameInput.value = selected?.name || '';
+  }
 
   if (selectedNominationLabel) {
     if (selected) {
       const labelParts = [];
       if (selected.cell) labelParts.push(selected.cell);
       if (selected.name) labelParts.push(selected.name);
-      selectedNominationLabel.textContent = labelParts.join(' / ') || '선택된 참여자가 없습니다.';
+      selectedNominationLabel.textContent = labelParts.join(' / ') || NOMINATION_HINT_MESSAGE;
       selectedNominationLabel.classList.add('has-selection');
     } else {
-      selectedNominationLabel.textContent = '다음 챌린지 참여자를 선택하세요.';
+      selectedNominationLabel.textContent = NOMINATION_HINT_MESSAGE;
       selectedNominationLabel.classList.remove('has-selection');
     }
   }
@@ -1442,7 +1447,7 @@ const setSelectedNomination = (archive, cell, name) => {
     name: trimmedName,
   };
   archive.selectedNominationKey = normalizeNomination([trimmedCell, trimmedName].filter(Boolean).join(' / '));
-  applySelectedNominationToForm(archive);
+  applySelectedNominationToForm(archive, { setInputs: true });
 };
 
 const clearSelectedNomination = (archive) => {
@@ -1883,15 +1888,28 @@ const handleRemove = async (event, archive) => {
 
 const handleSubmit = async (event, archive) => {
   event.preventDefault();
-  const selectedNomination = archive.selectedNomination;
-  if (!selectedNomination) {
-    alert('다음 챌린지 참여자를 선택해주세요.');
+  const cellInput = archive.elements.cellInput;
+  const nameInput = archive.elements.nameInput;
+  const cell = (cellInput?.value || '').trim();
+  const name = (nameInput?.value || '').trim();
+  if (!cell || !name) {
+    alert('등록자의 셀명과 이름을 모두 입력해주세요.');
+    if (!cell && cellInput) {
+      cellInput.focus();
+    } else if (!name && nameInput) {
+      nameInput?.focus();
+    }
     return;
   }
-  const cell = selectedNomination.cell || '';
-  const name = selectedNomination.name || '';
+
   const author = `${cell} / ${name}`;
-  applySelectedNominationToForm(archive);
+  const manualNominationKey = normalizeNomination([cell, name].join(' / '));
+  const selectionMatches = archive.selectedNominationKey && manualNominationKey === archive.selectedNominationKey;
+  if (!selectionMatches && archive.selectedNomination) {
+    archive.selectedNomination = null;
+    archive.selectedNominationKey = null;
+    applySelectedNominationToForm(archive);
+  }
   if (!archive.selectedFile) {
     alert('업로드할 영상 파일을 선택해주세요.');
     return;
@@ -2000,16 +2018,24 @@ const createArchive = (section) => {
     selectedNominationKey: null,
   };
 
-  if (cellInput) {
-    cellInput.readOnly = true;
-    cellInput.placeholder = '리스트에서 선택하세요';
-  }
-  if (nameInput) {
-    nameInput.readOnly = true;
-    nameInput.placeholder = '리스트에서 선택하세요';
-  }
-
   clearSelectedNomination(archive);
+
+  const handleManualInput = () => {
+    if (!archive.selectedNomination) return;
+    const currentKey = normalizeNomination([
+      cellInput?.value || '',
+      nameInput?.value || '',
+    ].filter(Boolean).join(' / '));
+    if (currentKey !== archive.selectedNominationKey) {
+      archive.selectedNomination = null;
+      archive.selectedNominationKey = null;
+      applySelectedNominationToForm(archive);
+      renderNominatedList(archives);
+    }
+  };
+
+  if (cellInput) cellInput.addEventListener('input', handleManualInput);
+  if (nameInput) nameInput.addEventListener('input', handleManualInput);
 
   selectButton.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (event) => {

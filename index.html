@@ -502,6 +502,88 @@
         color: var(--text-strong);
         font-weight: 700;
       }
+      .nominee-select-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(91, 109, 138, 0.18);
+        border-radius: 12px;
+        padding: 0.45rem 0.7rem;
+        box-shadow: 0 10px 20px rgba(65, 84, 134, 0.12);
+      }
+      .nominee-select-wrap select {
+        border: none;
+        background: transparent;
+        font-size: 1rem;
+        color: var(--text-strong);
+        min-width: clamp(160px, 28vw, 220px);
+        padding-right: 1.6rem;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
+      .nominee-select-wrap select:focus {
+        outline: none;
+      }
+      .nominee-select-wrap svg {
+        position: absolute;
+        right: 0.6rem;
+        pointer-events: none;
+        width: 16px;
+        height: 16px;
+        color: rgba(63, 78, 100, 0.5);
+      }
+      .nominee-list-toggle {
+        margin-left: auto;
+        background: rgba(91, 109, 138, 0.1);
+        border: none;
+        border-radius: 10px;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.85rem;
+        color: var(--primary-dark);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+      .nominee-list-toggle svg {
+        width: 12px;
+        height: 12px;
+      }
+      .nominee-list-toggle:hover {
+        background: rgba(91, 109, 138, 0.16);
+      }
+      .nominated-list-inline {
+        margin-top: 0.8rem;
+        display: grid;
+        gap: 0.4rem;
+        max-height: 200px;
+        overflow-y: auto;
+        border-radius: 12px;
+        border: 1px solid rgba(91, 109, 138, 0.16);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 0.6rem;
+        box-shadow: 0 8px 18px rgba(65, 84, 134, 0.1);
+        display: none;
+      }
+      .nominated-list-inline.show {
+        display: grid;
+      }
+      .nominated-inline-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      .nominated-inline-item:hover {
+        background: rgba(91, 109, 138, 0.12);
+      }
       .search-form {
         position: relative;
         display: inline-flex;
@@ -815,8 +897,19 @@
       </div>
           <div class="upload-list"></div>
           <form class="upload-form" autocomplete="off">
-            <label>등록자</label>
-            <p class="selected-nomination" data-selected-nomination>다음 챌린지 참여자 리스트를 눌러주세요.</p>
+            <label for="nominee-select">등록자</label>
+            <div class="nominee-select-wrap">
+              <select id="nominee-select" data-nominee-select>
+                <option value="">다음 참여자를 선택하세요</option>
+              </select>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9a1 1 0 0 1 1.7-.71l3.3 3.3 3.3-3.3A1 1 0 0 1 17 10.7l-4 4a1 1 0 0 1-1.4 0l-4-4A1 1 0 0 1 7 9Z"/></svg>
+            </div>
+            <p class="selected-nomination" data-selected-nomination></p>
+            <button type="button" class="nominee-list-toggle" data-nominee-toggle>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a1 1 0 0 1 .88.54l5 10a1 1 0 1 1-1.76.92L12 7.32 7.88 16.46a1 1 0 1 1-1.76-.92l5-10A1 1 0 0 1 12 5Z"/></svg>
+              후보 보기
+            </button>
+            <div class="nominated-list-inline" data-inline-nominee-list></div>
             <div class="two-inputs">
               <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
               <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
@@ -1658,7 +1751,7 @@ const NOMINATION_HINT_MESSAGE = '다음 챌린지 참여자 리스트를 눌러�
 
 const applySelectedNominationToForm = (archive, options = {}) => {
   const { setInputs = false } = options;
-  const { cellInput, nameInput, selectedNominationLabel } = archive.elements;
+  const { cellInput, nameInput, selectedNominationLabel, nomineeSelect, inlineNomineeList } = archive.elements;
   const selected = archive.selectedNomination;
 
   if (setInputs) {
@@ -1689,6 +1782,18 @@ const setSelectedNomination = (archive, cell, name) => {
   };
   archive.selectedNominationKey = normalizeNomination([trimmedCell, trimmedName].filter(Boolean).join(' / '));
   applySelectedNominationToForm(archive, { setInputs: true });
+  if (archive.elements.nomineeSelect) {
+    const options = Array.from(archive.elements.nomineeSelect.options);
+    const matchOption = options.find((opt) => opt.dataset.key === archive.selectedNominationKey);
+    if (matchOption) {
+      archive.elements.nomineeSelect.value = matchOption.value;
+    }
+  }
+  if (archive.elements.inlineNomineeList) {
+    archive.elements.inlineNomineeList.querySelectorAll('.nominated-inline-item.active').forEach((el) => el.classList.remove('active'));
+    const activeItem = archive.elements.inlineNomineeList.querySelector(`[data-key="${archive.selectedNominationKey}"]`);
+    if (activeItem) activeItem.classList.add('active');
+  }
 };
 
 const clearSelectedNomination = (archive) => {
@@ -1805,14 +1910,23 @@ const renderNominatedList = (archives) => {
   const nominated = extractNominatedPeople(archives);
   const archive = archives[0] || null;
   const activeKey = archive?.selectedNominationKey || '';
+  const selectEl = archive?.elements.nomineeSelect || null;
+  const inlineListEl = archive?.elements.inlineNomineeList || null;
   
   nominatedListEl.innerHTML = '';
+  if (inlineListEl) inlineListEl.innerHTML = '';
+  if (selectEl) {
+    const baseValue = selectEl.value;
+    selectEl.innerHTML = '<option value="">다음 참여자를 선택하세요</option>';
+    selectEl.value = baseValue;
+  }
   
   if (nominated.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'nominated-empty';
     empty.textContent = '아직 지목된 사람이 없습니다.';
     nominatedListEl.appendChild(empty);
+    if (selectEl) selectEl.value = '';
     return;
   }
   
@@ -1903,7 +2017,35 @@ const renderNominatedList = (archives) => {
 
     story.append(button, caption);
     nominatedListEl.appendChild(story);
+
+    if (selectEl) {
+      const option = document.createElement('option');
+      option.value = normalizedKey || `${cell}-${name}`;
+      option.dataset.key = normalizedKey;
+      option.textContent = [cell, name].filter(Boolean).join(' / ') || '미지정';
+      selectEl.append(option);
+    }
+
+    if (inlineListEl) {
+      const item = document.createElement('div');
+      item.className = 'nominated-inline-item';
+      item.dataset.key = normalizedKey;
+      item.innerHTML = `
+        <span>${[cell, name].filter(Boolean).join(' / ') || '미지정'}</span>
+        <span class="inline-count">${count > 1 ? `(${count})` : ''}</span>
+      `;
+      if (activeKey && normalizedKey === activeKey) item.classList.add('active');
+      item.addEventListener('click', () => {
+        moveToUpload(cell || '', name || '');
+        inlineListEl.classList.remove('show');
+      });
+      inlineListEl.append(item);
+    }
   });
+  if (selectEl && activeKey) {
+    const matchOption = Array.from(selectEl.options).find((opt) => opt.dataset.key === activeKey);
+    if (matchOption) selectEl.value = matchOption.value;
+  }
 };
 
 const renderUploads = (archive) => {

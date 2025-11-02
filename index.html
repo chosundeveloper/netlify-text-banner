@@ -1246,6 +1246,35 @@ const ensurePosterForPlayback = (video, item) => {
 };
 
 let previewObserver = null;
+let previewAutoplayUnlocked = false;
+
+const tryPlayPreview = (video) => {
+  if (!video) return;
+  video.dataset.previewPending = '';
+  try {
+    const playPromise = video.play();
+    if (playPromise?.catch) {
+      playPromise.catch(() => {});
+    }
+  } catch (error) {}
+};
+
+const handlePreviewVisibility = (video, isVisible) => {
+  if (!video) return;
+  if (isVisible) {
+    video.dataset.previewActive = '1';
+    if (previewAutoplayUnlocked) {
+      tryPlayPreview(video);
+    } else {
+      video.dataset.previewPending = '1';
+    }
+  } else {
+    video.dataset.previewActive = '0';
+    video.dataset.previewPending = '';
+    try { video.pause(); } catch (error) {}
+    try { video.currentTime = 0; } catch (error) {}
+  }
+};
 
 const ensurePreviewObserver = () => {
   if (previewObserver !== null) return previewObserver;
@@ -1255,23 +1284,31 @@ const ensurePreviewObserver = () => {
     entries.forEach((entry) => {
       const video = entry.target;
       if (!(video instanceof HTMLVideoElement)) return;
-
-      if (entry.isIntersecting || entry.intersectionRatio >= 0.55) {
-        video.dataset.previewActive = '1';
-        try {
-          const playPromise = video.play();
-          if (playPromise?.catch) playPromise.catch(() => {});
-        } catch (error) {
-          console.warn('미리보기 재생 실패:', error);
-        }
-      } else {
-        video.dataset.previewActive = '0';
-        try { video.pause(); } catch (error) {}
-      }
+      handlePreviewVisibility(video, entry.isIntersecting || entry.intersectionRatio >= 0.6);
     });
-  }, { threshold: 0.55, rootMargin: '0px 0px -15% 0px' });
+  }, { threshold: 0.6, rootMargin: '0px 0px -10% 0px' });
 
   return previewObserver;
+};
+
+const unlockPreviewAutoplay = () => {
+  if (previewAutoplayUnlocked) return;
+  previewAutoplayUnlocked = true;
+  try {
+    document.removeEventListener('touchstart', unlockPreviewAutoplay, true);
+    document.removeEventListener('click', unlockPreviewAutoplay, true);
+  } catch (error) {}
+
+  document.querySelectorAll('video[data-preview-bound="1"][data-preview-active="1"]').forEach((video) => {
+    tryPlayPreview(video);
+  });
+};
+
+const registerPreviewAutoplayUnlock = () => {
+  if (typeof document === 'undefined') return;
+  const handler = () => unlockPreviewAutoplay();
+  document.addEventListener('touchstart', handler, true);
+  document.addEventListener('click', handler, true);
 };
 
 const registerVideoPreview = (video) => {
@@ -1283,15 +1320,18 @@ const registerVideoPreview = (video) => {
   video.playsInline = true;
   video.loop = true;
   video.dataset.previewBound = '1';
+  video.dataset.previewActive = video.dataset.previewActive || '0';
 
   const observer = ensurePreviewObserver();
   if (observer) {
     observer.observe(video);
   } else {
-    try {
-      const playPromise = video.play();
-      if (playPromise?.catch) playPromise.catch(() => {});
-    } catch (error) {}
+    handlePreviewVisibility(video, true);
+    if (previewAutoplayUnlocked) tryPlayPreview(video);
+  }
+
+  if (previewAutoplayUnlocked && video.dataset.previewActive === '1') {
+    tryPlayPreview(video);
   }
 };
 
@@ -1299,6 +1339,8 @@ const unregisterVideoPreview = (video) => {
   if (!video) return;
   if (previewObserver) previewObserver.unobserve(video);
   video.dataset.previewBound = '';
+  video.dataset.previewActive = '0';
+  video.dataset.previewPending = '';
   try { video.pause(); } catch (error) {}
 };
 
@@ -1317,6 +1359,8 @@ if (typeof document !== 'undefined') {
       });
     }
   });
+
+  registerPreviewAutoplayUnlock();
 }
 
 const deriveUploadTitle = (file, uploaderName) => {

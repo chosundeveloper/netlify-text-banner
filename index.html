@@ -502,6 +502,52 @@
         color: var(--text-strong);
         font-weight: 700;
       }
+      .search-panel {
+        margin: clamp(1.8rem, 4vw, 2.4rem) 0;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(91, 109, 138, 0.18);
+        border-radius: 18px;
+        padding: clamp(0.9rem, 3vw, 1.2rem) clamp(1rem, 4vw, 1.6rem);
+        box-shadow: var(--shadow-small);
+      }
+      .search-panel label {
+        font-weight: 600;
+        color: var(--text-strong);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .search-panel input[type='search'] {
+        flex: 1;
+        border: 1px solid rgba(91, 109, 138, 0.18);
+        border-radius: 999px;
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--text-strong);
+      }
+      .search-panel input[type='search']:focus {
+        outline: none;
+        border-color: rgba(83, 118, 255, 0.5);
+        box-shadow: 0 0 0 4px rgba(83, 118, 255, 0.14);
+      }
+      .search-panel button {
+        border: none;
+        background: rgba(91, 109, 138, 0.12);
+        color: var(--primary-dark);
+        font-weight: 600;
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+      .search-panel button:hover {
+        background: rgba(91, 109, 138, 0.18);
+        transform: translateY(-1px);
+      }
       .submit-button {
         background: linear-gradient(135deg, var(--primary), var(--accent));
         border: none;
@@ -734,6 +780,12 @@
         </div>
       </section>
 
+      <section class="search-panel" aria-label="영상 검색">
+        <label for="upload-search">🔍 검색</label>
+        <input id="upload-search" type="search" placeholder="제목, 등록자, 지목 정보를 검색하세요." autocomplete="off">
+        <button type="button" id="upload-search-clear">지우기</button>
+      </section>
+
       <!-- 영상 업로드 섹션 -->
       <section>
         <div id="archives"></div>
@@ -829,6 +881,7 @@ const loadOwnUploads = () => {
 };
 
 const ownUploads = loadOwnUploads();
+let currentSearchQuery = '';
 
 const persistOwnUploads = () => {
   try {
@@ -847,6 +900,16 @@ const rememberOwnUpload = (id) => {
 const forgetOwnUpload = (id) => {
   if (!id) return;
   if (ownUploads.delete(id)) persistOwnUploads();
+};
+
+const normalizeSearchText = (value) => (value || '').toLowerCase();
+
+const itemMatchesSearch = (item, query) => {
+  if (!query) return true;
+  if (!item) return false;
+  const title = normalizeSearchText(item.title);
+  const subtitle = normalizeSearchText(item.subtitle);
+  return title.includes(query) || subtitle.includes(query);
 };
 
 const LOG_STORAGE_KEY = 'gamdasal-upload-logs';
@@ -1798,14 +1861,21 @@ const renderUploads = (archive) => {
   const list = archive.elements.list;
   cleanupVideoPreviews(list);
   list.innerHTML = '';
-  if (!archive.uploads.length) {
+  const query = currentSearchQuery;
+  const visibleUploads = query
+    ? archive.uploads.filter((item) => itemMatchesSearch(item, query))
+    : archive.uploads;
+
+  if (!visibleUploads.length) {
     const empty = document.createElement('p');
     empty.className = 'upload-empty';
-    empty.textContent = '등록된 영상이 아직 없습니다. 위 폼을 사용해 추가해 보세요.';
+    empty.textContent = archive.uploads.length
+      ? '검색 결과가 없습니다. 다른 키워드를 입력해보세요.'
+      : '등록된 영상이 아직 없습니다. 위 폼을 사용해 추가해 보세요.';
     list.append(empty);
     return;
   }
-  archive.uploads.forEach((item, index) => {
+  visibleUploads.forEach((item, index) => {
     const article = document.createElement('article');
     article.className = 'upload-item';
     const isOwnUpload = item.id && ownUploads.has(item.id);
@@ -2039,7 +2109,7 @@ const handleSubmit = async (event, archive) => {
   if (!selectionMatches && archive.selectedNomination) {
     archive.selectedNomination = null;
     archive.selectedNominationKey = null;
-    applySelectedNominationToForm(archive);
+    applySelectedNominationToForm(archive, { setInputs: true });
   }
   if (!archive.selectedFile) {
     alert('업로드할 영상 파일을 선택해주세요.');
@@ -2160,7 +2230,7 @@ const createArchive = (section) => {
     if (currentKey !== archive.selectedNominationKey) {
       archive.selectedNomination = null;
       archive.selectedNominationKey = null;
-      applySelectedNominationToForm(archive);
+      applySelectedNominationToForm(archive, { setInputs: true });
       renderNominatedList(archives);
     }
   };
@@ -2198,6 +2268,30 @@ const createArchive = (section) => {
 };
 
 const archives = sections.map(createArchive);
+const searchInput = document.getElementById('upload-search');
+const searchClearButton = document.getElementById('upload-search-clear');
+
+const applySearch = (value) => {
+  currentSearchQuery = normalizeSearchText(value);
+  archives.forEach((archive) => renderUploads(archive));
+};
+
+if (searchInput) {
+  searchInput.addEventListener('input', (event) => {
+    applySearch(event.target.value || '');
+  });
+}
+
+if (searchClearButton && searchInput) {
+  searchClearButton.addEventListener('click', () => {
+    if (searchInput.value) {
+      searchInput.value = '';
+      applySearch('');
+      searchInput.focus();
+    }
+  });
+}
+
 loadLogs();
 renderLogs();
 archives.forEach(async (archive) => await seedUploads(archive));

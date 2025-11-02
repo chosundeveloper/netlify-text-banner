@@ -108,8 +108,21 @@
         text-align: center;
       }
       .hero-notes h2 { margin: 0; font-size: clamp(1.32rem, 3vw, 1.72rem); color: var(--text-strong); }
-      .hero-notes ol { margin: 0; padding-left: 0; display: grid; gap: 0.55rem; list-style-position: inside; justify-items: center; }
-      .hero-notes p { margin: 0; color: rgba(63, 78, 100, 0.7); }
+      .hero-notes ol {
+        margin: 0;
+        padding-left: clamp(1rem, 3vw, 1.4rem);
+        display: grid;
+        gap: 0.55rem;
+        list-style-position: outside;
+        width: 100%;
+        text-align: left;
+      }
+      .hero-notes ol li { max-width: 48ch; }
+      .hero-notes p {
+        margin: 0;
+        color: rgba(63, 78, 100, 0.7);
+        max-width: 48ch;
+      }
       .qr-wrapper {
         margin-top: clamp(1.4rem, 3vw, 2rem);
         display: flex;
@@ -574,6 +587,7 @@
           text-align: center;
           gap: 0.9rem;
         }
+        .hero-notes ol { padding-left: clamp(1.2rem, 5vw, 2rem); text-align: left; }
         .hero-notes p { margin: 0; line-height: 1.55; }
         .two-inputs,
         #nominate-modal .two-inputs { grid-template-columns: 1fr; }
@@ -1306,7 +1320,7 @@ const renderUploads = (archive) => {
     const mediaWrap = document.createElement('div');
     mediaWrap.className = 'upload-video';
     const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(item.src || '');
-    
+
     if (isImage) {
       const img = document.createElement('img');
       img.loading = 'lazy';
@@ -1317,12 +1331,22 @@ const renderUploads = (archive) => {
     } else {
       const video = document.createElement('video');
       video.controls = true;
-      video.preload = 'metadata';
+      video.preload = 'auto';
+      video.playsInline = true;
+      video.muted = true;
       video.src = item.src;
-      // Use a poster if available, otherwise the browser will show the first frame.
-      if (item.poster) {
-        video.poster = item.poster;
-      }
+      // Use stored poster or a fallback image so the thumbnail isn't black.
+      video.poster = item.poster || 'assets/thanks1.png';
+      video.addEventListener('loadeddata', () => {
+        if (!item.poster) {
+          try {
+            video.currentTime = 0;
+            video.pause();
+          } catch (error) {
+            console.warn('초기 프레임 표시 실패:', error);
+          }
+        }
+      }, { once: true });
       mediaWrap.append(video);
     }
 

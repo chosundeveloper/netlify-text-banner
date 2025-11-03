@@ -1406,6 +1406,8 @@ const ensurePosterForPlayback = (video, item) => {
 let previewObserver = null;
 let previewAutoplayUnlocked = false;
 let previewAutoplayHandlerRegistered = false;
+let previewVisibilityListenersRegistered = false;
+let previewVisibilityRaf = null;
 const previewRetryTimers = new WeakMap();
 const previewLoadedHandlers = new WeakMap();
 const previewDeferredUnlock = new Set();
@@ -1441,6 +1443,53 @@ const schedulePreviewRetry = (video, allowWithoutUnlock = false) => {
     }
   }, 600);
   previewRetryTimers.set(video, { timer, allowWithoutUnlock });
+};
+
+const measurePreviewVisibility = (video) => {
+  if (!video || typeof window === 'undefined') return 0;
+  const rect = video.getBoundingClientRect();
+  const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+  const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+  if (rect.width <= 0 || rect.height <= 0 || vw <= 0 || vh <= 0) return 0;
+  const visibleWidth = Math.max(0, Math.min(rect.right, vw) - Math.max(rect.left, 0));
+  const visibleHeight = Math.max(0, Math.min(rect.bottom, vh) - Math.max(rect.top, 0));
+  const visibleArea = visibleWidth * visibleHeight;
+  const totalArea = rect.width * rect.height;
+  if (visibleArea <= 0 || totalArea <= 0) return 0;
+  return visibleArea / totalArea;
+};
+
+const refreshPreviewVisibility = () => {
+  previewVisibilityRaf = null;
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('video[data-preview-bound]').forEach((video) => {
+    const forceVisible = video.dataset.previewBound === 'force';
+    const visibility = measurePreviewVisibility(video);
+    const shouldBeVisible = forceVisible || visibility >= 0.05;
+    const isActive = video.dataset.previewActive === '1';
+
+    if (shouldBeVisible && !isActive) {
+      handlePreviewVisibility(video, true);
+    } else if (!shouldBeVisible && isActive && !forceVisible) {
+      handlePreviewVisibility(video, false);
+    } else if (shouldBeVisible) {
+      const allowWithoutUnlock = forceVisible;
+      if (video.dataset.previewPending === '1' || video.paused) {
+        video.dataset.previewPending = '1';
+        tryPlayPreview(video, { allowWithoutUnlock });
+      }
+    }
+  });
+};
+
+const schedulePreviewVisibilityCheck = () => {
+  if (previewVisibilityRaf !== null) return;
+  if (typeof window === 'undefined') return;
+  if (typeof window.requestAnimationFrame === 'function') {
+    previewVisibilityRaf = window.requestAnimationFrame(() => refreshPreviewVisibility());
+  } else {
+    previewVisibilityRaf = setTimeout(() => refreshPreviewVisibility(), 32);
+  }
 };
 
 const tryPlayPreview = (video, options = {}) => {
@@ -1590,6 +1639,8 @@ const registerVideoPreview = (video, options = {}) => {
       if (previewAutoplayUnlocked || forceVisible) tryPlayPreview(video, { allowWithoutUnlock: forceVisible });
     }
   }
+
+  schedulePreviewVisibilityCheck();
 };
 
 const unregisterVideoPreview = (video) => {
@@ -1610,7 +1661,7 @@ const unregisterVideoPreview = (video) => {
 
 const cleanupVideoPreviews = (root) => {
   if (!root) return;
-  root.querySelectorAll('video[data-preview-bound="1"]').forEach((video) => {
+  root.querySelectorAll('video[data-preview-bound]').forEach((video) => {
     unregisterVideoPreview(video);
   });
 };
@@ -1618,13 +1669,24 @@ const cleanupVideoPreviews = (root) => {
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      document.querySelectorAll('video[data-preview-bound="1"]').forEach((video) => {
+      document.querySelectorAll('video[data-preview-bound]').forEach((video) => {
         try { video.pause(); } catch (error) {}
       });
     }
   });
 
   registerPreviewAutoplayUnlock();
+
+  if (!previewVisibilityListenersRegistered) {
+    previewVisibilityListenersRegistered = true;
+    const schedule = () => schedulePreviewVisibilityCheck();
+    const passiveOptions = { passive: true };
+    ['scroll', 'touchmove', 'resize', 'orientationchange'].forEach((eventName) => {
+      window.addEventListener(eventName, schedule, passiveOptions);
+    });
+  }
+
+  schedulePreviewVisibilityCheck();
 }
 
 const deriveUploadTitle = (file, uploaderName) => {

@@ -1704,7 +1704,7 @@ const normalizeNomination = (text) =>
     .join(' / ')
     .toLowerCase();
 
-const NOMINATION_HINT_MESSAGE = '다음 챌린지 참여자 리스트를 눌러주세요.';
+const NOMINATION_HINT_MESSAGE = '다음 참여자를 선택하세요.';
 
 const applySelectedNominationToForm = (archive, options = {}) => {
   const { setInputs = false } = options;
@@ -1757,6 +1757,12 @@ const clearSelectedNomination = (archive) => {
   archive.selectedNomination = null;
   archive.selectedNominationKey = null;
   applySelectedNominationToForm(archive, { setInputs: true });
+  if (archive.elements.nomineeSelect) {
+    archive.elements.nomineeSelect.value = '';
+  }
+  if (archive.elements.inlineNomineeList) {
+    archive.elements.inlineNomineeList.querySelectorAll('.nominated-inline-item.active').forEach((el) => el.classList.remove('active'));
+  }
 };
 
 const removeNomination = async (cell, name) => {
@@ -1979,6 +1985,8 @@ const renderNominatedList = (archives) => {
       const option = document.createElement('option');
       option.value = normalizedKey || `${cell}-${name}`;
       option.dataset.key = normalizedKey;
+      option.dataset.cell = cell || '';
+      option.dataset.name = name || '';
       option.textContent = [cell, name].filter(Boolean).join(' / ') || '미지정';
       selectEl.append(option);
     }
@@ -1987,15 +1995,14 @@ const renderNominatedList = (archives) => {
       const item = document.createElement('div');
       item.className = 'nominated-inline-item';
       item.dataset.key = normalizedKey;
+      item.dataset.cell = cell || '';
+      item.dataset.name = name || '';
       item.innerHTML = `
         <span>${[cell, name].filter(Boolean).join(' / ') || '미지정'}</span>
         <span class="inline-count">${count > 1 ? `(${count})` : ''}</span>
       `;
       if (activeKey && normalizedKey === activeKey) item.classList.add('active');
-      item.addEventListener('click', () => {
-        moveToUpload(cell || '', name || '');
-        inlineListEl.classList.remove('show');
-      });
+      item.addEventListener('click', () => moveToUpload(cell || '', name || ''));
       inlineListEl.append(item);
     }
   });
@@ -2360,10 +2367,12 @@ const createArchive = (section) => {
   const fileInput = archiveEl.querySelector('.upload-file');
   const submitButton = archiveEl.querySelector('.submit-button');
   const selectedNominationLabel = archiveEl.querySelector('[data-selected-nomination]');
+  const nomineeSelect = archiveEl.querySelector('[data-nominee-select]');
+  const inlineNomineeList = archiveEl.querySelector('[data-inline-nominee-list]');
 
   const archive = {
     section,
-    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton, selectedNominationLabel },
+    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton, selectedNominationLabel, nomineeSelect, inlineNomineeList },
     uploads: [],
     selectedFile: null,
     selectedPoster: null,
@@ -2374,22 +2383,27 @@ const createArchive = (section) => {
 
   clearSelectedNomination(archive);
 
-  const handleManualInput = () => {
-    if (!archive.selectedNomination) return;
-    const currentKey = normalizeNomination([
-      cellInput?.value || '',
-      nameInput?.value || '',
-    ].filter(Boolean).join(' / '));
-    if (currentKey !== archive.selectedNominationKey) {
-      archive.selectedNomination = null;
-      archive.selectedNominationKey = null;
-      applySelectedNominationToForm(archive, { setInputs: true });
-      renderNominatedList(archives);
-    }
-  };
+  if (cellInput) {
+    cellInput.readOnly = true;
+    cellInput.placeholder = '선택하면 자동 입력됩니다';
+    cellInput.addEventListener('focus', () => nomineeSelect?.focus());
+  }
+  if (nameInput) {
+    nameInput.readOnly = true;
+    nameInput.placeholder = '선택하면 자동 입력됩니다';
+    nameInput.addEventListener('focus', () => nomineeSelect?.focus());
+  }
 
-  if (cellInput) cellInput.addEventListener('input', handleManualInput);
-  if (nameInput) nameInput.addEventListener('input', handleManualInput);
+  if (nomineeSelect) {
+    nomineeSelect.addEventListener('change', (event) => {
+      const option = event.target.selectedOptions[0];
+      if (option && option.dataset.key) {
+        setSelectedNomination(archive, option.dataset.cell || '', option.dataset.name || '');
+      } else {
+        clearSelectedNomination(archive);
+      }
+    });
+  }
 
   selectButton.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (event) => {

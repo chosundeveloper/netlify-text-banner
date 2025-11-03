@@ -1405,6 +1405,8 @@ const ensurePosterForPlayback = (video, item) => {
 let previewObserver = null;
 let previewAutoplayUnlocked = false;
 let previewAutoplayHandlerRegistered = false;
+const previewRetryTimers = new WeakMap();
+const previewLoadedHandlers = new WeakMap();
 
 const playVisiblePreviews = () => {
   if (typeof document === 'undefined') return;
@@ -1413,15 +1415,51 @@ const playVisiblePreviews = () => {
   });
 };
 
+const clearPreviewRetry = (video) => {
+  if (!video) return;
+  const timer = previewRetryTimers.get(video);
+  if (timer) {
+    clearTimeout(timer);
+    previewRetryTimers.delete(video);
+  }
+};
+
+const schedulePreviewRetry = (video) => {
+  if (!video || !video.isConnected) return;
+  clearPreviewRetry(video);
+  const timer = setTimeout(() => {
+    previewRetryTimers.delete(video);
+    if (video.dataset.previewActive === '1' && previewAutoplayUnlocked) {
+      tryPlayPreview(video);
+    }
+  }, 600);
+  previewRetryTimers.set(video, timer);
+};
+
 const tryPlayPreview = (video) => {
   if (!video) return;
-  video.dataset.previewPending = '';
+  video.dataset.previewPending = '1';
+  clearPreviewRetry(video);
+  if (video.readyState < 2) {
+    try { video.load(); } catch (error) {}
+  }
   try {
     const playPromise = video.play();
-    if (playPromise?.catch) {
-      playPromise.catch(() => {});
+    if (playPromise?.then) {
+      playPromise
+        .then(() => {
+          video.dataset.previewPending = '';
+          clearPreviewRetry(video);
+        })
+        .catch(() => {
+          schedulePreviewRetry(video);
+        });
+    } else {
+      video.dataset.previewPending = '';
     }
-  } catch (error) {}
+  } catch (error) {
+    schedulePreviewRetry(video);
+  }
 };
 
 const handlePreviewVisibility = (video, isVisible) => {
@@ -1438,6 +1476,7 @@ const handlePreviewVisibility = (video, isVisible) => {
     video.dataset.previewPending = '';
     try { video.pause(); } catch (error) {}
     try { video.currentTime = 0; } catch (error) {}
+    clearPreviewRetry(video);
   }
 };
 
@@ -1495,6 +1534,14 @@ const registerVideoPreview = (video) => {
     tryPlayPreview(video);
   }
 
+  const onLoadedData = () => {
+    if (previewAutoplayUnlocked && video.dataset.previewActive === '1') {
+      tryPlayPreview(video);
+    }
+  };
+  video.addEventListener('loadeddata', onLoadedData);
+  previewLoadedHandlers.set(video, onLoadedData);
+
   if (typeof window !== 'undefined') {
     const rect = video.getBoundingClientRect();
     const vw = window.innerWidth || document.documentElement.clientWidth || 0;
@@ -1514,6 +1561,12 @@ const unregisterVideoPreview = (video) => {
   video.dataset.previewActive = '0';
   video.dataset.previewPending = '';
   try { video.pause(); } catch (error) {}
+  const handler = previewLoadedHandlers.get(video);
+  if (handler) {
+    video.removeEventListener('loadeddata', handler);
+    previewLoadedHandlers.delete(video);
+  }
+  clearPreviewRetry(video);
 };
 
 const cleanupVideoPreviews = (root) => {

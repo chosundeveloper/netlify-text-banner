@@ -492,16 +492,6 @@
         box-shadow: 0 12px 20px rgba(91, 109, 138, 0.18);
       }
       .upload-hint { color: var(--text-soft); font-size: 0.9rem; text-align: center; display: block; }
-      .selected-nomination {
-        margin: 0;
-        font-size: 0.92rem;
-        color: rgba(63, 78, 100, 0.65);
-        font-weight: 500;
-      }
-      .selected-nomination.has-selection {
-        color: var(--text-strong);
-        font-weight: 700;
-      }
       .nominee-select-wrap {
         position: relative;
         display: inline-flex;
@@ -872,7 +862,7 @@
               </select>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9a1 1 0 0 1 1.7-.71l3.3 3.3 3.3-3.3A1 1 0 0 1 17 10.7l-4 4a1 1 0 0 1-1.4 0l-4-4A1 1 0 0 1 7 9Z"/></svg>
             </div>
-            <p class="selected-nomination" data-selected-nomination></p>
+            <span class="visually-hidden" data-selected-nomination></span>
             <div class="nominated-list-inline" data-inline-nominee-list></div>
             <input class="upload-cell" type="hidden">
             <input class="upload-name" type="hidden">

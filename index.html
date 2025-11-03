@@ -525,31 +525,7 @@
         height: 16px;
         color: rgba(63, 78, 100, 0.5);
       }
-      .nominated-list-inline {
-        margin-top: 0.6rem;
-        display: grid;
-        gap: 0.4rem;
-        max-height: 220px;
-        overflow-y: auto;
-        border-radius: 12px;
-        border: 1px solid rgba(91, 109, 138, 0.16);
-        background: rgba(255, 255, 255, 0.95);
-        padding: 0.6rem;
-        box-shadow: 0 8px 18px rgba(65, 84, 134, 0.1);
-      }
-      .nominated-inline-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.4rem 0.6rem;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.2s ease;
-      }
-      .nominated-inline-item:hover {
-        background: rgba(91, 109, 138, 0.12);
-      }
+      .nominated-list-inline { display: none; }
       .nominee-hint {
         margin: 0.3rem 0 0.6rem;
         font-size: 0.9rem;
@@ -863,7 +839,6 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9a1 1 0 0 1 1.7-.71l3.3 3.3 3.3-3.3A1 1 0 0 1 17 10.7l-4 4a1 1 0 0 1-1.4 0l-4-4A1 1 0 0 1 7 9Z"/></svg>
             </div>
             <span class="visually-hidden" data-selected-nomination></span>
-            <div class="nominated-list-inline" data-inline-nominee-list></div>
             <input class="upload-cell" type="hidden">
             <input class="upload-name" type="hidden">
             <div class="dropzone">

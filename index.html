@@ -1005,6 +1005,7 @@ const SUPABASE_URL = 'https://ykdmlgrlpwkqyyemcefz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZG1sZ3JscHdrcXl5ZW1jZWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNDI3NTMsImV4cCI6MjA3NjgxODc1M30.pRfCXTTXZHfp5Fohy4LLrHNujqds4Tir3pSMQIZLCvI';
 const SUPABASE_BUCKET = 'videos';
 const SUPABASE_TABLE = 'video_uploads';
+const SLACK_WEBHOOK_URL = (window.SLACK_WEBHOOK_URL || '__SLACK_WEBHOOK_URL__').trim();
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const pathSegments = window.location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
@@ -1889,16 +1890,27 @@ const shareUpload = async (upload) => {
 };
 
 const notifySlackUpload = async ({ title, src, author }) => {
+  if (!SLACK_WEBHOOK_URL || SLACK_WEBHOOK_URL.includes('__SLACK_WEBHOOK_URL__')) {
+    return;
+  }
+
+  const messageLines = [
+    '🎞️ 동영상이 업로드되었습니다.',
+    title ? `제목: ${title}` : null,
+    author ? `업로더: ${author}` : null,
+    src ? `링크: ${src}` : null
+  ].filter(Boolean);
+
   try {
-    const response = await fetch('/.netlify/functions/notify-slack', {
+    const response = await fetch(SLACK_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, src, author })
+      body: JSON.stringify({ text: messageLines.join('\n') })
     });
 
     if (!response.ok) {
-      const errorPayload = await response.json().catch(() => ({}));
-      throw new Error(errorPayload?.error || `Slack notify 실패: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Slack webhook 응답 오류: ${response.status} ${errorText}`);
     }
   } catch (error) {
     console.warn('슬랙 알림 실패:', error);

@@ -1515,9 +1515,9 @@ const ensurePreviewObserver = () => {
     entries.forEach((entry) => {
       const video = entry.target;
       if (!(video instanceof HTMLVideoElement)) return;
-      handlePreviewVisibility(video, entry.isIntersecting || entry.intersectionRatio >= 0.15);
+      handlePreviewVisibility(video, entry.isIntersecting || entry.intersectionRatio > 0);
     });
-  }, { threshold: 0.15, rootMargin: '0px' });
+  }, { threshold: [0, 0.15, 0.3], rootMargin: '140px 0px 160px 0px' });
 
   return previewObserver;
 };
@@ -1542,8 +1542,9 @@ const registerPreviewAutoplayUnlock = () => {
   document.addEventListener('click', handler, true);
 };
 
-const registerVideoPreview = (video) => {
+const registerVideoPreview = (video, options = {}) => {
   if (!video) return;
+  const forceVisible = Boolean(options.forceVisible);
   video.setAttribute('muted', '');
   video.setAttribute('playsinline', '');
   video.setAttribute('webkit-playsinline', '');
@@ -1551,23 +1552,27 @@ const registerVideoPreview = (video) => {
   video.playsInline = true;
   video.loop = true;
   video.dataset.previewBound = '1';
-  video.dataset.previewActive = video.dataset.previewActive || '0';
+  video.dataset.previewActive = video.dataset.previewActive || (forceVisible ? '1' : '0');
+  if (forceVisible) {
+    video.dataset.previewPending = '1';
+  }
 
   const observer = ensurePreviewObserver();
   if (observer) {
     observer.observe(video);
   } else {
     handlePreviewVisibility(video, true);
-    if (previewAutoplayUnlocked) tryPlayPreview(video);
+    if (previewAutoplayUnlocked || forceVisible) tryPlayPreview(video, { allowWithoutUnlock: forceVisible });
   }
 
-  if (previewAutoplayUnlocked && video.dataset.previewActive === '1') {
-    tryPlayPreview(video);
+  if ((previewAutoplayUnlocked || forceVisible) && video.dataset.previewActive === '1') {
+    tryPlayPreview(video, { allowWithoutUnlock: forceVisible });
   }
 
   const onLoadedData = () => {
     if (video.dataset.previewActive === '1') {
-      tryPlayPreview(video, { allowWithoutUnlock: !previewAutoplayUnlocked });
+      const allowWithoutUnlock = forceVisible || !previewAutoplayUnlocked;
+      tryPlayPreview(video, { allowWithoutUnlock });
     }
   };
   video.addEventListener('loadeddata', onLoadedData);
@@ -1578,9 +1583,9 @@ const registerVideoPreview = (video) => {
     const vw = window.innerWidth || document.documentElement.clientWidth || 0;
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
     const isVisible = rect.width > 0 && rect.height > 0 && rect.bottom >= 0 && rect.right >= 0 && rect.top <= vh && rect.left <= vw;
-    if (isVisible) {
+    if (isVisible || forceVisible) {
       handlePreviewVisibility(video, true);
-      if (previewAutoplayUnlocked) tryPlayPreview(video);
+      if (previewAutoplayUnlocked || forceVisible) tryPlayPreview(video, { allowWithoutUnlock: forceVisible });
     }
   }
 };
@@ -2179,8 +2184,9 @@ const renderUploads = (archive) => {
       }
 
       mediaWrap.append(video);
-      registerVideoPreview(video);
-      if (index === 0 && !video.dataset.initialPreview) {
+      const forceVisible = index === 0;
+      registerVideoPreview(video, { forceVisible });
+      if (forceVisible && !video.dataset.initialPreview) {
         video.dataset.initialPreview = '1';
         tryPlayPreview(video, { allowWithoutUnlock: true });
       }

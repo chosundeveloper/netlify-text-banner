@@ -1410,10 +1410,14 @@ const previewRetryTimers = new WeakMap();
 const previewLoadedHandlers = new WeakMap();
 const previewDeferredUnlock = new Set();
 
-const playVisiblePreviews = () => {
+const playVisiblePreviews = (allowWithoutUnlock = false) => {
   if (typeof document === 'undefined') return;
-  document.querySelectorAll('video[data-preview-bound="1"][data-preview-active="1"]').forEach((video) => {
-    tryPlayPreview(video);
+  document.querySelectorAll('video[data-preview-bound]').forEach((video) => {
+    const isVisible = video.dataset.previewActive === '1'
+      || video.dataset.previewPending === '1'
+      || video.dataset.previewBound === 'force';
+    if (!isVisible) return;
+    tryPlayPreview(video, { allowWithoutUnlock });
   });
 };
 
@@ -1493,11 +1497,9 @@ const handlePreviewVisibility = (video, isVisible) => {
   if (!video) return;
   if (isVisible) {
     video.dataset.previewActive = '1';
-    if (previewAutoplayUnlocked) {
-      tryPlayPreview(video);
-    } else {
-      video.dataset.previewPending = '1';
-    }
+    video.dataset.previewPending = '1';
+    const allowWithoutUnlock = video.dataset.previewBound === 'force';
+    tryPlayPreview(video, { allowWithoutUnlock });
   } else {
     video.dataset.previewActive = '0';
     video.dataset.previewPending = '';
@@ -1551,7 +1553,7 @@ const registerVideoPreview = (video, options = {}) => {
   video.muted = true;
   video.playsInline = true;
   video.loop = true;
-  video.dataset.previewBound = '1';
+  video.dataset.previewBound = forceVisible ? 'force' : '1';
   video.dataset.previewActive = video.dataset.previewActive || (forceVisible ? '1' : '0');
   if (forceVisible) {
     video.dataset.previewPending = '1';

@@ -873,10 +873,8 @@
             </div>
             <p class="selected-nomination" data-selected-nomination></p>
             <div class="nominated-list-inline" data-inline-nominee-list></div>
-            <div class="two-inputs">
-              <input class="upload-cell" type="text" maxlength="40" placeholder="셀명 (예: 감다살 셀)" required>
-              <input class="upload-name" type="text" maxlength="40" placeholder="이름 (예: 이하연)" required>
-            </div>
+            <input class="upload-cell" type="hidden">
+            <input class="upload-name" type="hidden">
             <div class="dropzone">
               <button type="button" class="select-button">파일 선택</button>
               <input class="upload-file" type="file" accept="video/*,image/*">
@@ -2265,6 +2263,7 @@ const handleSubmit = async (event, archive) => {
   const name = (nameInput?.value || '').trim();
   if (!cell || !name) {
     alert('다음 챌린지 참여자 리스트에서 사람을 선택해주세요.');
+    archive.elements.nomineeSelect?.focus();
     return;
   }
 
@@ -2388,17 +2387,6 @@ const createArchive = (section) => {
   };
 
   clearSelectedNomination(archive);
-
-  if (cellInput) {
-    cellInput.readOnly = true;
-    cellInput.placeholder = '선택하면 자동 입력됩니다';
-    cellInput.addEventListener('focus', () => nomineeSelect?.focus());
-  }
-  if (nameInput) {
-    nameInput.readOnly = true;
-    nameInput.placeholder = '선택하면 자동 입력됩니다';
-    nameInput.addEventListener('focus', () => nomineeSelect?.focus());
-  }
 
   if (nomineeSelect) {
     nomineeSelect.addEventListener('change', (event) => {

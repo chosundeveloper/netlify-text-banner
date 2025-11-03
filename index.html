@@ -1418,48 +1418,66 @@ const playVisiblePreviews = () => {
 
 const clearPreviewRetry = (video) => {
   if (!video) return;
-  const timer = previewRetryTimers.get(video);
-  if (timer) {
-    clearTimeout(timer);
-    previewRetryTimers.delete(video);
+  const entry = previewRetryTimers.get(video);
+  if (entry?.timer) {
+    clearTimeout(entry.timer);
   }
+  previewRetryTimers.delete(video);
 };
 
-const schedulePreviewRetry = (video) => {
+const schedulePreviewRetry = (video, allowWithoutUnlock = false) => {
   if (!video || !video.isConnected) return;
   clearPreviewRetry(video);
   const timer = setTimeout(() => {
     previewRetryTimers.delete(video);
-    if (video.dataset.previewActive === '1' && previewAutoplayUnlocked) {
-      tryPlayPreview(video);
+    if (video.dataset.previewActive === '1') {
+      tryPlayPreview(video, { allowWithoutUnlock });
     }
   }, 600);
-  previewRetryTimers.set(video, timer);
+  previewRetryTimers.set(video, { timer, allowWithoutUnlock });
 };
 
-const tryPlayPreview = (video) => {
+const tryPlayPreview = (video, options = {}) => {
   if (!video) return;
+  const allowWithoutUnlock = Boolean(options.allowWithoutUnlock);
+  const autoplayAllowed = previewAutoplayUnlocked || allowWithoutUnlock;
   video.dataset.previewPending = '1';
+  if (!autoplayAllowed) {
+    return;
+  }
+
   clearPreviewRetry(video);
   if (video.readyState < 2) {
     try { video.load(); } catch (error) {}
   }
+
+  const handleSuccess = () => {
+    video.dataset.previewPending = '';
+    clearPreviewRetry(video);
+    if (!previewAutoplayUnlocked) {
+      previewAutoplayUnlocked = true;
+      playVisiblePreviews();
+    }
+  };
+
+  const handleFailure = (error) => {
+    const message = error?.message || '';
+    const isNotAllowed = error?.name === 'NotAllowedError' || message.includes('NotAllowedError');
+    if (isNotAllowed) {
+      return;
+    }
+    schedulePreviewRetry(video, allowWithoutUnlock);
+  };
+
   try {
     const playPromise = video.play();
     if (playPromise?.then) {
-      playPromise
-        .then(() => {
-          video.dataset.previewPending = '';
-          clearPreviewRetry(video);
-        })
-        .catch(() => {
-          schedulePreviewRetry(video);
-        });
+      playPromise.then(handleSuccess).catch(handleFailure);
     } else {
-      video.dataset.previewPending = '';
+      handleSuccess();
     }
   } catch (error) {
-    schedulePreviewRetry(video);
+    handleFailure(error);
   }
 };
 
@@ -1536,8 +1554,8 @@ const registerVideoPreview = (video) => {
   }
 
   const onLoadedData = () => {
-    if (previewAutoplayUnlocked && video.dataset.previewActive === '1') {
-      tryPlayPreview(video);
+    if (video.dataset.previewActive === '1') {
+      tryPlayPreview(video, { allowWithoutUnlock: !previewAutoplayUnlocked });
     }
   };
   video.addEventListener('loadeddata', onLoadedData);
@@ -2149,6 +2167,10 @@ const renderUploads = (archive) => {
 
       mediaWrap.append(video);
       registerVideoPreview(video);
+      if (index === 0 && !video.dataset.initialPreview) {
+        video.dataset.initialPreview = '1';
+        tryPlayPreview(video, { allowWithoutUnlock: true });
+      }
     }
 
     const headerEl = document.createElement('div');

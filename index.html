@@ -529,6 +529,12 @@
         color: rgba(63, 78, 100, 0.5);
         pointer-events: none;
       }
+      .manual-nominee {
+        width: 100%;
+      }
+      .manual-nominee[hidden] {
+        display: none !important;
+      }
       .selected-nomination-display {
         margin: 0.35rem 0 0;
         font-size: 0.9rem;
@@ -849,6 +855,12 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9a1 1 0 0 1 1.7-.71l3.3 3.3 3.3-3.3A1 1 0 0 1 17 10.7l-4 4a1 1 0 0 1-1.4 0l-4-4A1 1 0 0 1 7 9Z"/></svg>
             </div>
             <p class="selected-nomination-display" data-selected-display></p>
+            <div class="manual-nominee" data-manual-nominee hidden>
+              <div class="two-inputs">
+                <input type="text" data-manual-cell placeholder="셀명 (예: 감다살 셀)" maxlength="40" autocomplete="off">
+                <input type="text" data-manual-name placeholder="이름 (예: 홍길동)" maxlength="40" autocomplete="off">
+              </div>
+            </div>
             <input class="upload-cell" type="hidden">
             <input class="upload-name" type="hidden">
             <div class="dropzone">
@@ -884,6 +896,7 @@
     <script>
 const ENABLE_LOGS = false;
 const MAX_UPLOADS = 12;
+const MIN_UPLOADS_FOR_NOMINATION = 3;
 const sections = [
   {
     id: 'challenge',
@@ -992,11 +1005,14 @@ const SUPABASE_URL = 'https://ykdmlgrlpwkqyyemcefz.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZG1sZ3JscHdrcXl5ZW1jZWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyNDI3NTMsImV4cCI6MjA3NjgxODc1M30.pRfCXTTXZHfp5Fohy4LLrHNujqds4Tir3pSMQIZLCvI';
 const SUPABASE_BUCKET = 'videos';
 const SUPABASE_TABLE = 'video_uploads';
+const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const pathSegments = window.location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
 const query = new URLSearchParams(window.location.search);
-const isDeleteMode = query.get('mode') === 'delete';
+const modeParam = (query.get('mode') || '').toLowerCase();
+const isDeleteMode = modeParam === 'delete';
+const isAdminMode = modeParam === 'admin';
 
 const contactEmailLink = document.querySelector('[data-contact-email]');
 if (contactEmailLink && CONTACT_CONFIG.email) {
@@ -1717,6 +1733,15 @@ const setSelectedNomination = (archive, cell, name) => {
   };
   archive.selectedNominationKey = normalizeNomination([trimmedCell, trimmedName].filter(Boolean).join(' / '));
   applySelectedNominationToForm(archive, { setInputs: true });
+  const { manualCellInput, manualNameInput } = archive.elements;
+  if (archive.manualNominationEnabled) {
+    if (manualCellInput && manualCellInput.value !== trimmedCell) {
+      manualCellInput.value = trimmedCell;
+    }
+    if (manualNameInput && manualNameInput.value !== trimmedName) {
+      manualNameInput.value = trimmedName;
+    }
+  }
   if (archive.elements.nomineeSelect) {
     const options = Array.from(archive.elements.nomineeSelect.options);
     const matchOption = options.find((opt) => opt.dataset.key === archive.selectedNominationKey);
@@ -1804,6 +1829,32 @@ const shareUpload = async (upload) => {
     }
   } catch (error) {
     console.warn('공유 실패:', error);
+  }
+};
+
+const notifySlackUpload = async ({ title, src, author }) => {
+  if (!SLACK_WEBHOOK_URL) return;
+
+  const messageLines = [
+    '🎞️ 동영상이 업로드되었습니다.',
+    title ? `제목: ${title}` : null,
+    author ? `업로더: ${author}` : null,
+    src ? `링크: ${src}` : null
+  ].filter(Boolean);
+
+  try {
+    const response = await fetch(SLACK_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: messageLines.join('\n') })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Slack webhook 응답 오류: ${response.status} ${errorText}`);
+    }
+  } catch (error) {
+    console.warn('슬랙 알림 실패:', error);
   }
 };
 
@@ -1982,6 +2033,10 @@ const renderUploads = (archive) => {
   const visibleUploads = query
     ? archive.uploads.filter((item) => itemMatchesSearch(item, query))
     : archive.uploads;
+
+  if (typeof archive.updateNominationMode === 'function') {
+    archive.updateNominationMode();
+  }
 
   if (!visibleUploads.length) {
     const empty = document.createElement('p');
@@ -2261,6 +2316,8 @@ const handleSubmit = async (event, archive) => {
     archive.uploads.unshift(saved);
     archive.uploads = archive.uploads.slice(0, MAX_UPLOADS);
 
+    notifySlackUpload({ title: saved.title, src: saved.src, author });
+
     let nominationRemoved = false;
     try {
       nominationRemoved = await removeNomination(cell, name);
@@ -2332,16 +2389,98 @@ const createArchive = (section) => {
   const selectedDisplay = archiveEl.querySelector('[data-selected-display]');
   const nomineeSelect = archiveEl.querySelector('[data-nominee-select]');
   const nomineeSelectWrap = archiveEl.querySelector('.nominee-select-wrap');
+  const manualNomineeWrap = archiveEl.querySelector('[data-manual-nominee]');
+  const manualCellInput = archiveEl.querySelector('[data-manual-cell]');
+  const manualNameInput = archiveEl.querySelector('[data-manual-name]');
 
   const archive = {
     section,
-    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton, selectedDisplay, nomineeSelect },
+    elements: {
+      list,
+      form,
+      cellInput,
+      nameInput,
+      dropzone,
+      dropzoneStatus,
+      selectButton,
+      fileInput,
+      submitButton,
+      selectedDisplay,
+      nomineeSelect,
+      nomineeSelectWrap,
+      manualNomineeWrap,
+      manualCellInput,
+      manualNameInput
+    },
     uploads: [],
     selectedFile: null,
     selectedPoster: null,
     selectedPosterPromise: null,
     selectedNomination: null,
     selectedNominationKey: null,
+    manualNominationEnabled: false,
+  };
+
+  const syncManualNomination = () => {
+    if (!archive.manualNominationEnabled) return;
+    const manualCell = (manualCellInput?.value || '').trim();
+    const manualName = (manualNameInput?.value || '').trim();
+    if (!manualCell && !manualName) {
+      clearSelectedNomination(archive);
+      return;
+    }
+    setSelectedNomination(archive, manualCell, manualName);
+  };
+
+  archive.updateNominationMode = () => {
+    const totalUploads = archive.uploads.length;
+    const manualOptional = isAdminMode || isDeleteMode;
+    const manualRequired = totalUploads < MIN_UPLOADS_FOR_NOMINATION && !manualOptional;
+    const shouldShowManual = manualOptional || manualRequired;
+    const previousState = archive.manualNominationEnabled;
+
+    archive.manualNominationEnabled = shouldShowManual;
+
+    if (previousState !== archive.manualNominationEnabled) {
+      if (manualCellInput) manualCellInput.value = '';
+      if (manualNameInput) manualNameInput.value = '';
+      clearSelectedNomination(archive);
+    }
+
+    if (manualNomineeWrap) {
+      manualNomineeWrap.hidden = !shouldShowManual;
+    }
+    if (manualCellInput) {
+      manualCellInput.disabled = !shouldShowManual;
+    }
+    if (manualNameInput) {
+      manualNameInput.disabled = !shouldShowManual;
+    }
+    if (nomineeSelectWrap) {
+      nomineeSelectWrap.style.display = manualRequired ? 'none' : '';
+    }
+    if (nomineeSelect) {
+      nomineeSelect.disabled = manualRequired;
+    }
+    if (selectedDisplay) {
+      selectedDisplay.style.display = manualRequired ? 'none' : '';
+    }
+
+    const nomineeHintEl = document.querySelector('.nominee-hint');
+    if (nomineeHintEl) {
+      if (manualRequired) {
+        nomineeHintEl.textContent = '아직 등록된 영상이 적어요. 셀명과 이름을 직접 입력해주세요.';
+      } else if (manualOptional) {
+        nomineeHintEl.textContent = '지목된 참여자를 선택하거나 직접 셀명/이름을 입력할 수 있어요.';
+      } else {
+        nomineeHintEl.textContent = '등록 시 아래 목록에서 참여자를 꼭 선택해 주세요.';
+      }
+    }
+
+    const hasManualValue = Boolean((manualCellInput?.value || '').trim() || (manualNameInput?.value || '').trim());
+    if (shouldShowManual && (manualRequired || hasManualValue)) {
+      syncManualNomination();
+    }
   };
 
   clearSelectedNomination(archive);
@@ -2365,6 +2504,17 @@ const createArchive = (section) => {
         nomineeSelect.focus();
       }
     });
+  }
+
+  if (manualCellInput) {
+    manualCellInput.addEventListener('input', syncManualNomination);
+  }
+  if (manualNameInput) {
+    manualNameInput.addEventListener('input', syncManualNomination);
+  }
+
+  if (typeof archive.updateNominationMode === 'function') {
+    archive.updateNominationMode();
   }
 
   selectButton.addEventListener('click', () => fileInput.click());

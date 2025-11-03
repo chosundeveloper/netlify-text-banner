@@ -495,36 +495,43 @@
       .upload-hint { color: var(--text-soft); font-size: 0.9rem; text-align: center; display: block; }
       .nominee-select-wrap {
         position: relative;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.92);
-        border: 1px solid rgba(91, 109, 138, 0.18);
-        border-radius: 12px;
-        padding: 0.45rem 0.7rem;
-        box-shadow: 0 10px 20px rgba(65, 84, 134, 0.12);
+        width: 100%;
+        margin-top: 0.2rem;
       }
       .nominee-select-wrap select {
-        border: none;
-        background: transparent;
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(91, 109, 138, 0.2);
+        padding: 0.6rem 2.4rem 0.6rem 1rem;
         font-size: 1rem;
         color: var(--text-strong);
-        min-width: clamp(160px, 28vw, 220px);
-        padding-right: 1.6rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 244, 255, 0.9));
+        box-shadow: 0 10px 20px rgba(65, 84, 134, 0.12);
         appearance: none;
         -webkit-appearance: none;
         -moz-appearance: none;
+        cursor: pointer;
       }
       .nominee-select-wrap select:focus {
         outline: none;
+        border-color: rgba(83, 118, 255, 0.45);
+        box-shadow: 0 0 0 4px rgba(83, 118, 255, 0.12);
       }
       .nominee-select-wrap svg {
         position: absolute;
-        right: 0.6rem;
-        pointer-events: none;
+        right: 0.9rem;
+        top: 50%;
+        transform: translateY(-50%);
         width: 16px;
         height: 16px;
         color: rgba(63, 78, 100, 0.5);
+        pointer-events: none;
+      }
+      .selected-nomination-display {
+        margin: 0.35rem 0 0;
+        font-size: 0.9rem;
+        color: rgba(63, 78, 100, 0.68);
+        min-height: 1.2rem;
       }
       .nominated-list-inline { display: none; }
       .nominee-hint {
@@ -532,7 +539,6 @@
         font-size: 0.9rem;
         color: rgba(63, 78, 100, 0.7);
       }
-      #nominated-list-section { display: none; }
       .search-form {
         display: inline-flex;
         align-items: center;
@@ -839,7 +845,7 @@
               </select>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9a1 1 0 0 1 1.7-.71l3.3 3.3 3.3-3.3A1 1 0 0 1 17 10.7l-4 4a1 1 0 0 1-1.4 0l-4-4A1 1 0 0 1 7 9Z"/></svg>
             </div>
-            <span class="visually-hidden" data-selected-nomination></span>
+            <p class="selected-nomination-display" data-selected-display></p>
             <input class="upload-cell" type="hidden">
             <input class="upload-name" type="hidden">
             <div class="dropzone">
@@ -1679,7 +1685,7 @@ const NOMINATION_HINT_MESSAGE = '다음 참여자를 선택하세요.';
 
 const applySelectedNominationToForm = (archive, options = {}) => {
   const { setInputs = false } = options;
-  const { cellInput, nameInput, selectedNominationLabel, nomineeSelect, inlineNomineeList } = archive.elements;
+  const { cellInput, nameInput, selectedDisplay, nomineeSelect, inlineNomineeList } = archive.elements;
   const selected = archive.selectedNomination;
 
   if (setInputs) {
@@ -1687,16 +1693,14 @@ const applySelectedNominationToForm = (archive, options = {}) => {
     if (nameInput) nameInput.value = selected?.name || '';
   }
 
-  if (selectedNominationLabel) {
-    if (selected) {
+  if (selectedDisplay) {
+    if (selected?.cell || selected?.name) {
       const labelParts = [];
       if (selected.cell) labelParts.push(selected.cell);
       if (selected.name) labelParts.push(selected.name);
-      selectedNominationLabel.textContent = `선택된 참여자: ${labelParts.join(' / ')}`;
-      selectedNominationLabel.classList.add('has-selection');
+      selectedDisplay.textContent = labelParts.join(' / ');
     } else {
-      selectedNominationLabel.textContent = '다음 참여자를 선택하세요.';
-      selectedNominationLabel.classList.remove('has-selection');
+      selectedDisplay.textContent = '';
     }
   }
 };
@@ -1845,10 +1849,8 @@ const renderNominatedList = (archives) => {
   const archive = archives[0] || null;
   const activeKey = archive?.selectedNominationKey || '';
   const selectEl = archive?.elements.nomineeSelect || null;
-  const inlineListEl = archive?.elements.inlineNomineeList || null;
   
   nominatedListEl.innerHTML = '';
-  if (inlineListEl) inlineListEl.innerHTML = '';
   if (selectEl) {
     const baseValue = selectEl.value;
     selectEl.innerHTML = '<option value="">다음 참여자를 선택하세요</option>';
@@ -1962,20 +1964,6 @@ const renderNominatedList = (archives) => {
       selectEl.append(option);
     }
 
-    if (inlineListEl) {
-      const item = document.createElement('div');
-      item.className = 'nominated-inline-item';
-      item.dataset.key = normalizedKey;
-      item.dataset.cell = cell || '';
-      item.dataset.name = name || '';
-      item.innerHTML = `
-        <span>${[cell, name].filter(Boolean).join(' / ') || '미지정'}</span>
-        <span class="inline-count">${count > 1 ? `(${count})` : ''}</span>
-      `;
-      if (activeKey && normalizedKey === activeKey) item.classList.add('active');
-      item.addEventListener('click', () => moveToUpload(cell || '', name || ''));
-      inlineListEl.append(item);
-    }
   });
   if (selectEl && activeKey) {
     const matchOption = Array.from(selectEl.options).find((opt) => opt.dataset.key === activeKey);
@@ -2338,13 +2326,13 @@ const createArchive = (section) => {
   const selectButton = archiveEl.querySelector('.select-button');
   const fileInput = archiveEl.querySelector('.upload-file');
   const submitButton = archiveEl.querySelector('.submit-button');
-  const selectedNominationLabel = archiveEl.querySelector('[data-selected-nomination]');
+  const selectedDisplay = archiveEl.querySelector('[data-selected-display]');
   const nomineeSelect = archiveEl.querySelector('[data-nominee-select]');
-  const inlineNomineeList = archiveEl.querySelector('[data-inline-nominee-list]');
+  const nomineeSelectWrap = archiveEl.querySelector('.nominee-select-wrap');
 
   const archive = {
     section,
-    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton, selectedNominationLabel, nomineeSelect, inlineNomineeList },
+    elements: { list, form, cellInput, nameInput, dropzone, dropzoneStatus, selectButton, fileInput, submitButton, selectedDisplay, nomineeSelect },
     uploads: [],
     selectedFile: null,
     selectedPoster: null,
@@ -2362,6 +2350,16 @@ const createArchive = (section) => {
         setSelectedNomination(archive, option.dataset.cell || '', option.dataset.name || '');
       } else {
         clearSelectedNomination(archive);
+      }
+    });
+  }
+  if (nomineeSelectWrap && nomineeSelect) {
+    nomineeSelectWrap.addEventListener('click', (event) => {
+      if (event.target === nomineeSelect) return;
+      if (typeof nomineeSelect.showPicker === 'function') {
+        nomineeSelect.showPicker();
+      } else {
+        nomineeSelect.focus();
       }
     });
   }

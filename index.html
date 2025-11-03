@@ -1404,6 +1404,14 @@ const ensurePosterForPlayback = (video, item) => {
 
 let previewObserver = null;
 let previewAutoplayUnlocked = false;
+let previewAutoplayHandlerRegistered = false;
+
+const playVisiblePreviews = () => {
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('video[data-preview-bound="1"][data-preview-active="1"]').forEach((video) => {
+    tryPlayPreview(video);
+  });
+};
 
 const tryPlayPreview = (video) => {
   if (!video) return;
@@ -1449,22 +1457,18 @@ const ensurePreviewObserver = () => {
 };
 
 const unlockPreviewAutoplay = () => {
-  if (previewAutoplayUnlocked) return;
-  previewAutoplayUnlocked = true;
-  try {
-    document.removeEventListener('touchstart', unlockPreviewAutoplay, true);
-    document.removeEventListener('click', unlockPreviewAutoplay, true);
-  } catch (error) {}
-
-  document.querySelectorAll('video[data-preview-bound="1"][data-preview-active="1"]').forEach((video) => {
-    tryPlayPreview(video);
-  });
+  if (!previewAutoplayUnlocked) {
+    previewAutoplayUnlocked = true;
+  }
+  playVisiblePreviews();
 };
 
 const registerPreviewAutoplayUnlock = () => {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined' || previewAutoplayHandlerRegistered) return;
+  previewAutoplayHandlerRegistered = true;
   const handler = () => unlockPreviewAutoplay();
   document.addEventListener('touchstart', handler, true);
+  document.addEventListener('pointerdown', handler, true);
   document.addEventListener('click', handler, true);
 };
 

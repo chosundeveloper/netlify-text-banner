@@ -1006,6 +1006,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const SUPABASE_BUCKET = 'videos';
 const SUPABASE_TABLE = 'video_uploads';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SLACK_SETTINGS_TABLE = 'app_settings';
+const SLACK_SETTINGS_KEY = 'slack_webhook_url';
+let slackWebhookUrlPromise = null;
 
 const pathSegments = window.location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
 const query = new URLSearchParams(window.location.search);
@@ -1988,16 +1991,51 @@ const shareUpload = async (upload) => {
   }
 };
 
+const loadSlackWebhookUrl = async () => {
+  if (!supabase) return null;
+  if (!slackWebhookUrlPromise) {
+    slackWebhookUrlPromise = (async () => {
+      try {
+        const { data, error } = await supabase
+          .from(SLACK_SETTINGS_TABLE)
+          .select('value')
+          .eq('key', SLACK_SETTINGS_KEY)
+          .maybeSingle();
+
+        if (error) throw error;
+        const value = (data?.value || '').toString().trim();
+        if (!value) throw new Error('Slack webhook URL not found');
+        return value;
+      } catch (error) {
+        console.warn('슬랙 웹훅 로드 실패:', error);
+        return null;
+      }
+    })();
+  }
+  return slackWebhookUrlPromise;
+};
+
 const notifySlackUpload = async ({ title, src, author }) => {
-  if (!supabase?.functions) return;
+  const webhookUrl = await loadSlackWebhookUrl();
+  if (!webhookUrl) return;
+
+  const messageLines = [
+    '🎞️ 동영상이 업로드되었습니다.',
+    title ? `제목: ${title}` : null,
+    author ? `업로더: ${author}` : null,
+    src ? `링크: ${src}` : null
+  ].filter(Boolean);
 
   try {
-    const { error } = await supabase.functions.invoke('notify-slack', {
-      body: { title, src, author }
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: messageLines.join('\n') })
     });
 
-    if (error) {
-      throw error;
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Slack webhook 응답 오류: ${response.status} ${errorText}`);
     }
   } catch (error) {
     console.warn('슬랙 알림 실패:', error);

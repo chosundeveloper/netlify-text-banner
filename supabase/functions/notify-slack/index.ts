@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,13 +7,42 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const SLACK_WEBHOOK_URL = Deno.env.get("SLACK_WEBHOOK_URL") ?? "";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const SETTINGS_TABLE = Deno.env.get("SLACK_SETTINGS_TABLE") ?? "app_settings";
+const SETTINGS_KEY = Deno.env.get("SLACK_SETTINGS_KEY") ?? "slack_webhook_url";
+
+const getSlackWebhookUrl = async () => {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    console.error("Supabase service role credentials are not configured");
+    throw new Error("Supabase service role not configured");
+  }
+
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false },
+  });
+
+  const { data, error } = await supabaseAdmin
+    .from(SETTINGS_TABLE)
+    .select("value")
+    .eq("key", SETTINGS_KEY)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to load Slack webhook URL", error);
+    throw new Error("Unable to load Slack webhook URL");
+  }
+
+  const value = data?.value ?? "";
+  if (!value) {
+    throw new Error("Slack webhook URL is missing in settings table");
+  }
+
+  return value as string;
+};
 
 const sendSlackNotification = async (payload: { title?: string; src?: string; author?: string }) => {
-  if (!SLACK_WEBHOOK_URL) {
-    console.error("SLACK_WEBHOOK_URL is not configured");
-    throw new Error("Slack webhook not configured");
-  }
+  const webhookUrl = await getSlackWebhookUrl();
 
   const messageLines = [
     "🎞️ 동영상이 업로드되었습니다.",
@@ -21,7 +51,7 @@ const sendSlackNotification = async (payload: { title?: string; src?: string; au
     payload.src ? `링크: ${payload.src}` : null,
   ].filter(Boolean);
 
-  const response = await fetch(SLACK_WEBHOOK_URL, {
+  const response = await fetch(webhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: messageLines.join("\n") }),

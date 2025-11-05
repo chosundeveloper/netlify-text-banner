@@ -23,6 +23,7 @@
         --shadow-soft: 0 24px 60px rgba(124, 137, 163, 0.15);
         --shadow-small: 0 14px 32px rgba(124, 137, 163, 0.1);
         --radius-large: 24px;
+        --gradient-border: linear-gradient(135deg, var(--accent-soft), var(--primary));
       }
       .nominated-story.delete-mode .nominated-story-delete { display: inline-flex; align-items: center; justify-content: center; }
       * { box-sizing: border-box; }
@@ -61,7 +62,8 @@
         padding: clamp(2.8rem, 6vw, 3.6rem) clamp(1.6rem, 4vw, 2.8rem);
         border-radius: var(--radius-large);
         background: linear-gradient(150deg, rgba(244, 241, 233, 0.82), rgba(244, 241, 233, 0.95));
-        border: 1px solid var(--border);
+        border: 2px solid transparent;
+        border-image: var(--gradient-border) 1;
         box-shadow: var(--shadow-soft);
         overflow: hidden;
       }
@@ -166,7 +168,8 @@
       #nominated-list-section {
         background: linear-gradient(160deg, rgba(244, 241, 233, 0.94), rgba(249, 247, 242, 0.88));
         border-radius: 32px;
-        border: 1px solid var(--border);
+        border: 2px solid transparent;
+        border-image: var(--gradient-border) 1;
         box-shadow: var(--shadow-small);
         padding: clamp(2rem, 5vw, 2.6rem);
         display: grid;
@@ -285,7 +288,8 @@
         --archive-pad: clamp(2rem, 5vw, 3rem);
         background: linear-gradient(165deg, rgba(244, 241, 233, 0.94), rgba(249, 247, 242, 0.9));
         border-radius: 32px;
-        border: 1px solid var(--border);
+        border: 2px solid transparent;
+        border-image: var(--gradient-border) 1;
         box-shadow: var(--shadow-soft);
         padding: var(--archive-pad);
         display: grid;
@@ -752,7 +756,8 @@
 
       .contact {
         background: linear-gradient(160deg, rgba(244, 241, 233, 0.96), rgba(249, 247, 242, 0.88));
-        border: 1px solid var(--border);
+        border: 2px solid transparent;
+        border-image: var(--gradient-border) 1;
         box-shadow: var(--shadow-small);
         border-radius: 28px;
         padding: clamp(2rem, 5vw, 2.8rem);

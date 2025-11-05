@@ -295,7 +295,30 @@
         gap: 2.5rem;
       }
       .archive-header { text-align: center; display: grid; gap: 0.6rem; margin: 0; }
+      .archive-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
       .archive-title { margin: 0; font-size: clamp(1.8rem, 5vw, 2.3rem); color: var(--text-strong); font-weight: 700; }
+      .write-button {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.4rem;
+        font-size: clamp(0.9rem, 2vw, 1rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 20px rgba(91, 109, 138, 0.25);
+      }
+      .write-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(91, 109, 138, 0.35);
+      }
       .archive-description { margin: 0; color: var(--text-soft); max-width: 58ch; justify-self: center; }
 
       .upload-list {
@@ -626,50 +649,7 @@
       }
       .submit-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
-      .content-type-selector {
-        display: flex;
-        gap: 1rem;
-        margin-top: 0.5rem;
-      }
-      .type-option {
-        flex: 1;
-        position: relative;
-        cursor: pointer;
-      }
-      .type-option input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-      .type-option span {
-        display: block;
-        padding: 0.85rem 1.2rem;
-        border-radius: 12px;
-        border: 2px solid rgba(91, 109, 138, 0.18);
-        background: rgba(255, 255, 255, 0.92);
-        color: var(--text-muted);
-        font-weight: 600;
-        font-size: 1rem;
-        text-align: center;
-        transition: all 0.2s ease;
-      }
-      .type-option input[type="radio"]:checked + span {
-        border-color: var(--primary);
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: white;
-        box-shadow: 0 8px 20px rgba(91, 109, 138, 0.3);
-      }
-      .type-option:hover span {
-        border-color: var(--primary);
-        transform: translateY(-2px);
-      }
-
-      .text-fields {
-        display: grid;
-        gap: 1rem;
-      }
-      .text-fields textarea {
+      .upload-form textarea {
         width: 100%;
         border-radius: 14px;
         padding: 0.85rem 1rem;
@@ -682,28 +662,10 @@
         min-height: 120px;
         transition: border 0.2s ease, box-shadow 0.2s ease;
       }
-      .text-fields textarea::placeholder {
+      .upload-form textarea::placeholder {
         color: rgba(92, 95, 127, 0.5);
       }
-      .text-fields textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(91, 109, 138, 0.16);
-      }
-      .text-fields input {
-        width: 100%;
-        border-radius: 14px;
-        padding: 0.85rem 1rem;
-        border: 1px solid rgba(91, 109, 138, 0.18);
-        background: rgba(255, 255, 255, 0.92);
-        color: var(--text-strong);
-        font-size: 1rem;
-        transition: border 0.2s ease, box-shadow 0.2s ease;
-      }
-      .text-fields input::placeholder {
-        color: rgba(92, 95, 127, 0.5);
-      }
-      .text-fields input:focus {
+      .upload-form textarea:focus {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 4px rgba(91, 109, 138, 0.16);
@@ -942,7 +904,10 @@
       <template id="archive-template">
         <section class="archive">
       <div class="archive-header">
-        <h2 class="archive-title"></h2>
+        <div class="archive-title-row">
+          <h2 class="archive-title"></h2>
+          <button type="button" class="write-button" data-write-button>✍️ 등록하기</button>
+        </div>
         <p class="archive-description"></p>
         <form class="search-form" role="search">
           <label for="upload-search" aria-label="검색">
@@ -971,32 +936,17 @@
             <input class="upload-cell" type="hidden">
             <input class="upload-name" type="hidden">
 
-            <label>콘텐츠 타입</label>
-            <div class="content-type-selector">
-              <label class="type-option">
-                <input type="radio" name="content-type" value="video" data-content-type checked>
-                <span>📹 영상</span>
-              </label>
-              <label class="type-option">
-                <input type="radio" name="content-type" value="text" data-content-type>
-                <span>📝 글</span>
-              </label>
-            </div>
+            <label for="text-title">제목</label>
+            <input id="text-title" class="text-title" type="text" placeholder="글 제목을 입력하세요" maxlength="100" autocomplete="off">
 
-            <div class="video-fields" data-video-fields>
-              <div class="dropzone">
-                <button type="button" class="select-button">파일 선택</button>
-                <input class="upload-file" type="file" accept="video/*,image/*">
-                <span class="dropzone-status" aria-live="polite"></span>
-              </div>
-            </div>
+            <label for="text-content">내용</label>
+            <textarea id="text-content" class="text-content" placeholder="글 내용을 입력하세요" rows="8" autocomplete="off"></textarea>
 
-            <div class="text-fields" data-text-fields hidden>
-              <label for="text-title">제목</label>
-              <input id="text-title" class="text-title" type="text" placeholder="글 제목을 입력하세요" maxlength="100" autocomplete="off">
-
-              <label for="text-content">내용</label>
-              <textarea id="text-content" class="text-content" placeholder="글 내용을 입력하세요" rows="8" autocomplete="off"></textarea>
+            <label>동영상/이미지 첨부 (선택)</label>
+            <div class="dropzone">
+              <button type="button" class="select-button">파일 선택</button>
+              <input class="upload-file" type="file" accept="video/*,image/*">
+              <span class="dropzone-status" aria-live="polite"></span>
             </div>
 
             <button type="submit" class="submit-button">업로드</button>
@@ -1861,6 +1811,8 @@ const mapRowToUpload = (row) => ({
   subtitle: row.subtitle,
   src: row.src,
   poster: row.poster,
+  type: row.type || 'video',
+  content: row.content || '',
   created_at: row.created_at
 });
 
@@ -2576,19 +2528,35 @@ const handleSubmit = async (event, archive) => {
     applySelectedNominationToForm(archive, { setInputs: true });
   }
 
-  const contentType = archive.contentType || 'video';
-  let title, newItem;
+  // 제목, 본문 체크
+  const textTitle = (archive.elements.textTitle?.value || '').trim();
+  const textContent = (archive.elements.textContent?.value || '').trim();
+
+  if (!textTitle) {
+    alert('글 제목을 입력해주세요.');
+    archive.elements.textTitle?.focus();
+    return;
+  }
+
+  if (!textContent) {
+    alert('글 내용을 입력해주세요.');
+    archive.elements.textContent?.focus();
+    return;
+  }
+
   let uploadMetadata = null;
+  const hasFile = !!archive.selectedFile;
 
   try {
-    if (contentType === 'video') {
-      // Video upload logic
-      if (!archive.selectedFile) {
-        alert('업로드할 영상 파일을 선택해주세요.');
-        return;
-      }
+    archive.elements.submitButton.disabled = true;
 
-      title = deriveUploadTitle(archive.selectedFile, name);
+    // 파일이 있으면 업로드
+    let src = '';
+    let poster = '';
+    let type = 'text'; // 기본은 text
+
+    if (hasFile) {
+      type = 'video'; // 파일이 첨부되면 video 타입
 
       if (archive.selectedPosterPromise) {
         archive.elements.dropzone.classList.add('status-message');
@@ -2600,44 +2568,19 @@ const handleSubmit = async (event, archive) => {
         }
       }
 
-      archive.elements.submitButton.disabled = true;
       uploadMetadata = await uploadToCloud(archive, archive.selectedFile);
-
-      newItem = {
-        title,
-        subtitle: `${author} · ${formatNow()}`,
-        src: uploadMetadata.publicUrl,
-        poster: archive.selectedPoster || fallbackPoster(),
-        type: 'video'
-      };
-    } else if (contentType === 'text') {
-      // Text post logic
-      const textTitle = (archive.elements.textTitle?.value || '').trim();
-      const textContent = (archive.elements.textContent?.value || '').trim();
-
-      if (!textTitle) {
-        alert('글 제목을 입력해주세요.');
-        archive.elements.textTitle?.focus();
-        return;
-      }
-
-      if (!textContent) {
-        alert('글 내용을 입력해주세요.');
-        archive.elements.textContent?.focus();
-        return;
-      }
-
-      archive.elements.submitButton.disabled = true;
-
-      newItem = {
-        title: textTitle,
-        subtitle: `${author} · ${formatNow()}`,
-        src: '',
-        poster: '',
-        type: 'text',
-        content: textContent
-      };
+      src = uploadMetadata.publicUrl;
+      poster = archive.selectedPoster || fallbackPoster();
     }
+
+    const newItem = {
+      title: textTitle,
+      subtitle: `${author} · ${formatNow()}`,
+      src,
+      poster,
+      type,
+      content: textContent
+    };
 
     const saved = await insertUploadRecord(archive, newItem);
     rememberOwnUpload(saved.id);
@@ -2656,7 +2599,7 @@ const handleSubmit = async (event, archive) => {
     }
 
     archive.elements.form.reset();
-    if (contentType === 'video') {
+    if (hasFile) {
       resetSelectedFile(archive);
       archive.elements.dropzone.classList.add('status-message');
       archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
@@ -2679,7 +2622,7 @@ const handleSubmit = async (event, archive) => {
     }
   } catch (error) {
     console.error(error);
-    if (contentType === 'video') {
+    if (hasFile) {
       archive.elements.dropzone.classList.add('status-message');
       archive.elements.dropzoneStatus.textContent = '업로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
     }
@@ -2694,7 +2637,7 @@ const handleSubmit = async (event, archive) => {
       }
     }
   } finally {
-    if (contentType === 'video') {
+    if (hasFile) {
       archive.elements.dropzone.classList.remove('uploading');
     }
     archive.elements.submitButton.disabled = false;
@@ -2710,6 +2653,7 @@ const createArchive = (section) => {
 
   const list = archiveEl.querySelector('.upload-list');
   const form = archiveEl.querySelector('.upload-form');
+  const writeButton = archiveEl.querySelector('[data-write-button]');
   const cellInput = archiveEl.querySelector('.upload-cell');
   const nameInput = archiveEl.querySelector('.upload-name');
   const dropzone = archiveEl.querySelector('.dropzone');
@@ -2723,9 +2667,6 @@ const createArchive = (section) => {
   const manualNomineeWrap = archiveEl.querySelector('[data-manual-nominee]');
   const manualCellInput = archiveEl.querySelector('[data-manual-cell]');
   const manualNameInput = archiveEl.querySelector('[data-manual-name]');
-  const contentTypeRadios = archiveEl.querySelectorAll('[data-content-type]');
-  const videoFields = archiveEl.querySelector('[data-video-fields]');
-  const textFields = archiveEl.querySelector('[data-text-fields]');
   const textTitle = archiveEl.querySelector('.text-title');
   const textContent = archiveEl.querySelector('.text-content');
 
@@ -2747,9 +2688,6 @@ const createArchive = (section) => {
       manualNomineeWrap,
       manualCellInput,
       manualNameInput,
-      contentTypeRadios,
-      videoFields,
-      textFields,
       textTitle,
       textContent
     },
@@ -2760,7 +2698,6 @@ const createArchive = (section) => {
     selectedNomination: null,
     selectedNominationKey: null,
     manualNominationEnabled: false,
-    contentType: 'video',
   };
 
   const syncManualNomination = () => {
@@ -2880,22 +2817,16 @@ const createArchive = (section) => {
     setSelectedFile(archive, event.dataTransfer.files?.[0]);
   });
 
-  // Content type selection handler
-  contentTypeRadios.forEach((radio) => {
-    radio.addEventListener('change', (event) => {
-      const selectedType = event.target.value;
-      archive.contentType = selectedType;
-
-      if (selectedType === 'video') {
-        videoFields.hidden = false;
-        textFields.hidden = true;
-      } else if (selectedType === 'text') {
-        videoFields.hidden = true;
-        textFields.hidden = false;
-        resetSelectedFile(archive);
-      }
+  // Write button click handler - scroll to form
+  if (writeButton) {
+    writeButton.addEventListener('click', () => {
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Focus on title input after scroll
+      setTimeout(() => {
+        archive.elements.textTitle?.focus();
+      }, 500);
     });
-  });
+  }
 
   form.addEventListener('submit', (event) => handleSubmit(event, archive));
   list.addEventListener('click', (event) => handleRemove(event, archive));

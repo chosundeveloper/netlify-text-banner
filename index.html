@@ -66,6 +66,13 @@
         border-image: var(--gradient-border) 1;
         box-shadow: var(--shadow-soft);
         overflow: hidden;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      header.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
       header::before {
         content: '';
@@ -98,6 +105,13 @@
         border-radius: 24px;
         box-shadow: 0 24px 48px rgba(93, 92, 88, 0.1);
         overflow: hidden;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .hero-visual.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
       .hero-visual img { 
         width: 100%; 
@@ -114,6 +128,13 @@
         font-size: clamp(1rem, 1.8vw, 1.1rem);
         line-height: 1.6;
         text-align: center;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .hero-notes.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
       .hero-notes h2 { margin: 0; font-size: clamp(1.32rem, 3vw, 1.72rem); color: var(--text-strong); }
       .hero-notes ol {
@@ -175,6 +196,13 @@
         display: grid;
         gap: 1.8rem;
         justify-items: center;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      #nominated-list-section.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
       #nominated-list-section h3 {
         margin: 0;
@@ -294,6 +322,13 @@
         padding: var(--archive-pad);
         display: grid;
         gap: 2.5rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .archive.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
       .archive-header { text-align: center; display: grid; gap: 0.6rem; margin: 0; }
       .archive-title-row {
@@ -315,6 +350,7 @@
         cursor: pointer;
         transition: all 0.25s ease;
         box-shadow: 0 8px 20px rgba(124, 137, 163, 0.3), 0 0 0 0 rgba(169, 194, 217, 0);
+        animation: pulse-glow 2s infinite;
       }
       .write-button:hover {
         transform: translateY(-3px) scale(1.05);
@@ -765,6 +801,13 @@
         gap: 1.2rem;
         text-align: center;
         align-items: center;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .contact.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
       .contact h3 {
         margin: 0;
@@ -3186,4 +3229,18 @@ if (testStorageBtn) {
 
     <script>
 const ENABLE_LOGS = false;
-</html>
+    <script>
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      });
+
+      const sections = document.querySelectorAll('header, #nominated-list-section, .archive, .contact, .hero-visual, .hero-notes');
+      sections.forEach((section) => {
+        observer.observe(section);
+      });
+    </script>
+  </body>

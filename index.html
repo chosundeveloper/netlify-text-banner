@@ -351,13 +351,6 @@
         border: none;
         box-shadow: none;
       }
-      .upload-item.has-actions {
-        grid-template-areas:
-          'header'
-          'video'
-          'text-content'
-          'actions';
-      }
       .upload-header {
         grid-area: header;
         display: flex;
@@ -522,37 +515,35 @@
         color: var(--text-strong);
         border: none;
         border-radius: 999px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.8rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(242, 193, 93, 0.3);
+        box-shadow: 0 2px 8px rgba(242, 193, 93, 0.25);
       }
       .nominate-add-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(242, 193, 93, 0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(242, 193, 93, 0.35);
       }
-      .upload-actions {
-        grid-area: actions;
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        padding: 0 var(--archive-pad);
-      }
-      .upload-actions button {
-        background: rgba(91, 109, 138, 0.1);
-        color: var(--primary-dark);
+      .upload-delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
         border: none;
-        border-radius: 999px;
-        padding: 0.6rem 1.6rem;
-        font-weight: 600;
+        background: rgba(255, 82, 82, 0.12);
+        color: #d73a49;
+        font-size: 0.9rem;
+        cursor: pointer;
         transition: background 0.2s ease, transform 0.2s ease;
+        font-weight: 700;
       }
-      .upload-actions button:hover {
-        background: rgba(91, 109, 138, 0.18);
-        transform: translateY(-2px);
+      .upload-delete:hover {
+        background: rgba(255, 82, 82, 0.2);
+        transform: translateY(-1px);
       }
 
       .upload-form {
@@ -2350,9 +2341,6 @@ const renderUploads = (archive) => {
     const article = document.createElement('article');
     article.className = 'upload-item';
     const isOwnUpload = item.id && ownUploads.has(item.id);
-    if (isDeleteMode || isOwnUpload) {
-      article.classList.add('has-actions');
-    }
 
     // Render media if exists (video/image)
     let mediaWrap = null;
@@ -2449,7 +2437,25 @@ const renderUploads = (archive) => {
       shareUpload(item);
     });
 
-    headerEl.append(headerMain, shareBtn);
+    // Create delete button if applicable
+    let deleteBtn = null;
+    if (isDeleteMode || isOwnUpload) {
+      deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'upload-delete';
+      deleteBtn.title = '삭제';
+      deleteBtn.textContent = '✕';
+      deleteBtn.dataset.remove = index;
+      if (item.id) {
+        deleteBtn.dataset.id = item.id;
+      }
+    }
+
+    if (deleteBtn) {
+      headerEl.append(headerMain, shareBtn, deleteBtn);
+    } else {
+      headerEl.append(headerMain, shareBtn);
+    }
 
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
@@ -2473,7 +2479,7 @@ const renderUploads = (archive) => {
         const nominateBtn = document.createElement('button');
         nominateBtn.type = 'button';
         nominateBtn.className = 'nominate-add-button';
-        nominateBtn.textContent = '👉 다음 참여자 지목하기';
+        nominateBtn.textContent = '👉 지목하기';
         nominateBtn.addEventListener('click', () => {
           // 지목 모달 열기
           if (nominateModal && nominateCellInput && nominateNameInput) {
@@ -2500,7 +2506,7 @@ const renderUploads = (archive) => {
         const nominateBtn = document.createElement('button');
         nominateBtn.type = 'button';
         nominateBtn.className = 'nominate-add-button';
-        nominateBtn.textContent = '👉 다음 참여자 지목하기';
+        nominateBtn.textContent = '👉 지목하기';
         nominateBtn.addEventListener('click', () => {
           // 지목 모달 열기
           if (nominateModal && nominateCellInput && nominateNameInput) {
@@ -2522,20 +2528,6 @@ const renderUploads = (archive) => {
     const nodes = [headerEl];
     if (mediaWrap) nodes.push(mediaWrap);
     if (textContentWrap) nodes.push(textContentWrap);
-
-    if (isDeleteMode || isOwnUpload) {
-      const actions = document.createElement('div');
-      actions.className = 'upload-actions';
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.textContent = '삭제';
-      removeBtn.dataset.remove = index;
-      if (item.id) {
-        removeBtn.dataset.id = item.id;
-      }
-      actions.append(removeBtn);
-      nodes.push(actions);
-    }
 
     article.append(...nodes);
     list.append(article);

@@ -3224,6 +3224,20 @@ if (testStorageBtn) {
   }
 })();
     </script>
+    <script>
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      });
+
+      const animatedSections = document.querySelectorAll('header, #nominated-list-section, .archive, .contact, .hero-visual, .hero-notes');
+      animatedSections.forEach((section) => {
+        observer.observe(section);
+      });
+    </script>
       </div>
     </main>
   </body>

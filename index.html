@@ -479,6 +479,22 @@
         font-weight: 600;
         letter-spacing: 0.01em;
       }
+      .nominate-add-button {
+        background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+        color: var(--text-strong);
+        border: none;
+        border-radius: 999px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(242, 193, 93, 0.3);
+      }
+      .nominate-add-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(242, 193, 93, 0.4);
+      }
       .upload-actions {
         grid-area: actions;
         display: flex;
@@ -1890,7 +1906,7 @@ const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
     // Supabase Database에서만 데이터 로드
     const { data, error } = await supabase
       .from(SUPABASE_TABLE)
-      .select('id,title,subtitle,src,poster,created_at')
+      .select('id,title,subtitle,src,poster,type,content,created_at')
       .order('created_at', { ascending: false })
       .limit(MAX_UPLOADS);
     
@@ -2411,11 +2427,59 @@ const renderUploads = (archive) => {
       const authorText = parts.length ? parts[0] : '익명 사용자';
       authorSpan.textContent = authorText;
       avatar.textContent = authorText.replace(/[^\p{L}\p{N}]/gu, '').slice(0, 2) || '감사';
-      nominationRow.textContent = nominationInfo ? `다음 지목 ${nominationInfo}` : '다음 지목 정보가 없습니다.';
+
+      if (nominationInfo) {
+        nominationRow.textContent = `다음 지목 ${nominationInfo}`;
+      } else if (isOwnUpload) {
+        // 본인 게시물인데 지목 정보가 없으면 지목 추가 버튼
+        nominationRow.innerHTML = '';
+        const nominateBtn = document.createElement('button');
+        nominateBtn.type = 'button';
+        nominateBtn.className = 'nominate-add-button';
+        nominateBtn.textContent = '👉 다음 참여자 지목하기';
+        nominateBtn.addEventListener('click', () => {
+          // 지목 모달 열기
+          if (nominateModal && nominateCellInput && nominateNameInput) {
+            lastUploadedItem = item;
+            nominateCellInput.value = '';
+            nominateNameInput.value = '';
+            nominateModal.style.display = 'flex';
+            setTimeout(() => {
+              if (nominateCellInput) nominateCellInput.focus();
+            }, 100);
+          }
+        });
+        nominationRow.append(nominateBtn);
+      } else {
+        nominationRow.textContent = '다음 지목 정보가 없습니다.';
+      }
     } else {
       authorSpan.textContent = '익명 사용자';
       avatar.textContent = '감사';
-      nominationRow.textContent = '다음 지목 정보가 없습니다.';
+
+      if (isOwnUpload) {
+        // 본인 게시물인데 지목 정보가 없으면 지목 추가 버튼
+        nominationRow.innerHTML = '';
+        const nominateBtn = document.createElement('button');
+        nominateBtn.type = 'button';
+        nominateBtn.className = 'nominate-add-button';
+        nominateBtn.textContent = '👉 다음 참여자 지목하기';
+        nominateBtn.addEventListener('click', () => {
+          // 지목 모달 열기
+          if (nominateModal && nominateCellInput && nominateNameInput) {
+            lastUploadedItem = item;
+            nominateCellInput.value = '';
+            nominateNameInput.value = '';
+            nominateModal.style.display = 'flex';
+            setTimeout(() => {
+              if (nominateCellInput) nominateCellInput.focus();
+            }, 100);
+          }
+        });
+        nominationRow.append(nominateBtn);
+      } else {
+        nominationRow.textContent = '다음 지목 정보가 없습니다.';
+      }
     }
 
     const nodes = [headerEl];

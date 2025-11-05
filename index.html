@@ -1934,13 +1934,9 @@ const insertUploadRecord = async (archive, item) => {
       subtitle: item.subtitle,
       src: item.src,
       poster: item.poster,
-      type: item.type || 'video'
+      type: item.type || 'video',
+      content: item.content || ''  // content는 항상 저장 (있으면 저장, 없으면 빈 문자열)
     };
-
-    // text 타입인 경우 content 필드 추가
-    if (item.type === 'text' && item.content) {
-      insertData.content = item.content;
-    }
 
     const { data, error } = await supabase
       .from(SUPABASE_TABLE)
@@ -2371,6 +2367,9 @@ const renderUploads = (archive) => {
     // Render text content if exists
     let textContentWrap = null;
     const hasContent = item.content && item.content.trim();
+
+    // 디버깅: content 값 확인
+    console.log('Item:', item.title, 'has content:', hasContent, 'content value:', item.content);
 
     if (hasContent) {
       textContentWrap = document.createElement('div');

@@ -474,21 +474,24 @@
       }
       .text-post-content {
         width: 100%;
+        max-width: 65ch;
+        margin: 0 auto;
         color: var(--text-strong);
-        font-size: clamp(1.05rem, 2.5vw, 1.2rem);
-        line-height: 1.85;
+        font-size: clamp(1.08rem, 2.5vw, 1.25rem);
+        line-height: 2;
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
-        letter-spacing: -0.01em;
+        letter-spacing: 0.01em;
+        word-spacing: 0.05em;
         position: relative;
         z-index: 1;
       }
       .text-post-content::first-line {
         font-weight: 600;
-        font-size: 1.1em;
+        font-size: 1.15em;
         color: var(--primary-dark);
-        letter-spacing: -0.02em;
+        letter-spacing: 0;
       }
 
       .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(0.98rem, 2vw, 1.12rem); }

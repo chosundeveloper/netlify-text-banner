@@ -3226,22 +3226,4 @@ if (testStorageBtn) {
     </script>
       </div>
     </main>
-
-    <script>
-const ENABLE_LOGS = false;
-    </script>
-    <script>
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      });
-
-      const sections = document.querySelectorAll('header, #nominated-list-section, .archive, .contact, .hero-visual, .hero-notes');
-      sections.forEach((section) => {
-        observer.observe(section);
-      });
-    </script>
   </body>

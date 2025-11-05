@@ -8,20 +8,20 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style id="gemini-new-design">
       :root {
-        --primary: #ff6b35;
-        --primary-dark: #e74c3c;
-        --accent: #ffd93d;
-        --accent-soft: #ffe56d;
-        --background-start: #ffeaa7;
-        --background-end: #fff5e6;
+        --primary: #E9AFA3;
+        --primary-dark: #D98B7E;
+        --accent: #D0B0D9;
+        --accent-soft: #E1C7E8;
+        --background-start: #FDF6F0;
+        --background-end: #F8F0E8;
         --surface: rgba(255, 255, 255, 0.9);
-        --surface-solid: #fffcf7;
-        --border: rgba(255, 107, 53, 0.15);
-        --text-strong: #2d3436;
-        --text-muted: #636e72;
-        --text-soft: #95a5a6;
-        --shadow-soft: 0 24px 60px rgba(255, 107, 53, 0.15);
-        --shadow-small: 0 14px 32px rgba(255, 107, 53, 0.1);
+        --surface-solid: #FCF8F3;
+        --border: rgba(233, 175, 163, 0.15);
+        --text-strong: #5D504A;
+        --text-muted: #8A7D76;
+        --text-soft: #B5A9A3;
+        --shadow-soft: 0 24px 60px rgba(233, 175, 163, 0.15);
+        --shadow-small: 0 14px 32px rgba(233, 175, 163, 0.1);
         --radius-large: 24px;
       }
       .nominated-story.delete-mode .nominated-story-delete { display: inline-flex; align-items: center; justify-content: center; }
@@ -68,7 +68,7 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 217, 61, 0.25));
+        background: linear-gradient(135deg, rgba(233, 175, 163, 0.2), rgba(208, 176, 217, 0.25));
         filter: blur(48px);
         opacity: 0.7;
         z-index: 0;
@@ -86,7 +86,7 @@
         margin: 1rem auto 0;
         max-width: 48ch;
         font-size: clamp(1.05rem, 2vw, 1.25rem);
-        color: rgba(63, 78, 100, 0.85);
+        color: rgba(93, 80, 74, 0.85);
         line-height: 1.65;
       }
       .hero-visual {
@@ -94,7 +94,7 @@
         margin: clamp(1.6rem, 4vw, 2.4rem) auto 0;
         border-radius: 24px;
         overflow: hidden;
-        box-shadow: 0 24px 48px rgba(63, 86, 120, 0.18);
+        box-shadow: 0 24px 48px rgba(233, 175, 163, 0.18);
       }
       .hero-visual img { width: 100%; display: block; }
       .hero-notes {
@@ -103,7 +103,7 @@
         display: grid;
         justify-items: center;
         gap: 0.8rem;
-        color: rgba(63, 78, 100, 0.78);
+        color: rgba(138, 125, 118, 0.78);
         font-size: clamp(1rem, 1.8vw, 1.1rem);
         line-height: 1.6;
         text-align: center;
@@ -125,7 +125,7 @@
       .hero-notes ol li { max-width: 42ch; font-size: clamp(0.98rem, 2.4vw, 1.08rem); }
       .hero-notes p {
         margin: 0;
-        color: rgba(63, 78, 100, 0.7);
+        color: rgba(138, 125, 118, 0.7);
         max-width: 42ch;
         font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
         font-weight: 400;
@@ -163,7 +163,7 @@
       .hero-visual img {
         width: 100%;
         border-radius: 24px;
-        box-shadow: 0 24px 48px rgba(63, 86, 120, 0.18);
+        box-shadow: 0 24px 48px rgba(233, 175, 163, 0.18);
       }
 
       #nominated-list-section {
@@ -197,8 +197,8 @@
         padding: 1.2rem 1.6rem;
         border-radius: 18px;
         background: rgba(255, 255, 255, 0.85);
-        border: 1px dashed rgba(255, 107, 53, 0.24);
-        color: rgba(63, 78, 100, 0.7);
+        border: 1px dashed rgba(233, 175, 163, 0.24);
+        color: rgba(138, 125, 118, 0.7);
         text-align: center;
         width: 100%;
       }
@@ -240,7 +240,7 @@
         height: 74px;
         border-radius: 50%;
         background: #ffffff;
-        border: 2px solid rgba(255, 107, 53, 0.18);
+        border: 2px solid rgba(233, 175, 163, 0.18);
         color: var(--primary-dark);
         font-weight: 700;
         font-size: 1.05rem;
@@ -251,7 +251,7 @@
       }
       .nominated-story.is-active .nominated-story-avatar {
         border: 3px solid var(--accent);
-        background: rgba(255, 245, 219, 0.95);
+        background: rgba(225, 199, 232, 0.95);
       }
       .nominated-story.is-active .nominated-story-caption {
         color: var(--text-strong);
@@ -260,7 +260,7 @@
       .nominated-story-count { display: none; }
       .nominated-story-caption {
         font-size: 0.82rem;
-        color: rgba(63, 78, 100, 0.6);
+        color: rgba(138, 125, 118, 0.6);
         text-align: center;
         max-width: 94px;
         line-height: 1.3;
@@ -271,14 +271,14 @@
         position: absolute;
         top: -4px;
         right: -4px;
-        background: rgba(255, 82, 82, 0.92);
+        background: rgba(217, 139, 126, 0.92);
         color: #fff;
         border: none;
         border-radius: 50%;
         width: 26px;
         height: 26px;
         cursor: pointer;
-        box-shadow: 0 8px 16px rgba(255, 82, 82, 0.25);
+        box-shadow: 0 8px 16px rgba(217, 139, 126, 0.25);
         font-size: 0.9rem;
         font-weight: 700;
         line-height: 1;
@@ -313,11 +313,11 @@
         font-weight: 700;
         cursor: pointer;
         transition: all 0.25s ease;
-        box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3), 0 0 0 0 rgba(255, 217, 61, 0);
+        box-shadow: 0 8px 20px rgba(233, 175, 163, 0.3), 0 0 0 0 rgba(208, 176, 217, 0);
       }
       .write-button:hover {
         transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 12px 32px rgba(255, 107, 53, 0.4), 0 0 20px 5px rgba(255, 217, 61, 0.35);
+        box-shadow: 0 12px 32px rgba(233, 175, 163, 0.4), 0 0 20px 5px rgba(208, 176, 217, 0.35);
       }
       .archive-description { margin: 0; color: var(--text-soft); max-width: 58ch; justify-self: center; }
 
@@ -331,8 +331,8 @@
         padding: 2rem;
         border-radius: 18px;
         background: var(--surface-solid);
-        border: 1px dashed rgba(255, 107, 53, 0.24);
-        color: rgba(63, 78, 100, 0.7);
+        border: 1px dashed rgba(233, 175, 163, 0.24);
+        color: rgba(138, 125, 118, 0.7);
       }
       .upload-item {
         display: grid;
@@ -364,7 +364,7 @@
         width: 42px;
         height: 42px;
         border-radius: 50%;
-        background: rgba(255, 107, 53, 0.12);
+        background: rgba(233, 175, 163, 0.12);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -379,7 +379,7 @@
         gap: 0.1rem;
         align-items: flex-start;
       }
-      .upload-header-text .upload-time { font-size: 0.78rem; color: rgba(63, 78, 100, 0.55); }
+      .upload-header-text .upload-time { font-size: 0.78rem; color: rgba(138, 125, 118, 0.55); }
       .upload-header-text .upload-nomination { font-size: 0.86rem; color: var(--accent); font-weight: 600; letter-spacing: 0.01em; }
       .upload-video {
         grid-area: video;
@@ -408,11 +408,11 @@
         border-radius: 24px;
         position: relative;
         background:
-          radial-gradient(circle at 95% 5%, rgba(255, 217, 61, 0.08), transparent 40%),
-          radial-gradient(circle at 5% 95%, rgba(255, 107, 53, 0.06), transparent 40%),
+          radial-gradient(circle at 95% 5%, rgba(208, 176, 217, 0.08), transparent 40%),
+          radial-gradient(circle at 5% 95%, rgba(233, 175, 163, 0.06), transparent 40%),
           linear-gradient(135deg,
-            rgba(255, 255, 255, 0.98),
-            rgba(253, 251, 246, 0.95),
+            rgba(252, 248, 243, 0.98),
+            rgba(250, 244, 239, 0.95),
             rgba(247, 240, 230, 0.92)
           );
         border: 2px solid transparent;
@@ -420,9 +420,9 @@
         padding: clamp(2.5rem, 6vw, 3.5rem);
         min-height: 140px;
         box-shadow:
-          0 1px 3px rgba(255, 107, 53, 0.05),
-          0 4px 12px rgba(255, 107, 53, 0.08),
-          0 12px 32px rgba(255, 107, 53, 0.06),
+          0 1px 3px rgba(233, 175, 163, 0.05),
+          0 4px 12px rgba(233, 175, 163, 0.08),
+          0 12px 32px rgba(233, 175, 163, 0.06),
           inset 0 1px 0 rgba(255, 255, 255, 0.8);
         transition: all 0.3s ease;
         overflow: hidden;
@@ -434,9 +434,9 @@
         border-radius: 24px;
         padding: 2px;
         background: linear-gradient(135deg,
-          rgba(255, 217, 61, 0.3),
-          rgba(255, 107, 53, 0.2),
-          rgba(255, 217, 61, 0.3)
+          rgba(208, 176, 217, 0.3),
+          rgba(233, 175, 163, 0.2),
+          rgba(208, 176, 217, 0.3)
         );
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
@@ -456,9 +456,9 @@
       }
       .upload-text-content:hover {
         box-shadow:
-          0 2px 6px rgba(255, 107, 53, 0.06),
-          0 8px 20px rgba(255, 107, 53, 0.1),
-          0 16px 40px rgba(255, 107, 53, 0.08),
+          0 2px 6px rgba(233, 175, 163, 0.06),
+          0 8px 20px rgba(233, 175, 163, 0.1),
+          0 16px 40px rgba(233, 175, 163, 0.08),
           inset 0 1px 0 rgba(255, 255, 255, 1);
         transform: translateY(-2px);
       }
@@ -496,13 +496,13 @@
         height: 26px;
         border-radius: 50%;
         border: none;
-        background: rgba(255, 107, 53, 0.12);
+        background: rgba(233, 175, 163, 0.12);
         color: var(--primary-dark);
         font-size: 0.9rem;
         cursor: pointer;
         transition: background 0.2s ease, transform 0.2s ease;
       }
-      .upload-share:hover { background: rgba(255, 107, 53, 0.18); transform: translateY(-1px); }
+      .upload-share:hover { background: rgba(233, 175, 163, 0.18); transform: translateY(-1px); }
       .upload-share svg { width: 14px; height: 14px; fill: currentColor; }
       .upload-nomination {
         color: var(--accent);
@@ -520,11 +520,11 @@
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(255, 217, 61, 0.35);
+        box-shadow: 0 4px 12px rgba(208, 176, 217, 0.35);
       }
       .nominate-add-button:hover {
         transform: translateY(-2px) scale(1.03);
-        box-shadow: 0 6px 18px rgba(255, 217, 61, 0.5);
+        box-shadow: 0 6px 18px rgba(208, 176, 217, 0.5);
       }
       .upload-delete {
         display: inline-flex;
@@ -534,15 +534,15 @@
         height: 26px;
         border-radius: 50%;
         border: none;
-        background: rgba(255, 82, 82, 0.12);
-        color: #d73a49;
+        background: rgba(217, 139, 126, 0.12);
+        color: #C97F70;
         font-size: 0.9rem;
         cursor: pointer;
         transition: background 0.2s ease, transform 0.2s ease;
         font-weight: 700;
       }
       .upload-delete:hover {
-        background: rgba(255, 82, 82, 0.2);
+        background: rgba(217, 139, 126, 0.2);
         transform: translateY(-1px);
       }
 
@@ -561,27 +561,27 @@
         width: 100%;
         border-radius: 14px;
         padding: 0.85rem 1rem;
-        border: 1px solid rgba(255, 107, 53, 0.18);
-        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(233, 175, 163, 0.18);
+        background: rgba(252, 248, 243, 0.92);
         color: var(--text-strong);
         font-size: 1rem;
         transition: border 0.2s ease, box-shadow 0.2s ease;
       }
       .upload-form input[readonly] {
-        background: rgba(255, 255, 255, 0.7);
-        color: rgba(31, 42, 68, 0.6);
+        background: rgba(252, 248, 243, 0.7);
+        color: rgba(138, 125, 118, 0.6);
         cursor: not-allowed;
       }
       .upload-form input[readonly]:focus {
         outline: none;
-        border-color: rgba(255, 107, 53, 0.2);
+        border-color: rgba(233, 175, 163, 0.2);
         box-shadow: none;
       }
-      .upload-form input::placeholder { color: rgba(92, 95, 127, 0.5); }
+      .upload-form input::placeholder { color: rgba(181, 169, 163, 0.5); }
       .upload-form input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.16);
+        box-shadow: 0 0 0 4px rgba(233, 175, 163, 0.16);
       }
       .dropzone {
         border: none;

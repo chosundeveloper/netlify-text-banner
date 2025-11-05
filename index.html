@@ -339,7 +339,8 @@
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas:
           'header'
-          'video';
+          'video'
+          'text-content';
         gap: 0.85rem;
         justify-items: stretch;
         align-items: start;
@@ -354,6 +355,7 @@
         grid-template-areas:
           'header'
           'video'
+          'text-content'
           'actions';
       }
       .upload-header {
@@ -407,7 +409,7 @@
       }
 
       .upload-text-content {
-        grid-area: video;
+        grid-area: text-content;
         width: calc(100% + var(--archive-pad) * 2);
         margin-inline: calc(var(--archive-pad) * -1);
         border-radius: 18px;
@@ -415,7 +417,7 @@
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(247, 249, 252, 0.92));
         border: 1px solid rgba(91, 109, 138, 0.15);
         padding: clamp(1.5rem, 4vw, 2.5rem);
-        min-height: 200px;
+        min-height: 120px;
         display: flex;
         align-items: flex-start;
       }

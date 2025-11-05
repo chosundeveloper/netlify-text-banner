@@ -949,7 +949,7 @@
               <span class="dropzone-status" aria-live="polite"></span>
             </div>
 
-            <button type="submit" class="submit-button">업로드</button>
+            <button type="submit" class="submit-button">등록하기</button>
           </form>
         </section>
       </template>
@@ -2277,18 +2277,12 @@ const renderUploads = (archive) => {
       article.classList.add('has-actions');
     }
 
-    const mediaWrap = document.createElement('div');
-    const itemType = item.type || 'video';
+    // Render media if exists (video/image)
+    let mediaWrap = null;
+    const hasSrc = item.src && item.src.trim();
 
-    if (itemType === 'text') {
-      // Text post rendering
-      mediaWrap.className = 'upload-text-content';
-      const textContent = document.createElement('div');
-      textContent.className = 'text-post-content';
-      textContent.textContent = item.content || '';
-      mediaWrap.append(textContent);
-    } else {
-      // Video/Image rendering
+    if (hasSrc) {
+      mediaWrap = document.createElement('div');
       mediaWrap.className = 'upload-video';
       const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(item.src || '');
 
@@ -2329,6 +2323,19 @@ const renderUploads = (archive) => {
           tryPlayPreview(video, { allowWithoutUnlock: true });
         }
       }
+    }
+
+    // Render text content if exists
+    let textContentWrap = null;
+    const hasContent = item.content && item.content.trim();
+
+    if (hasContent) {
+      textContentWrap = document.createElement('div');
+      textContentWrap.className = 'upload-text-content';
+      const textContentDiv = document.createElement('div');
+      textContentDiv.className = 'text-post-content';
+      textContentDiv.textContent = item.content;
+      textContentWrap.append(textContentDiv);
     }
 
     const headerEl = document.createElement('div');
@@ -2384,7 +2391,10 @@ const renderUploads = (archive) => {
       nominationRow.textContent = '다음 지목 정보가 없습니다.';
     }
 
-    const nodes = [headerEl, mediaWrap];
+    const nodes = [headerEl];
+    if (mediaWrap) nodes.push(mediaWrap);
+    if (textContentWrap) nodes.push(textContentWrap);
+
     if (isDeleteMode || isOwnUpload) {
       const actions = document.createElement('div');
       actions.className = 'upload-actions';

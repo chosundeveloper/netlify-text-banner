@@ -382,6 +382,30 @@
         display: block;
         background: #11141f;
       }
+
+      .upload-text-content {
+        grid-area: video;
+        width: calc(100% + var(--archive-pad) * 2);
+        margin-inline: calc(var(--archive-pad) * -1);
+        border-radius: 18px;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(247, 249, 252, 0.92));
+        border: 1px solid rgba(91, 109, 138, 0.15);
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        min-height: 200px;
+        display: flex;
+        align-items: flex-start;
+      }
+      .text-post-content {
+        width: 100%;
+        color: var(--text-muted);
+        font-size: clamp(1rem, 2.5vw, 1.15rem);
+        line-height: 1.7;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+
       .upload-author { color: var(--text-strong); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(0.98rem, 2vw, 1.12rem); }
       .upload-share {
         display: inline-flex;
@@ -601,6 +625,89 @@
         box-shadow: 0 22px 40px rgba(91, 109, 138, 0.32);
       }
       .submit-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+      .content-type-selector {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
+      .type-option {
+        flex: 1;
+        position: relative;
+        cursor: pointer;
+      }
+      .type-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .type-option span {
+        display: block;
+        padding: 0.85rem 1.2rem;
+        border-radius: 12px;
+        border: 2px solid rgba(91, 109, 138, 0.18);
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 1rem;
+        text-align: center;
+        transition: all 0.2s ease;
+      }
+      .type-option input[type="radio"]:checked + span {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 8px 20px rgba(91, 109, 138, 0.3);
+      }
+      .type-option:hover span {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      .text-fields {
+        display: grid;
+        gap: 1rem;
+      }
+      .text-fields textarea {
+        width: 100%;
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        border: 1px solid rgba(91, 109, 138, 0.18);
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--text-strong);
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 120px;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+      }
+      .text-fields textarea::placeholder {
+        color: rgba(92, 95, 127, 0.5);
+      }
+      .text-fields textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(91, 109, 138, 0.16);
+      }
+      .text-fields input {
+        width: 100%;
+        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        border: 1px solid rgba(91, 109, 138, 0.18);
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--text-strong);
+        font-size: 1rem;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+      }
+      .text-fields input::placeholder {
+        color: rgba(92, 95, 127, 0.5);
+      }
+      .text-fields input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(91, 109, 138, 0.16);
+      }
 
       .contact {
         background: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(253, 251, 246, 0.88));
@@ -863,11 +970,35 @@
             </div>
             <input class="upload-cell" type="hidden">
             <input class="upload-name" type="hidden">
-            <div class="dropzone">
-              <button type="button" class="select-button">파일 선택</button>
-              <input class="upload-file" type="file" accept="video/*,image/*">
-              <span class="dropzone-status" aria-live="polite"></span>
+
+            <label>콘텐츠 타입</label>
+            <div class="content-type-selector">
+              <label class="type-option">
+                <input type="radio" name="content-type" value="video" data-content-type checked>
+                <span>📹 영상</span>
+              </label>
+              <label class="type-option">
+                <input type="radio" name="content-type" value="text" data-content-type>
+                <span>📝 글</span>
+              </label>
             </div>
+
+            <div class="video-fields" data-video-fields>
+              <div class="dropzone">
+                <button type="button" class="select-button">파일 선택</button>
+                <input class="upload-file" type="file" accept="video/*,image/*">
+                <span class="dropzone-status" aria-live="polite"></span>
+              </div>
+            </div>
+
+            <div class="text-fields" data-text-fields hidden>
+              <label for="text-title">제목</label>
+              <input id="text-title" class="text-title" type="text" placeholder="글 제목을 입력하세요" maxlength="100" autocomplete="off">
+
+              <label for="text-content">내용</label>
+              <textarea id="text-content" class="text-content" placeholder="글 내용을 입력하세요" rows="8" autocomplete="off"></textarea>
+            </div>
+
             <button type="submit" class="submit-button">업로드</button>
           </form>
         </section>
@@ -1803,22 +1934,30 @@ const fetchUploadsFromCloud = async (archive, { addLogEntry = true } = {}) => {
 const insertUploadRecord = async (archive, item) => {
   try {
     // Supabase Database에만 저장
+    const insertData = {
+      title: item.title,
+      subtitle: item.subtitle,
+      src: item.src,
+      poster: item.poster,
+      type: item.type || 'video'
+    };
+
+    // text 타입인 경우 content 필드 추가
+    if (item.type === 'text' && item.content) {
+      insertData.content = item.content;
+    }
+
     const { data, error } = await supabase
       .from(SUPABASE_TABLE)
-      .insert([{
-        title: item.title,
-        subtitle: item.subtitle,
-        src: item.src,
-        poster: item.poster
-      }])
-      .select('id,title,subtitle,src,poster,created_at')
+      .insert([insertData])
+      .select('id,title,subtitle,src,poster,type,content,created_at')
       .single();
-    
+
     if (error) {
       addLog(archive.section.id, 'Supabase 저장 실패', error.message);
       throw error;
     }
-    
+
     addLog(archive.section.id, 'Supabase 저장', 'Supabase Database에 저장됨');
     return mapRowToUpload(data);
   } catch (error) {
@@ -2187,44 +2326,56 @@ const renderUploads = (archive) => {
     }
 
     const mediaWrap = document.createElement('div');
-    mediaWrap.className = 'upload-video';
-    const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(item.src || '');
+    const itemType = item.type || 'video';
 
-    if (isImage) {
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.src = item.src;
-      img.alt = item.title || '이미지';
-      mediaWrap.append(img);
+    if (itemType === 'text') {
+      // Text post rendering
+      mediaWrap.className = 'upload-text-content';
+      const textContent = document.createElement('div');
+      textContent.className = 'text-post-content';
+      textContent.textContent = item.content || '';
+      mediaWrap.append(textContent);
     } else {
-      const video = document.createElement('video');
-      video.controls = true;
-      video.preload = 'auto';
-      video.playsInline = true;
-      video.setAttribute('playsinline', '');
-      video.setAttribute('webkit-playsinline', '');
-      video.muted = true;
-      video.setAttribute('muted', '');
-      video.autoplay = true;
-      video.setAttribute('autoplay', '');
-      video.defaultMuted = true;
-      video.loop = true;
-      video.crossOrigin = 'anonymous';
-      video.src = item.src;
-      if (item.poster) {
-        video.poster = item.poster;
-      } else {
-        video.poster = fallbackPoster();
-        ensurePosterForPlayback(video, item);
-      }
+      // Video/Image rendering
+      mediaWrap.className = 'upload-video';
+      const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(item.src || '');
 
-      mediaWrap.append(video);
-      const forceVisible = index === 0;
-      registerVideoPreview(video, { forceVisible });
-      if (forceVisible && !video.dataset.initialPreview) {
-        video.dataset.initialPreview = '1';
-        tryPlayPreview(video, { allowWithoutUnlock: true });
+      if (isImage) {
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.src = item.src;
+        img.alt = item.title || '이미지';
+        mediaWrap.append(img);
+      } else {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.preload = 'auto';
+        video.playsInline = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.muted = true;
+        video.setAttribute('muted', '');
+        video.autoplay = true;
+        video.setAttribute('autoplay', '');
+        video.defaultMuted = true;
+        video.loop = true;
+        video.crossOrigin = 'anonymous';
+        video.src = item.src;
+        if (item.poster) {
+          video.poster = item.poster;
+        } else {
+          video.poster = fallbackPoster();
+          ensurePosterForPlayback(video, item);
+        }
+
+        mediaWrap.append(video);
+        const forceVisible = index === 0;
+        registerVideoPreview(video, { forceVisible });
+        if (forceVisible && !video.dataset.initialPreview) {
+          video.dataset.initialPreview = '1';
+          tryPlayPreview(video, { allowWithoutUnlock: true });
+        }
       }
     }
 
@@ -2424,29 +2575,70 @@ const handleSubmit = async (event, archive) => {
     archive.selectedNominationKey = null;
     applySelectedNominationToForm(archive, { setInputs: true });
   }
-  if (!archive.selectedFile) {
-    alert('업로드할 영상 파일을 선택해주세요.');
-    return;
-  }
-  const title = deriveUploadTitle(archive.selectedFile, name);
-  if (archive.selectedPosterPromise) {
-    archive.elements.dropzone.classList.add('status-message');
-    archive.elements.dropzoneStatus.textContent = '미리보기 준비 중...';
-    try {
-      await archive.selectedPosterPromise;
-    } catch (error) {
-      console.warn('포스터 준비 중 오류:', error);
-    }
-  }
+
+  const contentType = archive.contentType || 'video';
+  let title, newItem;
   let uploadMetadata = null;
+
   try {
-    uploadMetadata = await uploadToCloud(archive, archive.selectedFile);
-    const newItem = {
-      title,
-      subtitle: `${author} · ${formatNow()}`,
-      src: uploadMetadata.publicUrl,
-      poster: archive.selectedPoster || fallbackPoster()
-    };
+    if (contentType === 'video') {
+      // Video upload logic
+      if (!archive.selectedFile) {
+        alert('업로드할 영상 파일을 선택해주세요.');
+        return;
+      }
+
+      title = deriveUploadTitle(archive.selectedFile, name);
+
+      if (archive.selectedPosterPromise) {
+        archive.elements.dropzone.classList.add('status-message');
+        archive.elements.dropzoneStatus.textContent = '미리보기 준비 중...';
+        try {
+          await archive.selectedPosterPromise;
+        } catch (error) {
+          console.warn('포스터 준비 중 오류:', error);
+        }
+      }
+
+      archive.elements.submitButton.disabled = true;
+      uploadMetadata = await uploadToCloud(archive, archive.selectedFile);
+
+      newItem = {
+        title,
+        subtitle: `${author} · ${formatNow()}`,
+        src: uploadMetadata.publicUrl,
+        poster: archive.selectedPoster || fallbackPoster(),
+        type: 'video'
+      };
+    } else if (contentType === 'text') {
+      // Text post logic
+      const textTitle = (archive.elements.textTitle?.value || '').trim();
+      const textContent = (archive.elements.textContent?.value || '').trim();
+
+      if (!textTitle) {
+        alert('글 제목을 입력해주세요.');
+        archive.elements.textTitle?.focus();
+        return;
+      }
+
+      if (!textContent) {
+        alert('글 내용을 입력해주세요.');
+        archive.elements.textContent?.focus();
+        return;
+      }
+
+      archive.elements.submitButton.disabled = true;
+
+      newItem = {
+        title: textTitle,
+        subtitle: `${author} · ${formatNow()}`,
+        src: '',
+        poster: '',
+        type: 'text',
+        content: textContent
+      };
+    }
+
     const saved = await insertUploadRecord(archive, newItem);
     rememberOwnUpload(saved.id);
     archive.uploads.unshift(saved);
@@ -2464,13 +2656,15 @@ const handleSubmit = async (event, archive) => {
     }
 
     archive.elements.form.reset();
-    resetSelectedFile(archive);
+    if (contentType === 'video') {
+      resetSelectedFile(archive);
+      archive.elements.dropzone.classList.add('status-message');
+      archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
+    }
     clearSelectedNomination(archive);
     renderNominatedList(archives);
     warmupArchivePosters(archive);
 
-    archive.elements.dropzone.classList.add('status-message');
-    archive.elements.dropzoneStatus.textContent = '업로드 완료! 목록에 추가되었습니다.';
     addLog(archive.section.id, '업로드 완료', saved.title, saved.id ? `id=${saved.id}` : undefined);
 
     // 업로드 완료 후 지목 모달 표시
@@ -2479,15 +2673,16 @@ const handleSubmit = async (event, archive) => {
       nominateCellInput.value = '';
       nominateNameInput.value = '';
       nominateModal.style.display = 'flex';
-      // 셀 입력 필드로 포커스
       setTimeout(() => {
         if (nominateCellInput) nominateCellInput.focus();
       }, 100);
     }
   } catch (error) {
     console.error(error);
-    archive.elements.dropzone.classList.add('status-message');
-    archive.elements.dropzoneStatus.textContent = '업로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
+    if (contentType === 'video') {
+      archive.elements.dropzone.classList.add('status-message');
+      archive.elements.dropzoneStatus.textContent = '업로드에 실패했습니다. 잠시 후 다시 시도해주세요.';
+    }
     addLog(archive.section.id, '업로드 실패', error.message || String(error));
     alert('업로드에 실패했습니다. 잠시 후 다시 시도해주세요.');
     if (uploadMetadata?.path) {
@@ -2499,7 +2694,9 @@ const handleSubmit = async (event, archive) => {
       }
     }
   } finally {
-    archive.elements.dropzone.classList.remove('uploading');
+    if (contentType === 'video') {
+      archive.elements.dropzone.classList.remove('uploading');
+    }
     archive.elements.submitButton.disabled = false;
   }
 };
@@ -2526,6 +2723,11 @@ const createArchive = (section) => {
   const manualNomineeWrap = archiveEl.querySelector('[data-manual-nominee]');
   const manualCellInput = archiveEl.querySelector('[data-manual-cell]');
   const manualNameInput = archiveEl.querySelector('[data-manual-name]');
+  const contentTypeRadios = archiveEl.querySelectorAll('[data-content-type]');
+  const videoFields = archiveEl.querySelector('[data-video-fields]');
+  const textFields = archiveEl.querySelector('[data-text-fields]');
+  const textTitle = archiveEl.querySelector('.text-title');
+  const textContent = archiveEl.querySelector('.text-content');
 
   const archive = {
     section,
@@ -2544,7 +2746,12 @@ const createArchive = (section) => {
       nomineeSelectWrap,
       manualNomineeWrap,
       manualCellInput,
-      manualNameInput
+      manualNameInput,
+      contentTypeRadios,
+      videoFields,
+      textFields,
+      textTitle,
+      textContent
     },
     uploads: [],
     selectedFile: null,
@@ -2553,6 +2760,7 @@ const createArchive = (section) => {
     selectedNomination: null,
     selectedNominationKey: null,
     manualNominationEnabled: false,
+    contentType: 'video',
   };
 
   const syncManualNomination = () => {
@@ -2568,7 +2776,7 @@ const createArchive = (section) => {
 
   archive.updateNominationMode = () => {
     const totalUploads = archive.uploads.length;
-    const manualOptional = isAdminMode || isDeleteMode;
+    const manualOptional = true; // 항상 직접 입력 가능하도록 변경
     const manualRequired = totalUploads < MIN_UPLOADS_FOR_NOMINATION && !manualOptional;
     const shouldShowManual = manualOptional || manualRequired;
     const previousState = archive.manualNominationEnabled;
@@ -2671,6 +2879,24 @@ const createArchive = (section) => {
   dropzone.addEventListener('drop', (event) => {
     setSelectedFile(archive, event.dataTransfer.files?.[0]);
   });
+
+  // Content type selection handler
+  contentTypeRadios.forEach((radio) => {
+    radio.addEventListener('change', (event) => {
+      const selectedType = event.target.value;
+      archive.contentType = selectedType;
+
+      if (selectedType === 'video') {
+        videoFields.hidden = false;
+        textFields.hidden = true;
+      } else if (selectedType === 'text') {
+        videoFields.hidden = true;
+        textFields.hidden = false;
+        resetSelectedFile(archive);
+      }
+    });
+  });
+
   form.addEventListener('submit', (event) => handleSubmit(event, archive));
   list.addEventListener('click', (event) => handleRemove(event, archive));
   resetSelectedFile(archive);

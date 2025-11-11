@@ -626,6 +626,29 @@
         transform: translateY(-2px) scale(1.03);
         box-shadow: 0 6px 18px rgba(169, 194, 217, 0.5);
       }
+      .upload-admin-actions {
+        margin-top: 0.4rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .upload-admin-actions button {
+        border: 1px dashed rgba(102, 126, 234, 0.5);
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--text-soft);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.75rem;
+        border-radius: 999px;
+        line-height: 1.4;
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+      }
+      .upload-admin-actions button:hover {
+        border-color: var(--primary);
+        color: var(--primary-dark);
+        background: #fff;
+      }
       .upload-delete {
         display: inline-flex;
         align-items: center;
@@ -1330,6 +1353,7 @@ const nominateSkipBtn = document.getElementById('nominate-skip');
 
 /** 업로드 완료 후 지목을 연결하기 위한 마지막 업로드 항목 참조 */
 let lastUploadedItem = null;
+let lastUploadedArchive = null;
 
 let logs = [];
 
@@ -2152,6 +2176,142 @@ const normalizeNomination = (text) =>
 
 const NOMINATION_HINT_MESSAGE = '다음 참여자를 선택하세요.';
 
+const parseSubtitleDetails = (subtitle = '') => {
+  const safeSubtitle = subtitle || '';
+  const nominationMatch = safeSubtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
+  const nomination = nominationMatch ? nominationMatch[1].trim() : '';
+  const withoutNomination = nomination
+    ? safeSubtitle.replace(/\s*·\s*다음 지목:.*$/, '').trim()
+    : safeSubtitle.trim();
+  const parts = withoutNomination
+    .split('·')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const author = parts.shift() || '';
+  const rest = parts.join(' · ');
+  return { author, rest, nomination };
+};
+
+const composeSubtitleFromParts = ({ author = '', rest = '', nomination = '' }) => {
+  const baseParts = [];
+  if (author) baseParts.push(author.trim());
+  if (rest) baseParts.push(rest.trim());
+  let result = baseParts.join(' · ').trim();
+  const normalizedNomination = (nomination || '').trim();
+  if (normalizedNomination) {
+    result = result
+      ? `${result} · 다음 지목: ${normalizedNomination}`
+      : `다음 지목: ${normalizedNomination}`;
+  }
+  return result;
+};
+
+const applySubtitleChange = async (archive, item, newSubtitle, logLabel) => {
+  if (!archive || !item) return false;
+  const previous = item.subtitle || '';
+  const normalizedNewSubtitle = (newSubtitle || '').trim();
+  if ((previous || '').trim() === normalizedNewSubtitle) return false;
+
+  item.subtitle = normalizedNewSubtitle;
+  renderUploads(archive);
+
+  try {
+    if (item.id) {
+      const { error } = await supabase
+        .from(SUPABASE_TABLE)
+        .update({ subtitle: normalizedNewSubtitle || null })
+        .eq('id', item.id);
+      if (error) throw error;
+    }
+    if (logLabel) {
+      addLog(
+        archive.section.id,
+        logLabel,
+        item.title,
+        item.id ? `id=${item.id}` : undefined
+      );
+    }
+    return true;
+  } catch (error) {
+    console.error('자막 업데이트 실패:', error);
+    item.subtitle = previous;
+    renderUploads(archive);
+    alert('변경 사항을 저장하지 못했습니다. 잠시 후 다시 시도해주세요.');
+    return false;
+  }
+};
+
+const updateAuthorForUpload = async (archive, item, authorText) => {
+  const details = parseSubtitleDetails(item.subtitle || '');
+  const newSubtitle = composeSubtitleFromParts({
+    author: authorText,
+    rest: details.rest,
+    nomination: details.nomination
+  });
+  return applySubtitleChange(archive, item, newSubtitle, '등록자 수정');
+};
+
+const updateNominationForUpload = async (archive, item, nominationText) => {
+  const details = parseSubtitleDetails(item.subtitle || '');
+  const newSubtitle = composeSubtitleFromParts({
+    author: details.author,
+    rest: details.rest,
+    nomination: nominationText
+  });
+  return applySubtitleChange(
+    archive,
+    item,
+    newSubtitle,
+    nominationText ? '지목 업데이트' : '지목 제거'
+  );
+};
+
+const openAdminEditAuthorPrompt = (archive, item) => {
+  if (!isAdminMode) return;
+  const details = parseSubtitleDetails(item.subtitle || '');
+  const currentValue = details.author || '';
+  const nextValue = window.prompt('등록자 정보를 "셀 / 이름" 형식으로 입력하세요.', currentValue);
+  if (nextValue === null) return;
+  const normalized = nextValue
+    .split('/')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(' / ');
+  if (!normalized) {
+    alert('등록자 정보를 비워둘 수 없습니다.');
+    return;
+  }
+  updateAuthorForUpload(archive, item, normalized);
+};
+
+const openNominationModalForUpload = (archive, item, nominationText = '') => {
+  if (!nominateModal || !nominateCellInput || !nominateNameInput) return;
+  lastUploadedItem = item;
+  lastUploadedArchive = archive;
+
+  let cellPrefill = '';
+  let namePrefill = '';
+  if (nominationText.includes('/')) {
+    const [cell, name] = nominationText.split('/').map((part) => part.trim());
+    cellPrefill = cell || '';
+    namePrefill = name || '';
+  } else if (nominationText) {
+    namePrefill = nominationText.trim();
+  }
+
+  nominateCellInput.value = cellPrefill;
+  nominateNameInput.value = namePrefill;
+  nominateModal.style.display = 'flex';
+  setTimeout(() => {
+    if (!nominateCellInput || !nominateNameInput) return;
+    if (cellPrefill) {
+      nominateNameInput.focus();
+    } else {
+      nominateCellInput.focus();
+    }
+  }, 100);
+};
+
 const applySelectedNominationToForm = (archive, options = {}) => {
   const { setInputs = false } = options;
   const { cellInput, nameInput, selectedDisplay, nomineeSelect, inlineNomineeList } = archive.elements;
@@ -2592,9 +2752,35 @@ const renderUploads = (archive) => {
       headerEl.append(headerMain, shareBtn);
     }
 
+    let nominationInfo = '';
+    let authorText = '익명 사용자';
+    let avatarText = '감사';
+
+    const canAdminNominate = Boolean(isOwnUpload || isAdminMode);
+    const appendNominationButton = (prefill = '') => {
+      const nominateBtn = document.createElement('button');
+      nominateBtn.type = 'button';
+      nominateBtn.className = 'nominate-add-button';
+      nominateBtn.textContent = '👉 지목하기';
+      nominateBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openNominationModalForUpload(archive, item, prefill);
+      });
+      nominationRow.append(nominateBtn);
+    };
+    const showMissingNominationState = () => {
+      nominationRow.innerHTML = '';
+      const label = document.createElement('span');
+      label.textContent = '다음 지목 정보가 없습니다.';
+      nominationRow.append(label);
+      if (canAdminNominate) {
+        appendNominationButton();
+      }
+    };
+
     if (item.subtitle) {
       const nomMatch = item.subtitle.match(/다음 지목:\s*(.+?)(?:\s*·\s*|$)/);
-      const nominationInfo = nomMatch ? nomMatch[1].trim() : '';
+      nominationInfo = nomMatch ? nomMatch[1].trim() : '';
       const baseSubtitle = nomMatch ? item.subtitle.replace(/·\s*다음 지목:.*$/, '').trim() : item.subtitle;
 
       const parts = baseSubtitle
@@ -2602,62 +2788,47 @@ const renderUploads = (archive) => {
         .map((part) => part.trim())
         .filter(Boolean);
 
-      const authorText = parts.length ? parts[0] : '익명 사용자';
-      authorSpan.textContent = authorText;
-      avatar.textContent = authorText.replace(/[^\p{L}\p{N}]/gu, '').slice(0, 2) || '감사';
+      authorText = parts.length ? parts[0] : '익명 사용자';
+      avatarText = authorText.replace(/[^\p{L}\p{N}]/gu, '').slice(0, 2) || '감사';
 
       if (nominationInfo) {
         nominationRow.textContent = `다음 지목 ${nominationInfo}`;
-      } else if (isOwnUpload) {
-        // 본인 게시물인데 지목 정보가 없으면 지목 추가 버튼
-        nominationRow.innerHTML = '';
-        const nominateBtn = document.createElement('button');
-        nominateBtn.type = 'button';
-        nominateBtn.className = 'nominate-add-button';
-        nominateBtn.textContent = '👉 지목하기';
-        nominateBtn.addEventListener('click', () => {
-          // 지목 모달 열기
-          if (nominateModal && nominateCellInput && nominateNameInput) {
-            lastUploadedItem = item;
-            nominateCellInput.value = '';
-            nominateNameInput.value = '';
-            nominateModal.style.display = 'flex';
-            setTimeout(() => {
-              if (nominateCellInput) nominateCellInput.focus();
-            }, 100);
-          }
-        });
-        nominationRow.append(nominateBtn);
       } else {
-        nominationRow.textContent = '다음 지목 정보가 없습니다.';
+        showMissingNominationState();
       }
     } else {
-      authorSpan.textContent = '익명 사용자';
-      avatar.textContent = '감사';
+      authorText = '익명 사용자';
+      avatarText = '감사';
 
-      if (isOwnUpload) {
-        // 본인 게시물인데 지목 정보가 없으면 지목 추가 버튼
-        nominationRow.innerHTML = '';
-        const nominateBtn = document.createElement('button');
-        nominateBtn.type = 'button';
-        nominateBtn.className = 'nominate-add-button';
-        nominateBtn.textContent = '👉 지목하기';
-        nominateBtn.addEventListener('click', () => {
-          // 지목 모달 열기
-          if (nominateModal && nominateCellInput && nominateNameInput) {
-            lastUploadedItem = item;
-            nominateCellInput.value = '';
-            nominateNameInput.value = '';
-            nominateModal.style.display = 'flex';
-            setTimeout(() => {
-              if (nominateCellInput) nominateCellInput.focus();
-            }, 100);
-          }
-        });
-        nominationRow.append(nominateBtn);
-      } else {
-        nominationRow.textContent = '다음 지목 정보가 없습니다.';
-      }
+      showMissingNominationState();
+    }
+
+    authorSpan.textContent = authorText;
+    avatar.textContent = avatarText;
+
+    if (isAdminMode) {
+      const adminActions = document.createElement('div');
+      adminActions.className = 'upload-admin-actions';
+
+      const editAuthorBtn = document.createElement('button');
+      editAuthorBtn.type = 'button';
+      editAuthorBtn.textContent = '등록자 수정';
+      editAuthorBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openAdminEditAuthorPrompt(archive, item);
+      });
+      adminActions.appendChild(editAuthorBtn);
+
+      const editNominationBtn = document.createElement('button');
+      editNominationBtn.type = 'button';
+      editNominationBtn.textContent = nominationInfo ? '지목 변경' : '지목 추가';
+      editNominationBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openNominationModalForUpload(archive, item, nominationInfo);
+      });
+      adminActions.appendChild(editNominationBtn);
+
+      headerText.appendChild(adminActions);
     }
 
     const nodes = [headerEl];
@@ -2877,6 +3048,7 @@ const handleSubmit = async (event, archive) => {
 
     // 업로드 완료 후 지목 모달 표시
     lastUploadedItem = saved;
+    lastUploadedArchive = archive;
     if (nominateModal && nominateCellInput && nominateNameInput) {
       nominateCellInput.value = '';
       nominateNameInput.value = '';
@@ -3173,37 +3345,22 @@ if (nominateConfirmBtn && nominateCellInput && nominateNameInput) {
       return;
     }
     
-    let mention = '';
-    if (cell && name) {
-      mention = `다음 지목: ${cell} / ${name}`;
-    } else if (cell || name) {
-      // 둘 중 하나만 입력된 경우도 처리
-      mention = `다음 지목: ${cell || name}`;
-    }
-    
-    if (mention) {
-      // 로컬 반영
-      lastUploadedItem.subtitle = `${lastUploadedItem.subtitle} · ${mention}`;
-      // 원격 업데이트 시도
+    const nominationText = cell && name ? `${cell} / ${name}` : (cell || name);
+
+    if (nominationText) {
+      const targetArchive = lastUploadedArchive || archives[0];
       try {
-        if (lastUploadedItem.id) {
-          const { error } = await supabase
-            .from(SUPABASE_TABLE)
-            .update({ subtitle: lastUploadedItem.subtitle })
-            .eq('id', lastUploadedItem.id);
-          if (error) console.warn('지목 저장 실패:', error.message);
-        }
+        await updateNominationForUpload(targetArchive, lastUploadedItem, nominationText);
       } catch (e) {
         console.warn('지목 저장 오류:', e);
       }
-      // 화면 갱신
-      renderUploads(archives[0]);
     }
     nominateModal.style.display = 'none';
     // 입력 필드 초기화
     if (nominateCellInput) nominateCellInput.value = '';
     if (nominateNameInput) nominateNameInput.value = '';
     lastUploadedItem = null;
+    lastUploadedArchive = null;
   });
 }
 
@@ -3214,6 +3371,7 @@ if (nominateSkipBtn) {
     if (nominateCellInput) nominateCellInput.value = '';
     if (nominateNameInput) nominateNameInput.value = '';
     lastUploadedItem = null;
+    lastUploadedArchive = null;
   });
 }
 
